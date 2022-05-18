@@ -39,3 +39,13 @@ class TestNoughtsAndCrossesSearchAlgorithm:
         ])
         win = empty_game.check_for_horizontal_win(playing_grid=empty_game.playing_grid)
         assert win
+
+    def test_horizontal_win_top_left(self, empty_game):
+        empty_game.playing_grid = np.array([
+            [1, 1, 1, -1, 1, 1],
+            [-1, -1, 1, -1, 1, 1],
+            [-1, 1, -1, 1, -1],
+            [-1, 1, -1, 1, -1]
+        ])
+        win = empty_game.check_for_horizontal_wint(playing_grid=empty_game.playing_grid)
+        assert win
