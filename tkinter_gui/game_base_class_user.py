@@ -17,8 +17,8 @@ window.title("Noughts and Crosses")
 window.configure(background=background_col)
 
 # Background frame that should captures everything
-background_frame = tk.Frame(master=window, background=background_col, width=750, height=500, borderwidth=10,
-                            relief=tk.GROOVE)
+background_frame = tk.Frame(master=window, background=background_col, width=750, height=500, borderwidth=3,
+                            relief=tk.RIDGE)
 background_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
 # Game frame that contains the playing board
