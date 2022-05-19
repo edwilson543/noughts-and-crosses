@@ -31,7 +31,7 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
                                     relief=tk.RIDGE)
         background_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
-        # Frame that contains the playing grid
+        # Frame that contains the playing grid (entire left)
         game_frame = tk.Frame(
             master=background_frame, background=GameColour.game_background.value,
             width=FrameDimensions.game_frame.width, height=FrameDimensions.game_frame.height,
@@ -39,14 +39,14 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
         game_frame.grid(row=0, column=0, rowspan=2, sticky="nsew", padx=10, pady=10)
         self.create_playing_grid(master_frame=game_frame)
 
-        # Frame FOR the buttons that control the gameplay
+        # Frame for the buttons that control the gameplay (top-right)
         game_info_frame = tk.Frame(
             master=background_frame, background=GameColour.game_buttons_background.value,
             width=FrameDimensions.game_info_frame.width, height=FrameDimensions.game_info_frame.height,
             borderwidth=5, relief=tk.SUNKEN)
         game_info_frame.grid(row=0, column=1, sticky="n", padx=10, pady=10)
 
-        # Frame for the labels that says the status across multiple games
+        # Frame for the labels that says the status across multiple games (bottom-right)
         historic_info_frame = tk.Frame(
             master=background_frame, background=GameColour.game_status_background.value,
             width=FrameDimensions.historic_info_frame.width, height=FrameDimensions.historic_info_frame.height,
