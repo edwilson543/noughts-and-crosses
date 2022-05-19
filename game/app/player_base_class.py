@@ -1,4 +1,4 @@
-from constants.game_constants import GameValue
+from game.constants.game_constants import GameValue
 
 class Player:
     """Class for the players of the noughts and crosses game."""

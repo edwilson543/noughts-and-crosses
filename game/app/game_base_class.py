@@ -1,5 +1,5 @@
-from app.player_base_class import Player
-from constants.game_constants import GameValue
+from game.app.player_base_class import Player
+from game.constants.game_constants import GameValue
 import numpy as np
 
 class NoughtsAndCrosses:
@@ -50,12 +50,12 @@ class NoughtsAndCrosses:
         """
         for row_index in range(0, self.game_rows_m):
             """
-            All rows are looped over and an array of length self.win_length_k containing just 1s is dot producted with
+            All rows are looped over and an array of length self.win_length_k containing just 1s is dot-producted with
             the elements covered by that window. This works because the board is populated with -1, 0 and 1.
             """
             convoluted_array = np.convolve(playing_grid[row_index],
                                            np.ones(self.win_length_k, dtype=int),
-                                           mode="same") # same key word prevents including first and last index
+                                           mode="valid") # same key word prevents including first and last index
             max_consecutive = max(abs(convoluted_array))
             if max_consecutive == self.win_length_k:
                 return True  # The row contains a winning row
@@ -70,6 +70,9 @@ class NoughtsAndCrosses:
             roll_array = np.ones
             for row_index in range(0, self.game_rows_m):
                 row_index_mod_k = row_index % self.win_length_k
-                roll
+                # Some way of rolling so that diagonals align
+                # Roll shift needs to start at 0 end at k and continue
+                # And then start the 0 shift in each of the rows 0 to k
+                #  TODO
         pass
 
