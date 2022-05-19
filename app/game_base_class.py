@@ -63,26 +63,13 @@ class NoughtsAndCrosses:
                 continue
         return False  # The algorithm has looped over all rows and not found any winning boards
 
-    def check_for_horizontal_wint(self, playing_grid: np.array) -> bool:
-        """
-        Method to check whether a horizontal win has been achieved on the game board.
 
-        Parameters:
-        -----------
-        playing_grid: This is included as a parameter rather than accessing the playing_grid attribute directly so that
-        the method can also be used to check for vertical wins by entering the transpose of the board.
-
-        Returns:
-        --------
-        bool: T/F depending on whether the entered playing_grid exhibits a horizontal win
-        """
-        array_string_list = playing_grid.astype(str).to_list()
-        list_joined_strings = ["".join(array_string_list) for row in array_string_list]
-        if "1111" or "-1-1-1-1" in list_joined_strings:
-            return True  # The row contains a winning row
-        else:
-            return False
 
     def check_for_south_east_diagonal_win(self, playing_grid: np.array) -> bool:
+        for roll_int in range(0, self.win_length_k):
+            roll_array = np.ones
+            for row_index in range(0, self.game_rows_m):
+                row_index_mod_k = row_index % self.win_length_k
+                roll
         pass
 
