@@ -66,13 +66,6 @@ class NoughtsAndCrosses:
 
 
     def check_for_south_east_diagonal_win(self, playing_grid: np.array) -> bool:
-        for roll_int in range(0, self.win_length_k):
-            roll_array = np.ones
-            for row_index in range(0, self.game_rows_m):
-                row_index_mod_k = row_index % self.win_length_k
-                # Some way of rolling so that diagonals align
-                # Roll shift needs to start at 0 end at k and continue
-                # And then start the 0 shift in each of the rows 0 to k
-                #  TODO
+        """Use numpy.diag() method"""
         pass
 
