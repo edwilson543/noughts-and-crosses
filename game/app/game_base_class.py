@@ -1,23 +1,70 @@
 from game.app.player_base_class import Player
 from game.constants.game_constants import GameValue
 import numpy as np
+from typing import Optional
+
 
 class NoughtsAndCrosses:
     """Base class to reflect the game play of a noughts and crosses game."""
+
     def __init__(self,
                  game_rows_m: int,
                  game_cols_n: int,
                  win_length_k: int,
-                 player_o: Player,
-                 player_x: Player,
-                 starting_player: GameValue=GameValue.X):
+                 pos_player: Player,
+                 neg_player: Player,
+                 starting_player: GameValue = None):
         self.game_rows_m = game_rows_m
         self.game_cols_n = game_cols_n
         self.playing_grid = np.zeros((game_rows_m, game_cols_n))
         self.win_length_k = win_length_k
-        self.player_o = player_o
-        self.player_x = player_x
+        self.pos_player = pos_player
+        self.neg_player = neg_player
         self.starting_player = starting_player
+
+    def choose_starting_player(self, player_name: Optional[str], random: bool = True) -> None:
+        """Method to allow manual choice of who goes first."""
+        if random:
+            self.starting_player = np.random.choice([-1, 1])
+        elif player_name == self.pos_player.name:
+            self.starting_player = self.pos_player.active_symbol.value  # this will be 1
+        elif player_name == self.pos_player.name:
+            self.starting_player = self.pos_player.active_symbol.value  # this will be -1
+        else:
+            raise ValueError("Attempted to call choose_starting_player method non-randomly but with a player_name"
+                             "that did not match either of the players.")
+
+    def get_player_turn(self) -> GameValue:
+        """
+        Method to determine who's turn it is to mark the board, using sum of the board 1s/-1s and who went first.
+        If this is the first turn, a player is randomly selected to go first
+
+        Returns:
+        GameValue value (1 or -1) - the piece that will get placed following the next turn. Determined by summing the
+        1s and -1s - whoever has placed the most
+        """
+        board_status = self.playing_grid.sum().sum()
+        if board_status != 0:  # Game has already started
+            player_turn = -board_status
+            return - board_status
+        else:
+            return self.starting_player
+
+    def mark_board(self, row_index: int, col_index: int) -> None:
+        """
+        Method to make a new entry on the game board.
+        Parameters:
+        Row/col index - the index of the playing_grid where the mark will be made
+        Returns:
+        None
+        Outcomes:
+        If the cell is empty, a mark is made, else a value error is raised
+        """
+        if self.playing_grid[row_index, col_index] == 0:
+            marking = self.get_player_turn()
+            self.playing_grid[row_index, col_index] = marking
+        else:
+            raise ValueError(f"mark_board attempted to mark non-empty cell at {row_index, col_index}.")
 
     def winning_board_search(self) -> bool:
         """
@@ -35,6 +82,9 @@ class NoughtsAndCrosses:
         any_win: bool = horizontal_win + vertical_win + south_east_win + south_west_win
         return any_win
 
+    ##########
+    #  Methods called when searching for winning lines
+    ##########
     def check_for_horizontal_win(self, playing_grid: np.array) -> bool:
         """
         Method to check whether a horizontal win has been achieved on the game board.
@@ -55,7 +105,7 @@ class NoughtsAndCrosses:
             """
             convoluted_array = np.convolve(playing_grid[row_index],
                                            np.ones(self.win_length_k, dtype=int),
-                                           mode="valid") # same key word prevents including first and last index
+                                           mode="valid")  # same key word prevents including first and last index
             max_consecutive = max(abs(convoluted_array))
             if max_consecutive == self.win_length_k:
                 return True  # The row contains a winning row
@@ -63,9 +113,6 @@ class NoughtsAndCrosses:
                 continue
         return False  # The algorithm has looped over all rows and not found any winning boards
 
-
-
     def check_for_south_east_diagonal_win(self, playing_grid: np.array) -> bool:
         """Use numpy.diag() method"""
         pass
-

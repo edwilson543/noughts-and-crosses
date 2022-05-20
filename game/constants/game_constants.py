@@ -1,4 +1,3 @@
-import time
 from enum import Enum
 
 class GameValue(Enum):
@@ -6,3 +5,7 @@ class GameValue(Enum):
     X = 1
     O = -1
 
+import numpy as np
+
+arr = np.array([[1, 2], [3, 4]])
+print(arr.sum().sum())
