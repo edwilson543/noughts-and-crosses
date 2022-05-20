@@ -13,7 +13,7 @@ neg_player = Player(name="Balint", active_symbol=GameValue.X)
 
 if __name__ == "__main__" :
     game = NoughtsAndCrossesWindow(game_rows_m=6, game_cols_n=6, win_length_k=3,
-                                   neg_player=neg_player, pos_player=pos_player, starting_player=GameValue.X.value)
+                                   neg_player=neg_player, pos_player=pos_player, starting_player=GameValue.O.value)
     game.playing_grid[2, 2] = -1
     print(game.playing_grid)
     game.launch_playing_window()

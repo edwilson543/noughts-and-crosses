@@ -43,7 +43,7 @@ class NoughtsAndCrosses:
         GameValue value (1 or -1) - the piece that will get placed following the next turn. Determined by summing the
         1s and -1s - whoever has placed the most
         """
-        board_status = self.playing_grid.sum().sum()
+        board_status = int(self.playing_grid.sum().sum())
         if board_status != 0:  # Game has already started
             player_turn = -board_status
             return - board_status

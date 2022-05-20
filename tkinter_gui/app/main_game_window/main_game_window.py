@@ -34,6 +34,7 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
         game_window.mainloop()
 
     def create_all_game_components(self, master_window: tk.Tk):
+        """Method to create all the frames used in the main game window and fill the with their components"""
         # Background frame that contains all components of the game
         background_frame = tk.Frame(master=master_window, background=GameColour.background.value, borderwidth=3,
                                     relief=tk.RIDGE)
@@ -45,7 +46,7 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
             width=FrameDimensions.game_frame.width, height=FrameDimensions.game_frame.height,
             borderwidth=5, relief=tk.SUNKEN)
         game_frame.grid(row=0, column=0, rowspan=2, sticky="nsew", padx=10, pady=10)
-        self.create_playing_grid(master_frame=game_frame)
+        self.populate_empty_playing_grid(master_frame=game_frame)
 
         # Frame for the buttons that control the gameplay (top-right)
         game_info_frame = tk.Frame(
@@ -53,6 +54,7 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
             width=FrameDimensions.game_info_frame.width, height=FrameDimensions.game_info_frame.height,
             borderwidth=5, relief=tk.SUNKEN)
         game_info_frame.grid(row=0, column=1, sticky="n", padx=10, pady=10)
+        self.populate_game_info_grid(master_frame=game_info_frame, playing_grid_frame=game_frame)
 
         # Frame for the labels that says the status across multiple games (bottom-right)
         historic_info_frame = tk.Frame(
@@ -63,8 +65,9 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
 
     ##########
     # Methods relating specifically to the playing grid
+    # TODO this could just be all the populating methods
     ##########
-    def create_playing_grid(self, master_frame: tk.Frame):
+    def populate_empty_playing_grid(self, master_frame: tk.Frame):
 
         """
         Loops over the playing grid and creates an analogous grid of selection buttons.
@@ -85,10 +88,9 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
     # Labels/ buttons on the playing grid
     def occupied_cell_label(self, master_frame: tk.Frame, row_index: int, col_index: int) -> tk.Label:
         """Label widget that shows that a cell is already occupied and displays the relevant marking."""
-        text = GameValue(self.playing_grid[row_index, col_index]).name  # X or O
         occupied_cell_label = tk.Label(
             master=master_frame,
-            text=text,
+            text=self.get_player_turn_marking(),  # X or O
             font=(Font.xo_font.value, floor(self.min_cell_height / 3)),
             background=GameColour.occupied_cell.value, relief=tk.SUNKEN)
         return occupied_cell_label
@@ -131,7 +133,7 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
                                        column=self.active_unconfirmed_cell[1], sticky="nsew")
 
         # Set new unconfirmed cell to be the index and place a label in it
-        self.active_unconfirmed_cell = row_index, col_index
+        self.active_unconfirmed_cell = (row_index, col_index)
         unconfirmed_cell_choice_button = self.unconfirmed_cell_choice_button(master_frame=master_frame)
         unconfirmed_cell_choice_button.grid(row=self.active_unconfirmed_cell[0],
                                             column=self.active_unconfirmed_cell[1],
@@ -153,16 +155,31 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
                                                            col_index=self.active_unconfirmed_cell[1])
         available_cell_button.grid(row=self.active_unconfirmed_cell[0],
                                    column=self.active_unconfirmed_cell[1], sticky="nsew")
-        #  TODO unconfirmed cell choice becomes a label
+        #  TODO unconfirmed cell choice becomes a label when there is no unconfirmed cell
         self.active_unconfirmed_cell = None
 
-    # Lower level methods
-    def get_player_turn_marking(self) -> str:
-        """Method to extract the player turn from the game baseclass as a 1/-1 and return it as an X or O."""
-        turn_int = self.get_player_turn()
-        return GameValue(turn_int).name
+    ##########
+    # Methods relating to the game info grid
+    ##########
 
-    def confirm_cell_choice_button(self, master_frame: tk.Frame) -> tk.Button:
+    def populate_game_info_grid(self, master_frame: tk.Frame, playing_grid_frame: tk.Frame) -> None:
+        """
+        Parameters:
+        ----------
+
+        Returns: None
+
+        Outcomes:
+        Adds confirmation button and player turn info to grid
+        """
+        master_frame.rowconfigure(index=[0, 1], minsize=FrameDimensions.game_info_frame.height/2)
+        master_frame.columnconfigure(index=0, minsize=FrameDimensions.game_info_frame.width)
+        confirm_cell_choice_button = self.confirm_cell_choice_button(button_master_frame=master_frame,
+                                                                     playing_grid_frame=playing_grid_frame)
+        confirm_cell_choice_button.grid(row=1, column=0)
+        # TODO add remaining features and format
+
+    def confirm_cell_choice_button(self, button_master_frame: tk.Frame, playing_grid_frame: tk.Frame) -> tk.Button:
         """
         Parameters:
         __________
@@ -170,9 +187,13 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
         Returns:
         __________
         """
-        pass
+        command_func = partial(self.confirm_cell_choice_button_command, button_master_frame, playing_grid_frame)
+        confirm_cell_choice_button = tk.Button(master=button_master_frame,
+                                               text="Confirm\nSelection", command=command_func)
+        # TODO format the button
+        return confirm_cell_choice_button
 
-    def confirm_cell_choice_button_command(self, master_frame: tk.Frame) -> None:
+    def confirm_cell_choice_button_command(self, button_master_frame: tk.Frame, playing_grid_frame: tk.Frame) -> None:
         """
         Parameters:
         ___________
@@ -182,15 +203,26 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
         Outcomes:
         _________
         Permanently marks the board as shown in the active unconfirmed cell.
+        Updates the backend board (the -1s, 0s and 1s)
         Sets active_unconfirmed_cell to None
-        Removes active_unconfirmed cell button
+
+        # TODO sets the confirmation button to be back to a label
         """
-        occupied_cell_label = self.occupied_cell_label(master_frame=master_frame,
+        occupied_cell_label = self.occupied_cell_label(master_frame=playing_grid_frame,
                                                        row_index=self.active_unconfirmed_cell[0],
                                                        col_index=self.active_unconfirmed_cell[1])
-        occupied_cell_label.grid()
-
+        occupied_cell_label.grid(row=self.active_unconfirmed_cell[0], column=self.active_unconfirmed_cell[1],
+                                 sticky="nsew")
+        print(self.playing_grid)
+        self.mark_board(row_index=self.active_unconfirmed_cell[0], col_index=self.active_unconfirmed_cell[1])
+        self.active_unconfirmed_cell = None
 
     def create_active_game_grid(self, master_frame: tk.Frame):
         """Populates a frame with a label showing who's turn it is, and a button to confirm entry"""
         pass
+
+    # Lower level methods used throughout
+    def get_player_turn_marking(self) -> str:
+        """Method to extract the player turn from the game baseclass as a 1/-1 and return it as an X or O."""
+        turn_int = self.get_player_turn()
+        return GameValue(turn_int).name
