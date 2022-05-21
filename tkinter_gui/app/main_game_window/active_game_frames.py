@@ -233,7 +233,6 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         """
         Method to create the player label's and show who's turn it is to mark the board
         """
-        #  TODO improve this method
         if pos_player:
             player = self.pos_player
         else:
