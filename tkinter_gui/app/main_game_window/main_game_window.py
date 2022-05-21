@@ -2,7 +2,7 @@ from game.app.game_base_class import NoughtsAndCrosses
 from game.app.player_base_class import Player
 from game.constants.game_constants import GameValue
 from tkinter_gui.constants.dimensions import FrameDimensions
-from tkinter_gui.constants.style_and_colours import GameColour
+from tkinter_gui.constants.style_and_colours import Colour
 from tkinter_gui.app.main_game_window.active_game_frames import NoughtsAndCrossesGameFrames
 import tkinter as tk
 from math import floor
@@ -30,20 +30,20 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
         # Define and configure the window
         game_window = tk.Tk()
         game_window.title("Noughts and Crosses")
-        game_window.configure(background=GameColour.window.value)
+        game_window.configure(background=Colour.window.value)
         self.create_all_game_components(master_window=game_window)
         game_window.mainloop()
 
     def create_all_game_components(self, master_window: tk.Tk):
         """Method to create all the frames used in the main game window and fill the with their components"""
         # Background frame that contains all components of the game
-        background_frame = tk.Frame(master=master_window, background=GameColour.background.value, borderwidth=3,
+        background_frame = tk.Frame(master=master_window, background=Colour.background.value, borderwidth=3,
                                     relief=tk.RIDGE)
         background_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
         # Frame that contains the playing grid (entire left)
         game_frame = tk.Frame(
-            master=background_frame, background=GameColour.game_background.value,
+            master=background_frame, background=Colour.game_background.value,
             width=FrameDimensions.game_frame.width, height=FrameDimensions.game_frame.height,
             borderwidth=5, relief=tk.SUNKEN)
         game_frame.grid(row=0, column=0, rowspan=2, sticky="nsew", padx=10, pady=10)
@@ -52,7 +52,7 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
 
         # Frame for the buttons that control the gameplay (top-right)
         game_info_frame = tk.Frame(
-            master=background_frame, background=GameColour.game_buttons_background.value,
+            master=background_frame, background=Colour.game_buttons_background.value,
             width=FrameDimensions.game_info_frame.width, height=FrameDimensions.game_info_frame.height,
             borderwidth=5, relief=tk.SUNKEN)
         game_info_frame.grid(row=0, column=1, sticky="n", padx=10, pady=10)
@@ -60,7 +60,7 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
 
         # Frame for the labels that says the status across multiple games (bottom-right)
         historic_info_frame = tk.Frame(
-            master=background_frame, background=GameColour.game_status_background.value,
+            master=background_frame, background=Colour.game_status_background.value,
             width=FrameDimensions.historic_info_frame.width, height=FrameDimensions.historic_info_frame.height,
             borderwidth=5, relief=tk.SUNKEN)
         historic_info_frame.grid(row=1, column=1, sticky="s", padx=10, pady=10)
@@ -76,4 +76,3 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
             starting_player=self.starting_player
         )
         return game_frames_carrier
-
