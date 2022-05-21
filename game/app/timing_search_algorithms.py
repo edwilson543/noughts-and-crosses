@@ -1,6 +1,6 @@
 import numpy as np
 from time import perf_counter_ns
-# TODO
+# TODO write this up a bit
 
 def timer(func):
     def timer_wrapper(*args, **kwargs):

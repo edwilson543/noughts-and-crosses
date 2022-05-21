@@ -6,10 +6,18 @@ from tkinter_gui.constants.style_and_colours import Colour, Font, Relief
 import tkinter as tk
 from math import floor
 from functools import partial
+from dataclasses import dataclass
+import numpy as np
 import logging
 
 
-#  TODO whether need to destroy replaced widgets, for fine to judt grid in a new one
+@dataclass(frozen=False)
+class WidgetManager:
+    playing_grid: np.array
+    confirmation_button: tk.Button = None
+    pos_player_label: tk.Label = None
+    neg_player_label: tk.Label = None
+
 
 class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
     def __init__(self,
@@ -19,11 +27,11 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
                  pos_player: Player,
                  neg_player: Player,
                  starting_player: GameValue = GameValue.X,
-                 active_unconfirmed_cell: (int, int) = None,
-                 playing_grid_widget_dict: dict = None):
+                 active_unconfirmed_cell: (int, int) = None):
         super().__init__(game_rows_m, game_cols_n, win_length_k, pos_player, neg_player, starting_player)
         self.active_unconfirmed_cell = active_unconfirmed_cell
-        self.playing_grid_widget_dict = playing_grid_widget_dict
+        self.widget_manager = WidgetManager(playing_grid=np.empty(shape=(game_rows_m, game_cols_n),
+                                                                  dtype=object))
         self.min_cell_height = floor(FrameDimensions.game_frame.height / game_rows_m)
         self.min_cell_width = floor(FrameDimensions.game_frame.width / game_cols_n)
 
@@ -42,13 +50,12 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         master_frame.columnconfigure(index=list(range(0, self.game_cols_n)),
                                      minsize=self.min_cell_width,
                                      weight=1)
-        self.playing_grid_widget_dict = {}
         for row_index in range(0, self.game_rows_m):
             for col_index in range(0, self.game_cols_n):
                 available_cell_button = self.available_cell_button(master_frame=master_frame,
                                                                    row_index=row_index, col_index=col_index)
                 available_cell_button.grid(row=row_index, column=col_index, sticky="nsew", padx=1, pady=1)
-                self.playing_grid_widget_dict[(row_index, col_index)] = available_cell_button
+                self.widget_manager.playing_grid[row_index, col_index] = available_cell_button
 
     def populate_game_info_grid(self, master_frame: tk.Frame, playing_grid_frame: tk.Frame) -> None:
         """
@@ -73,9 +80,9 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         player_turn_label = self.player_turn_label(master_frame=master_frame)
         player_turn_label.grid(row=0, column=0, columnspan=3, padx=5, pady=5, sticky="nsew")
 
-        pos_player_label = self.player_label(master_frame=master_frame, player=self.pos_player)
+        pos_player_label = self.player_label(master_frame=master_frame, pos_player=True)
         pos_player_label.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
-        neg_player_label = self.player_label(master_frame=master_frame, player=self.neg_player)
+        neg_player_label = self.player_label(master_frame=master_frame, pos_player=False)
         neg_player_label.grid(row=1, column=2, padx=5, pady=5, sticky="nsew")
 
         # TODO add remaining features and format
@@ -130,12 +137,12 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         """
         logging.info(f"Available cell button clicked at {row_index, col_index}")
         # Activate the confirmation button
-        self.playing_grid_widget_dict["CONFIRMATION"]["state"] = tk.NORMAL
+        self.widget_manager.confirmation_button["state"] = tk.NORMAL
 
         logging.info(f"Existing active unconfirmed cell: {self.active_unconfirmed_cell}")
         if self.active_unconfirmed_cell is not None:
             # Destroy existing active unconfirmed cell choice button
-            self.playing_grid_widget_dict[self.active_unconfirmed_cell].destroy()
+            self.widget_manager.playing_grid[self.active_unconfirmed_cell].destroy()
 
             # Replace destroyed unconfirmed cell choice button with an available cell button
             available_cell_button = self.available_cell_button(master_frame=master_frame,
@@ -143,7 +150,7 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
                                                                col_index=self.active_unconfirmed_cell[1])
             available_cell_button.grid(row=self.active_unconfirmed_cell[0],
                                        column=self.active_unconfirmed_cell[1], sticky="nsew")
-            self.playing_grid_widget_dict[self.active_unconfirmed_cell] = available_cell_button
+            self.widget_manager.playing_grid[self.active_unconfirmed_cell] = available_cell_button
             logging.info(f"New available cell button created at: {row_index, col_index}")
 
         # Set new unconfirmed cell to be the index, and place an unconfirmed cell choice button in it
@@ -152,7 +159,7 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         unconfirmed_cell_choice_button.grid(row=self.active_unconfirmed_cell[0],
                                             column=self.active_unconfirmed_cell[1],
                                             sticky="nsew", padx=1, pady=1)
-        self.playing_grid_widget_dict[self.active_unconfirmed_cell] = unconfirmed_cell_choice_button
+        self.widget_manager.playing_grid[self.active_unconfirmed_cell] = unconfirmed_cell_choice_button
         logging.info(f"New unconfirmed cell created at: {self.active_unconfirmed_cell}")
 
     def unconfirmed_cell_choice_button_command(self, master_frame: tk.Frame) -> None:
@@ -170,7 +177,7 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         logging.info(f"Unconfirmed cell choice button clicked at {self.active_unconfirmed_cell}")
 
         # Destroy existing unconfirmed cell choice button
-        self.playing_grid_widget_dict[self.active_unconfirmed_cell].destroy()
+        self.widget_manager.playing_grid[self.active_unconfirmed_cell].destroy()
 
         # Replace destroyed unconfirmed cell choice button with an available cell choice button
         available_cell_button = self.available_cell_button(master_frame=master_frame,
@@ -178,12 +185,12 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
                                                            col_index=self.active_unconfirmed_cell[1])
         available_cell_button.grid(row=self.active_unconfirmed_cell[0],
                                    column=self.active_unconfirmed_cell[1], sticky="nsew")
-        self.playing_grid_widget_dict[self.active_unconfirmed_cell] = available_cell_button
+        self.widget_manager.playing_grid[self.active_unconfirmed_cell] = available_cell_button
         logging.info(f"New available cell button created at {self.active_unconfirmed_cell}")
 
         # Indicate that there is now no active unconfirmed cell and disable confirmation button
         self.active_unconfirmed_cell = None
-        self.playing_grid_widget_dict["CONFIRMATION"]["state"] = tk.DISABLED
+        self.widget_manager.confirmation_button["state"] = tk.DISABLED
 
     ##########
     # Buttons and labels relating to the game_info_grid
@@ -207,7 +214,7 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
             font=(Font.default_font.value, floor(FrameDimensions.game_info_frame.height / 10)),
             text="Confirm\nSelection")
 
-        self.playing_grid_widget_dict["CONFIRMATION"] = confirm_cell_choice_button
+        self.widget_manager.confirmation_button = confirm_cell_choice_button
         return confirm_cell_choice_button
 
     @staticmethod
@@ -222,10 +229,15 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
                                      font=(Font.default_font.value, floor(FrameDimensions.game_info_frame.height / 10)))
         return player_turn_label
 
-    def player_label(self, master_frame: tk.Frame, player: Player) -> tk.Label:
+    def player_label(self, master_frame: tk.Frame, pos_player: bool) -> tk.Label:
         """
         Method to create the player label's and show who's turn it is to mark the board
         """
+        #  TODO improve this method
+        if pos_player:
+            player = self.pos_player
+        else:
+            player = self.neg_player
         x_or_o = GameValue(player.active_symbol).name
         text = f"{player.name}:\n{x_or_o}"
         colour = self.get_player_label_colour(player=player)
@@ -235,7 +247,10 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
                                 background=colour,
                                 font=(Font.default_font.value, floor(FrameDimensions.game_info_frame.height / 10)),
                                 relief=relief)
-        self.playing_grid_widget_dict[f"{player.name}"] = player_label  # So the colour can be changed
+        if pos_player:
+            self.widget_manager.pos_player_label = player_label
+        else:
+            self.widget_manager.neg_player_label = player_label
         return player_label
 
     ##########
@@ -259,7 +274,7 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         """
 
         # Reset the cell choice button to disabled
-        self.playing_grid_widget_dict["CONFIRMATION"]["state"] = tk.DISABLED
+        self.widget_manager.confirmation_button["state"] = tk.DISABLED
 
         # Permanently mark the board as shown in the active unconfirmed cell
         occupied_cell_label = self.occupied_cell_label(master_frame=playing_grid_frame)
@@ -269,8 +284,8 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         self.active_unconfirmed_cell = None
 
         # Switch which player's label is highlighted
-        pos_player_label = self.playing_grid_widget_dict[f"{self.pos_player.name}"]
-        neg_player_label = self.playing_grid_widget_dict[f"{self.neg_player.name}"]
+        pos_player_label = self.widget_manager.pos_player_label
+        neg_player_label = self.widget_manager.neg_player_label
 
         pos_player_label.configure(background=self.get_player_label_colour(player=self.pos_player),
                                    relief=self.get_player_label_relief(player=self.pos_player))

@@ -2,13 +2,16 @@ from game.app.game_base_class import NoughtsAndCrosses
 import pytest
 import numpy as np
 
+
 @pytest.fixture(scope="module")
 def test_rows():
     return 4
 
+
 @pytest.fixture(scope="module")
 def test_cols():
     return 6
+
 
 @pytest.fixture(scope="module")
 def test_win_length():
@@ -28,7 +31,6 @@ class TestNoughtsAndCrossesSearchAlgorithm:
             pos_player=None,
             neg_player=None,
             starting_player=None)
-
 
     def test_horizontal_win_top_left(self, empty_game):
         empty_game.playing_grid = np.array([
