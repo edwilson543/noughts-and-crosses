@@ -26,10 +26,8 @@ class Colour(Enum):
 
 class Font(Enum):
     xo_font = "Times New Roman"
-    info_panels = "Didot"
+    default_font = "Didot"
 
-
-# TODO add reliefs, padding etc.
 
 class Relief(Enum):
     available_cell = tk.RAISED

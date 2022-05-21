@@ -204,7 +204,7 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
             state=tk.DISABLED,
             background=Colour.unconfirmed_cell.value,
             foreground=Colour.info_panels_font.value,
-            font=(Font.info_panels.value, floor(FrameDimensions.game_info_frame.height / 10)),
+            font=(Font.default_font.value, floor(FrameDimensions.game_info_frame.height / 10)),
             text="Confirm\nSelection")
 
         self.playing_grid_widget_dict["CONFIRMATION"] = confirm_cell_choice_button
@@ -219,7 +219,7 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
                                      text="Player's Turn:",
                                      relief=Relief.players_turn.value,
                                      background=Colour.players_turn_label.value,
-                                     font=(Font.info_panels.value, floor(FrameDimensions.game_info_frame.height / 10)))
+                                     font=(Font.default_font.value, floor(FrameDimensions.game_info_frame.height / 10)))
         return player_turn_label
 
     def player_label(self, master_frame: tk.Frame, player: Player) -> tk.Label:
@@ -233,7 +233,7 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         player_label = tk.Label(master=master_frame,
                                 text=text,
                                 background=colour,
-                                font=(Font.info_panels.value, floor(FrameDimensions.game_info_frame.height / 10)),
+                                font=(Font.default_font.value, floor(FrameDimensions.game_info_frame.height / 10)),
                                 relief=relief)
         self.playing_grid_widget_dict[f"{player.name}"] = player_label  # So the colour can be changed
         return player_label

@@ -18,3 +18,4 @@ class FrameDimensions:
     historic_info_frame = historic_info_frame
 
 #  TODO padding and border width
+#  Need to align widths of game info panels after padding

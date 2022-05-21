@@ -40,6 +40,9 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
         background_frame = tk.Frame(master=master_window, background=Colour.background.value, borderwidth=3,
                                     relief=tk.RIDGE)
         background_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+        background_frame.rowconfigure(index=[0, 1], minsize=FrameDimensions.game_frame.height/2, weight=1)
+        background_frame.columnconfigure(index=0, minsize=FrameDimensions.game_frame.width, weight=1)
+        background_frame.columnconfigure(index=1, minsize=FrameDimensions.game_info_frame.width, weight=1)
 
         # Frame that contains the playing grid (entire left)
         game_frame = tk.Frame(
