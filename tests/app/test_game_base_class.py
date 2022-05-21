@@ -25,8 +25,8 @@ class TestNoughtsAndCrossesSearchAlgorithm:
             game_rows_m=test_rows,
             game_cols_n=test_rows,
             win_length_k=test_win_length,
-            player_o=None,
-            player_x=None,
+            pos_player=None,
+            neg_player=None,
             starting_player=None)
 
 
