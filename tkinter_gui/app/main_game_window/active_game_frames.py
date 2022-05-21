@@ -26,10 +26,9 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         self.min_cell_height = floor(FrameDimensions.game_frame.height / game_rows_m)
         self.min_cell_width = floor(FrameDimensions.game_frame.width / game_cols_n)
 
-
     ##########
     # Methods relating specifically to the playing grid
-    # TODO this could just be all the populating methods
+    # TODO this could just be all the populating methods up top
     ##########
     def populate_empty_playing_grid(self, master_frame: tk.Frame):
 
@@ -52,7 +51,7 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
                 playing_grid_widget_dict[(row_index, col_index)] = available_cell_button
 
     # Labels/ buttons on the playing grid
-    def occupied_cell_label(self, master_frame: tk.Frame, row_index: int, col_index: int) -> tk.Label:
+    def occupied_cell_label(self, master_frame: tk.Frame) -> tk.Label:
         """Label widget that shows that a cell is already occupied and displays the relevant marking."""
         occupied_cell_label = tk.Label(
             master=master_frame,
@@ -138,7 +137,7 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         Outcomes:
         Adds confirmation button and player turn info to grid
         """
-        master_frame.rowconfigure(index=[0, 1], minsize=FrameDimensions.game_info_frame.height/2)
+        master_frame.rowconfigure(index=[0, 1], minsize=FrameDimensions.game_info_frame.height / 2)
         master_frame.columnconfigure(index=0, minsize=FrameDimensions.game_info_frame.width)
         confirm_cell_choice_button = self.confirm_cell_choice_button(button_master_frame=master_frame,
                                                                      playing_grid_frame=playing_grid_frame)
@@ -156,7 +155,7 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         command_func = partial(self.confirm_cell_choice_button_command, button_master_frame, playing_grid_frame)
         confirm_cell_choice_button = tk.Button(master=button_master_frame,
                                                command=command_func,
-                                               state=tk.DISABLED,
+                                               # state=tk.DISABLED, # TODO
                                                text="Confirm\nSelection")
         # TODO format the button
         return confirm_cell_choice_button
@@ -176,9 +175,7 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
 
         # TODO sets the confirmation button to be back to a label
         """
-        occupied_cell_label = self.occupied_cell_label(master_frame=playing_grid_frame,
-                                                       row_index=self.active_unconfirmed_cell[0],
-                                                       col_index=self.active_unconfirmed_cell[1])
+        occupied_cell_label = self.occupied_cell_label(master_frame=playing_grid_frame)
         occupied_cell_label.grid(row=self.active_unconfirmed_cell[0], column=self.active_unconfirmed_cell[1],
                                  sticky="nsew")
         print(self.playing_grid)
