@@ -40,14 +40,13 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
         background_frame = tk.Frame(master=master_window, background=Colour.background.value, borderwidth=3,
                                     relief=tk.RIDGE)
         background_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
-        background_frame.rowconfigure(index=[0, 1], minsize=FrameDimensions.game_frame.height/2, weight=1)
+        background_frame.rowconfigure(index=[0, 1], minsize=FrameDimensions.game_info_frame.height, weight=1)
         background_frame.columnconfigure(index=0, minsize=FrameDimensions.game_frame.width, weight=1)
         background_frame.columnconfigure(index=1, minsize=FrameDimensions.game_info_frame.width, weight=1)
 
         # Frame that contains the playing grid (entire left)
         game_frame = tk.Frame(
             master=background_frame, background=Colour.game_background.value,
-            width=FrameDimensions.game_frame.width, height=FrameDimensions.game_frame.height,
             borderwidth=5, relief=tk.SUNKEN)
         game_frame.grid(row=0, column=0, rowspan=2, sticky="nsew", padx=10, pady=10)
         active_game_frames_carrier = self.get_active_game_frames_object()
@@ -56,17 +55,15 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
         # Frame for the buttons that control the gameplay (top-right)
         game_info_frame = tk.Frame(
             master=background_frame, background=Colour.game_buttons_background.value,
-            width=FrameDimensions.game_info_frame.width, height=FrameDimensions.game_info_frame.height,
             borderwidth=5, relief=tk.SUNKEN)
-        game_info_frame.grid(row=0, column=1, sticky="n", padx=10, pady=10)
+        game_info_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
         active_game_frames_carrier.populate_game_info_grid(master_frame=game_info_frame, playing_grid_frame=game_frame)
 
         # Frame for the labels that says the status across multiple games (bottom-right)
         historic_info_frame = tk.Frame(
             master=background_frame, background=Colour.game_status_background.value,
-            width=FrameDimensions.historic_info_frame.width, height=FrameDimensions.historic_info_frame.height,
             borderwidth=5, relief=tk.SUNKEN)
-        historic_info_frame.grid(row=1, column=1, sticky="s", padx=10, pady=10)
+        historic_info_frame.grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
 
     def get_active_game_frames_object(self) -> NoughtsAndCrossesGameFrames:
         """Method to instantiate the object that carries the active game frames"""
