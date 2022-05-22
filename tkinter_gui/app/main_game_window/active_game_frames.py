@@ -38,6 +38,9 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
     ##########
     # Methods populating the two frames with the relevant buttons
     ##########
+    def initiate_widget_manager(self):
+        pass
+
     def populate_empty_playing_grid(self, master_frame: tk.Frame):
 
         """
@@ -86,6 +89,9 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         neg_player_label.grid(row=1, column=2, padx=5, pady=5, sticky="nsew")
 
         # TODO add remaining features and format
+
+    def clear_playing_grid(self):
+        pass
 
     ##########
     # Labels/ buttons on the playing grid

@@ -23,6 +23,13 @@ class Colour(Enum):
     players_turn_label = "#616bed"
     players_turn_font = "black"
 
+    # Inside the historic game info frame
+    game_win_count_label = "#013d0c"
+    game_win_count_font = "white"
+    player_win_count_labels = "#013d0c"
+    player_win_count_font = "white"
+
+
 
 class Font(Enum):
     xo_font = "Times New Roman"

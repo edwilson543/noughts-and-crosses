@@ -4,13 +4,15 @@ from game.constants.game_constants import GameValue
 from tkinter_gui.constants.dimensions import FrameDimensions
 from tkinter_gui.constants.style_and_colours import Colour
 from tkinter_gui.app.main_game_window.active_game_frames import NoughtsAndCrossesGameFrames
+from tkinter_gui.app.main_game_window.historic_games_frame import HistoricInfoFrame
+from tkinter_gui.app.main_game_window.widget_management import MainWindowWidgetManager
 import tkinter as tk
 from math import floor
 
 
-#  TODO whether need to destroy replaced widgets, for fine to judt grid in a new one
+#  TODO whether need to destroy replaced widgets, for fine to just grid in a new one
 
-class NoughtsAndCrossesWindow(NoughtsAndCrosses):
+class NoughtsAndCrossesWindow(NoughtsAndCrosses):  # TODO update to not be a subclass - doesn't need the methods
     def __init__(self,
                  game_rows_m: int,
                  game_cols_n: int,
@@ -18,9 +20,11 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
                  pos_player: Player,
                  neg_player: Player,
                  starting_player: GameValue = GameValue.X,
-                 active_unconfirmed_cell: (int, int) = None):
+                 active_unconfirmed_cell: (int, int) = None,
+                 widget_manager=MainWindowWidgetManager()):
         super().__init__(game_rows_m, game_cols_n, win_length_k, pos_player, neg_player, starting_player)
         self.active_unconfirmed_cell = active_unconfirmed_cell
+        self.widget_manager = widget_manager
         self.game_frames = NoughtsAndCrossesGameFrames
         self.min_cell_height = floor(FrameDimensions.game_frame.height / game_rows_m)
         self.min_cell_width = floor(FrameDimensions.game_frame.width / game_cols_n)
@@ -64,8 +68,11 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
             master=background_frame, background=Colour.game_status_background.value,
             borderwidth=5, relief=tk.SUNKEN)
         historic_info_frame.grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
+        historic_info_frame_contents = self.get_historic_info_frame_contents()
+        historic_info_frame_contents.populate_historic_info_grid(master_frame=historic_info_frame)
 
-    def get_active_game_frames_object(self) -> NoughtsAndCrossesGameFrames:
+
+    def get_active_game_frames_object(self) -> NoughtsAndCrossesGameFrames:  # TODO update and split out
         """Method to instantiate the object that carries the active game frames"""
         game_frames_carrier = NoughtsAndCrossesGameFrames(
             game_rows_m=self.game_rows_m,
@@ -76,3 +83,12 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):
             starting_player=self.starting_player
         )
         return game_frames_carrier
+
+    def get_historic_info_frame_contents(self):
+        """Method to get the historic info frame"""
+        historic_info_frame = HistoricInfoFrame(
+            pos_player=self.pos_player,
+            neg_player=self.neg_player,
+            widget_manager=self.widget_manager
+        )
+        return historic_info_frame
