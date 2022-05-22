@@ -1,7 +1,7 @@
 from game.app.player_base_class import Player
 from game.constants.game_constants import GameValue
 import numpy as np
-from typing import Optional
+from typing import Optional, Union
 
 
 class NoughtsAndCrosses:
@@ -44,7 +44,7 @@ class NoughtsAndCrosses:
         1s and -1s - whoever has placed the most
         """
         board_status = self.playing_grid.sum().sum()
-        if board_status != 0:  # Game has already started
+        if board_status != 0:  # The starting player has had one more turn than the other player
             player_turn = -board_status
             return - board_status
         else:
@@ -66,19 +66,31 @@ class NoughtsAndCrosses:
         else:
             raise ValueError(f"mark_board attempted to mark non-empty cell at {row_index, col_index}.")
 
+    def get_winning_player(self) -> Union[None, Player]:
+        """Method to perform the winning board search, and return None or the winning player"""
+        if not self.winning_board_search():
+            return None
+        else:
+            previous_mark_made_by = - self.get_player_turn()
+            if previous_mark_made_by == self.pos_player.active_symbol.value:
+                return self.pos_player
+            else:
+                return self.neg_player
+
     def winning_board_search(self) -> bool:
         """
         Method to check whether or not the board has reached a winning state.
+        Note that the search will stop as soon as a win is found (i.e. not check subsequent arrays in the list).
+        However, all rows are checked first, then verticals etc. so # todo check the impact of adding a random shuffle
+
         Returns:
         -------
         bool: True if a player has won, else false
-
-        Note there is no need to return the winning player, as this is implied by the starting_player attribute.
         """
         row_arrays: list = self.get_row_arrays()
         col_arrays: list = self.get_col_arrays()
         south_east_diag_arrays: list = self.get_south_east_diagonal_arrays(playing_grid=self.playing_grid)
-        north_west_diag_arrays: list = self.get_north_west_diagonal_arrays(playing_grid=self.playing_grid)
+        north_west_diag_arrays: list = self.get_south_west_diagonal_arrays()
         all_arrays: list = row_arrays + col_arrays + south_east_diag_arrays + north_west_diag_arrays
         any_win: bool = self.search_array_list_for_win(array_list=all_arrays)
         return any_win
@@ -87,7 +99,13 @@ class NoughtsAndCrosses:
     #  Methods called when searching for winning lines
     ##########
     def search_array_list_for_win(self, array_list: list[np.array]) -> bool:
-        """Searches a list of numpy arrays for one that contains a win"""
+        """
+        Searches a list of numpy arrays for one that contains a win
+
+        Checks all relevant arrays of length at least self.win_length_k, and then convolutes each section of length
+        self.win_length_k them with an array of ones i.e. sums each section. Then checks if the sum of any sections is
+        at least the length of the array.
+        """
         for array in array_list:
             convoluted_array = np.convolve(array, np.ones(self.win_length_k, dtype=int), mode="valid")
             # "valid" kwarg means only where the np.ones array fully overlaps with the row gets calculated
@@ -105,71 +123,20 @@ class NoughtsAndCrosses:
         return col_array_list
 
     def get_south_east_diagonal_arrays(self, playing_grid: np.array) -> list[np.array]:
-        diagonal_offset_list = [*list(range(-(self.game_rows_m - self.win_length_k), 0)),
-                                *list(range(0, self.game_cols_n - self.win_length_k + 1))]
+        """
+        Playing grid parameter included so that this method can be re-used to check for south west diagonals too.
+        The first element in the diagonal_offset_list is the diagonals in the lower triangle and leading diagonal (of
+        at least length self.win_length_k), the second element is those in the upper triangle
+        """
+        diagonal_offset_list = list(range(-(self.game_rows_m - self.win_length_k), 0)) + \
+                               list(range(0, self.game_cols_n - self.win_length_k + 1))
         diagonal_array_list = [np.diagonal(playing_grid, offset) for offset in diagonal_offset_list]
         return diagonal_array_list
 
-    def get_north_west_diagonal_arrays(self, playing_grid) -> list[np.array]:
+    def get_south_west_diagonal_arrays(self) -> list[np.array]:
         """
         Takes the south-east diagonals of the board flipped upside down - does reverse the order of the arrays
         in that the bottom row becomes the top, but otherwise does not affect the length of a win.
         """
         return self.get_south_east_diagonal_arrays(playing_grid=np.flipud(self.playing_grid))
 
-
-    # TODO delete this
-
-    def check_for_horizontal_win(self, playing_grid: np.array, row_count: int) -> bool:
-        #  TODO allow flipping
-        """
-        Method to check whether a horizontal win has been achieved on the game board.
-
-        Parameters:
-        -----------
-        playing_grid: This is included as a parameter rather than accessing the playing_grid attribute directly so that
-        the method can also be used to check for vertical wins by entering the transpose of the board.
-        row_count: Again, included so that transpose search for verticals works properly
-
-        Returns:
-        ----------
-        bool: T/F depending on whether the entered playing_grid exhibits a horizontal win
-        """
-        for row_index in range(0, row_count):
-            """
-            All row_count are looped over and an array of length self.win_length_k containing just 1s is dot-producted with
-            the elements covered by that window. This works because the board is populated with -1, 0 and 1.
-            """
-            convoluted_array = np.convolve(playing_grid[row_index], np.ones(self.win_length_k, dtype=int), mode="valid")
-            # "valid" kwarg means only where the np.ones array fully overlaps with the row gets calculated
-            max_consecutive = max(abs(convoluted_array))
-            if max_consecutive == self.win_length_k:
-                return True  # The row contains a winning row
-
-        return False  # The algorithm has looped over all row_count and not found any winning boards
-
-    def check_for_south_east_diagonal_win(self, playing_grid: np.array, row_count:int, col_count: int) -> bool:
-        """
-        Method that generates all the south-east pointing diagonal arrays from the playing board, of length at
-        least self.win_length_k, and then convolutes each section of length self.win_length_k them with an array of ones
-        i.e. sums each section. Then checks if the sum of any sections is at least the length of the array.
-
-        Parameters:
-        -----------
-        playing_grid: This is included as a parameter rather than accessing the playing_grid attribute directly so that
-        the method can also be used to check for vertical wins by entering the transpose of the board.
-        row_count/col_count: As above, to allow transposing and ensure the method still works
-
-        Returns:
-        ----------
-        bool: T/F depending on whether the entered playing_grid exhibits a horizontal win
-        """
-        diagonal_offset_list = [*list(range(-(row_count - self.win_length_k), 0)),
-                                *list(range(0, col_count - self.win_length_k + 1))]
-        diagonal_arrays = [np.diagonal(self.playing_grid, offset=offset) for offset in diagonal_offset_list]
-        for array in diagonal_arrays:
-            convoluted_array = np.convolve(array, np.ones(self.win_length_k, dtype=int), mode="valid")
-            max_consecutive = max(abs(convoluted_array))
-            if max_consecutive == self.win_length_k:
-                return True  # Diagonals contains a winning array
-        return False  # The algorithm has looped over all south-east diagonals and not found any winning boards
