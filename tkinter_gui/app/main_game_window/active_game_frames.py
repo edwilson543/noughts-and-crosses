@@ -198,11 +198,16 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
 
     def confirm_cell_choice_button(self, button_master_frame: tk.Frame, playing_grid_frame: tk.Frame) -> tk.Button:
         """
+        Master button that confirms the user's choice and therefore initiates all backend processing.
+
         Parameters:
         __________
+        button_master_frame: The frame where this button is located in
+        playing_grid_frame: The frame where all the playing grid buttons are located
 
         Returns:
         __________
+        The formatted button
         """
         command_func = partial(self.confirm_cell_choice_button_command, button_master_frame, playing_grid_frame)
         confirm_cell_choice_button = tk.Button(
@@ -258,9 +263,11 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
 
     def confirm_cell_choice_button_command(self, button_master_frame: tk.Frame, playing_grid_frame: tk.Frame) -> None:
         """
+        Master command to initiate all backend processing
+
         Method to:
         1) Permanently marks the board as shown in the active unconfirmed cell.
-        2) Updates the backend board (the -1s, 0s and 1s)
+        2) Updates the backend board (the -1s, 0s and 1s) and checks whether a player has won
         3) Sets active_unconfirmed_cell to None
         4) Switch which player's label is highlighted/raised
 
@@ -281,6 +288,12 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
                                  sticky="nsew")
         self.mark_board(row_index=self.active_unconfirmed_cell[0], col_index=self.active_unconfirmed_cell[1])
         self.active_unconfirmed_cell = None
+
+        # Check for a win of the game
+        if self.get_winning_player() is not None:
+            # Reset the game and award the player a point
+            pass
+
 
         # Switch which player's label is highlighted
         pos_player_label = self.widget_manager.pos_player_label

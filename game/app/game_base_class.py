@@ -16,7 +16,7 @@ class NoughtsAndCrosses:
                  starting_player: GameValue = None):
         self.game_rows_m = game_rows_m
         self.game_cols_n = game_cols_n
-        self.playing_grid = np.zeros((game_rows_m, game_cols_n))
+        self.playing_grid = np.zeros(shape=(game_rows_m, game_cols_n))
         self.win_length_k = win_length_k
         self.pos_player = pos_player
         self.neg_player = neg_player
@@ -77,6 +77,14 @@ class NoughtsAndCrosses:
             else:
                 return self.neg_player
 
+    def reset_game_board(self) -> None:
+        """Method to reset the game board"""
+        self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n))
+
+    ##########
+    # Method to do the whole board search
+    ##########
+
     def winning_board_search(self) -> bool:
         """
         Method to check whether or not the board has reached a winning state.
@@ -96,8 +104,9 @@ class NoughtsAndCrosses:
         return any_win
 
     ##########
-    #  Methods called when searching for winning lines
+    #  Methods called in winning_board_search
     ##########
+
     def search_array_list_for_win(self, array_list: list[np.array]) -> bool:
         """
         Searches a list of numpy arrays for one that contains a win

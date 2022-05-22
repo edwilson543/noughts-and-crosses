@@ -10,3 +10,7 @@ class Player:
         self.name = name
         self.active_symbol = active_symbol
         self.active_game_win_count = active_game_win_count
+
+    def award_point(self):
+        """Method to award the player a point."""
+        self.active_game_win_count += 1
