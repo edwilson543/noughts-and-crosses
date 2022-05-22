@@ -80,7 +80,8 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):  # TODO update to not be a sub
             win_length_k=self.win_length_k,
             pos_player=self.pos_player,
             neg_player=self.neg_player,
-            starting_player=self.starting_player
+            starting_player=self.starting_player,
+            widget_manager=self.widget_manager
         )
         return game_frames_carrier
 

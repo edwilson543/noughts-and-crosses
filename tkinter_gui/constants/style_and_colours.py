@@ -37,9 +37,17 @@ class Font(Enum):
 
 
 class Relief(Enum):
+    # Playing grid
     available_cell = tk.RAISED
     unconfirmed_cell = tk.RAISED
     occupied_cell = tk.SUNKEN
+
+    # Active info grid
     players_turn = tk.SUNKEN
     active_player_label = tk.RAISED
     inactive_player_label = tk.SUNKEN
+
+    # Historic info grid
+    game_win_count_label = tk.SUNKEN
+    player_win_count_label = tk.SUNKEN
+

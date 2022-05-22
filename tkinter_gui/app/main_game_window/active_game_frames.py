@@ -1,22 +1,17 @@
+"""Module containing the playing grid and active game info (which containts the master conirmation button)"""
+
 from game.app.game_base_class import NoughtsAndCrosses
 from game.app.player_base_class import Player
 from game.constants.game_constants import GameValue
+from tkinter_gui.app.main_game_window.widget_management import MainWindowWidgetManager
 from tkinter_gui.constants.dimensions import FrameDimensions
 from tkinter_gui.constants.style_and_colours import Colour, Font, Relief
 import tkinter as tk
 from math import floor
 from functools import partial
-from dataclasses import dataclass
 import numpy as np
 import logging
 
-
-@dataclass(frozen=False)
-class WidgetManager:
-    playing_grid: np.array
-    confirmation_button: tk.Button = None
-    pos_player_label: tk.Label = None
-    neg_player_label: tk.Label = None
 
 
 class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
@@ -27,20 +22,17 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
                  pos_player: Player,
                  neg_player: Player,
                  starting_player: GameValue = GameValue.X,
-                 active_unconfirmed_cell: (int, int) = None):
+                 active_unconfirmed_cell: (int, int) = None,
+                 widget_manager=MainWindowWidgetManager()):
         super().__init__(game_rows_m, game_cols_n, win_length_k, pos_player, neg_player, starting_player)
         self.active_unconfirmed_cell = active_unconfirmed_cell
-        self.widget_manager = WidgetManager(playing_grid=np.empty(shape=(game_rows_m, game_cols_n),
-                                                                  dtype=object))
+        self.widget_manager = widget_manager
         self.min_cell_height = floor(FrameDimensions.game_frame.height / game_rows_m)
         self.min_cell_width = floor(FrameDimensions.game_frame.width / game_cols_n)
 
     ##########
     # Methods populating the two frames with the relevant buttons
     ##########
-    def initiate_widget_manager(self):
-        pass
-
     def populate_empty_playing_grid(self, master_frame: tk.Frame):
 
         """
@@ -53,6 +45,7 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         master_frame.columnconfigure(index=list(range(0, self.game_cols_n)),
                                      minsize=self.min_cell_width,
                                      weight=1)
+        self.widget_manager.playing_grid = np.empty(shape=(self.game_rows_m, self.game_cols_n), dtype=object)
         for row_index in range(0, self.game_rows_m):
             for col_index in range(0, self.game_cols_n):
                 available_cell_button = self.available_cell_button(master_frame=master_frame,
@@ -90,8 +83,15 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
 
         # TODO add remaining features and format
 
-    def clear_playing_grid(self):
-        pass
+    def clear_playing_grid(self, master_frame: tk.Frame) -> None:
+        """Method to clear the playing grid at the end of a game and fill it with a new one"""
+        for row_index in range(0, self.game_rows_m):
+            for col_index in range(0, self.game_cols_n):
+                self.widget_manager.playing_grid[row_index, col_index].destroy()
+                available_cell_button = self.available_cell_button(master_frame=master_frame,
+                                                                   row_index=row_index, col_index=col_index)
+                available_cell_button.grid(row=row_index, column=col_index, sticky="nsew", padx=1, pady=1)
+                self.widget_manager.playing_grid[row_index, col_index] = available_cell_button
 
     ##########
     # Labels/ buttons on the playing grid
@@ -298,8 +298,10 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         # Check for a win of the game
         if self.get_winning_player() is not None:
             # Reset the game and award the player a point
+            # TODO each time the button is clicked, check whether a win has been achieved
+            # And then update the win count labels accordingly and reset the board (both front and backend)
+            # TODO (longer) launch a pop-up to see if they want to continue playing
             pass
-
 
         # Switch which player's label is highlighted
         pos_player_label = self.widget_manager.pos_player_label
