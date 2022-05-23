@@ -13,7 +13,7 @@ import numpy as np
 import logging
 
 
-class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
+class ActiveGameFrames(NoughtsAndCrosses):
     def __init__(self,
                  game_rows_m: int,
                  game_cols_n: int,

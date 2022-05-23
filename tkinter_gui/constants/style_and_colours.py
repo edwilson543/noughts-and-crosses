@@ -30,7 +30,6 @@ class Colour(Enum):
     player_win_count_font = "white"
 
 
-
 class Font(Enum):
     xo_font = "Times New Roman"
     default_font = "Didot"

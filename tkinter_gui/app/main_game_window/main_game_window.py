@@ -2,13 +2,13 @@ from game.app.player_base_class import Player
 from game.constants.game_constants import GameValue
 from tkinter_gui.constants.dimensions import FrameDimensions
 from tkinter_gui.constants.style_and_colours import Colour
-from tkinter_gui.app.main_game_window.active_game_frames import NoughtsAndCrossesGameFrames
+from tkinter_gui.app.main_game_window.active_game_frames import ActiveGameFrames
 from tkinter_gui.app.main_game_window.historic_games_frame import HistoricInfoFrame
 from tkinter_gui.app.main_game_window.widget_management import MainWindowWidgetManager
 import tkinter as tk
 
 
-class NoughtsAndCrossesWindow:
+class NoughtsAndCrossesWindow(ActiveGameFrames, HistoricInfoFrame):
     def __init__(self,
                  game_rows_m: int,
                  game_cols_n: int,
@@ -16,15 +16,11 @@ class NoughtsAndCrossesWindow:
                  pos_player: Player,
                  neg_player: Player,
                  starting_player: GameValue = GameValue.X,
+                 draw_count: int = 0,
                  active_unconfirmed_cell: (int, int) = None,
                  widget_manager=MainWindowWidgetManager()):
-        self.game_rows_m = game_rows_m
-        self.game_cols_n = game_cols_n
-        self.win_length_k = win_length_k
-        self.pos_player = pos_player
-        self.neg_player = neg_player
-        self.starting_player = starting_player
-        self.widget_manager = widget_manager
+        super().__init__(game_rows_m, game_cols_n, win_length_k, pos_player, neg_player, starting_player,
+                         draw_count, active_unconfirmed_cell, widget_manager)
 
     def launch_playing_window(self):
         """Method for launching the main noughts and crosses game play window and controlling the game flow"""
@@ -52,42 +48,19 @@ class NoughtsAndCrossesWindow:
             master=background_frame, background=Colour.game_background.value,
             borderwidth=5, relief=tk.SUNKEN)
         self.widget_manager.playing_grid_frame.grid(row=0, column=0, rowspan=2, sticky="nsew", padx=10, pady=10)
-        active_game_frames_carrier = self.get_active_game_frames_contents()
-        active_game_frames_carrier.populate_empty_playing_grid()
+        super().populate_empty_playing_grid()
 
         # Frame for the buttons that control the gameplay (top-right)
         self.widget_manager.game_info_frame = tk.Frame(
             master=background_frame, background=Colour.game_buttons_background.value,
             borderwidth=5, relief=tk.SUNKEN)
         self.widget_manager.game_info_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
-        active_game_frames_carrier.populate_game_info_grid()
+        # active_game_frames_carrier.populate_game_info_grid()
+        super().populate_game_info_grid()
 
         # Frame for the labels that says the status across multiple games (bottom-right)
         self.widget_manager.historic_info_frame = tk.Frame(
             master=background_frame, background=Colour.game_status_background.value,
             borderwidth=5, relief=tk.SUNKEN)
         self.widget_manager.historic_info_frame.grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
-        historic_info_frame_contents = self.get_historic_info_frame_contents()
-        historic_info_frame_contents.populate_historic_info_grid()
-
-    def get_active_game_frames_contents(self) -> NoughtsAndCrossesGameFrames:
-        """Method to instantiate the object that carries the active game frames"""
-        game_frames_carrier = NoughtsAndCrossesGameFrames(
-            game_rows_m=self.game_rows_m,
-            game_cols_n=self.game_cols_n,
-            win_length_k=self.win_length_k,
-            pos_player=self.pos_player,
-            neg_player=self.neg_player,
-            starting_player=self.starting_player,
-            widget_manager=self.widget_manager
-        )
-        return game_frames_carrier
-
-    def get_historic_info_frame_contents(self):
-        """Method to get the historic info frame"""
-        historic_info_frame = HistoricInfoFrame(
-            pos_player=self.pos_player,
-            neg_player=self.neg_player,
-            widget_manager=self.widget_manager
-        )
-        return historic_info_frame
+        super().populate_historic_info_grid()
