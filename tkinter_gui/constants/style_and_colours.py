@@ -20,7 +20,7 @@ class Colour(Enum):
 
     # Inside the game info frame
     info_panels_font = "black"
-    players_turn_label = "#616bed"
+    players_turn_label = "#8bb2f0"
     players_turn_font = "black"
 
     # Inside the historic game info frame
@@ -44,8 +44,9 @@ class Relief(Enum):
 
     # Active info grid
     players_turn = tk.SUNKEN
-    active_player_label = tk.RAISED
-    inactive_player_label = tk.SUNKEN
+    active_player_confirmation_button = tk.RAISED
+    inactive_player_confirmation_button = tk.SUNKEN
+    player_labels = tk.SUNKEN
 
     # Historic info grid
     game_win_count_label = tk.SUNKEN

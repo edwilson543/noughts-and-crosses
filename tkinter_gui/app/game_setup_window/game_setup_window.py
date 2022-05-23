@@ -1,0 +1,1 @@
+"""Module to display the window that appears when players are setting up the game."""
