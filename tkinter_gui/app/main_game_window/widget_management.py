@@ -23,3 +23,4 @@ class MainWindowWidgetManager:
     historic_info_frame: tk.Frame = None
     pos_player_win_count_label: tk.Label = None
     neg_player_win_count_label: tk.Label = None
+    draw_count_label: tk.Label = None

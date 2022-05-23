@@ -13,7 +13,6 @@ import numpy as np
 import logging
 
 
-
 class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
     def __init__(self,
                  game_rows_m: int,
@@ -22,9 +21,10 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
                  pos_player: Player,
                  neg_player: Player,
                  starting_player: GameValue = GameValue.X,
+                 draw_count: int = 0,
                  active_unconfirmed_cell: (int, int) = None,
                  widget_manager=MainWindowWidgetManager()):
-        super().__init__(game_rows_m, game_cols_n, win_length_k, pos_player, neg_player, starting_player)
+        super().__init__(game_rows_m, game_cols_n, win_length_k, pos_player, neg_player, starting_player, draw_count)
         self.active_unconfirmed_cell = active_unconfirmed_cell
         self.widget_manager = widget_manager
         self.min_cell_height = floor(FrameDimensions.game_frame.height / game_rows_m)
@@ -68,9 +68,9 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
 
         """
         self.widget_manager.game_info_frame.rowconfigure(
-            index=[0, 1, 2], minsize=floor(FrameDimensions.game_info_frame.height / 3))
+            index=[0, 1, 2], minsize=floor(FrameDimensions.game_info_frame.height / 3), weight=1)
         self.widget_manager.game_info_frame.columnconfigure(
-            index=[0, 1, 2], minsize=floor(FrameDimensions.game_info_frame.width / 3))
+            index=[0, 1, 2], minsize=floor(FrameDimensions.game_info_frame.width / 3), weight =1)
 
         confirm_cell_choice_button = self.confirm_cell_choice_button()
         confirm_cell_choice_button.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
@@ -310,8 +310,9 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
 
     def end_of_game_check(self) -> None:
         """
-        Method called each time the confirm button is clicked, to determine whether the game has been won, and
-        award a winner if so. Also checks for a draw
+        Method called each time the confirm button is clicked, to:
+        1) Determine whether the game has been won, and award the winner a point if so.
+        2) Check if the game has reached stalemate (a draw)
         """
         winning_player = self.get_winning_player()
         if winning_player is not None:
@@ -326,9 +327,12 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
                 self.neg_player.award_point()
                 self.widget_manager.neg_player_win_count_label.configure(text=self.neg_player.win_count_label_text())
             else:
-                # TODO update the draws button
-                pass
-
+                raise ValueError("winning_player is not None in end_of_game check but neither player is equal to the"
+                                 "winning player.")
+        elif self.check_for_draw():
+            self.reset_game_board()  # backend
+            self.clear_playing_grid()  # frontend
+            self.widget_manager.draw_count_label.configure(text=f"Draws:\n{self.draw_count}")
 
     #  Lower level methods used for formatting
     def get_player_turn_marking(self) -> str:

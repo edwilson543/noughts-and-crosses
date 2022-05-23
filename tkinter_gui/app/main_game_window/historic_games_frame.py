@@ -25,18 +25,19 @@ class HistoricInfoFrame:
         self.widget_manager.historic_info_frame.rowconfigure(
             index=[0, 1], minsize=floor(FrameDimensions.historic_info_frame.height / 2), weight=1)
         self.widget_manager.historic_info_frame.columnconfigure(
-            index=[0, 1], minsize=floor(FrameDimensions.historic_info_frame.width / 2), weight=1)
+            index=[0, 1, 2], minsize=floor(FrameDimensions.historic_info_frame.width / 2), weight=1)
 
         game_win_count_label = self.get_game_win_count_label()
-        game_win_count_label.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+        game_win_count_label.grid(row=0, column=0, columnspan=3, sticky="nsew", padx=5, pady=5)
 
-        pos_player_label = self.get_player_win_count_label(player=self.pos_player)
-        self.widget_manager.pos_player_win_count_label = pos_player_label  # Make globally accessible
-        pos_player_label.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
+        self.widget_manager.pos_player_win_count_label = self.get_player_win_count_label(player=self.pos_player)
+        self.widget_manager.pos_player_win_count_label.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
 
-        neg_player_label = self.get_player_win_count_label(player=self.neg_player)
-        self.widget_manager.neg_player_win_count_label = neg_player_label  # Make globally accessible
-        neg_player_label.grid(row=1, column=1, sticky="nsew", padx=5, pady=5)
+        self.widget_manager.neg_player_win_count_label = self.get_player_win_count_label(player=self.neg_player)
+        self.widget_manager.neg_player_win_count_label.grid(row=1, column=2, sticky="nsew", padx=5, pady=5)
+
+        self.widget_manager.draw_count_label = self.get_draw_count_label()
+        self.widget_manager.draw_count_label.grid(row=1, column=1, sticky="nsew", padx=5, pady=5)
 
     def get_game_win_count_label(self) -> tk.Label:
         game_win_count_label = tk.Label(
@@ -49,10 +50,21 @@ class HistoricInfoFrame:
         )
         return game_win_count_label
 
-    def get_player_win_count_label(self, player: Player):
+    def get_player_win_count_label(self, player: Player) -> tk.Label:
         player_win_count_label = tk.Label(
             master=self.widget_manager.historic_info_frame,
             text=player.win_count_label_text(),
+            font=(Font.default_font.value, floor(FrameDimensions.historic_info_frame.height / 12)),
+            background=Colour.game_win_count_label.value,
+            foreground=Colour.game_win_count_font.value,
+            relief=Relief.player_win_count_label.value
+        )
+        return player_win_count_label
+
+    def get_draw_count_label(self) -> tk.Label:
+        player_win_count_label = tk.Label(
+            master=self.widget_manager.historic_info_frame,
+            text="Draws:\n0",
             font=(Font.default_font.value, floor(FrameDimensions.historic_info_frame.height / 12)),
             background=Colour.game_win_count_label.value,
             foreground=Colour.game_win_count_font.value,

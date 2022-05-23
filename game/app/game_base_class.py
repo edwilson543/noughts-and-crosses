@@ -13,7 +13,8 @@ class NoughtsAndCrosses:
                  win_length_k: int,
                  pos_player: Player,
                  neg_player: Player,
-                 starting_player: GameValue = None):
+                 starting_player: GameValue = None,
+                 draw_count: int = 0):
         self.game_rows_m = game_rows_m
         self.game_cols_n = game_cols_n
         self.playing_grid = np.zeros(shape=(game_rows_m, game_cols_n))
@@ -21,6 +22,7 @@ class NoughtsAndCrosses:
         self.pos_player = pos_player
         self.neg_player = neg_player
         self.starting_player = starting_player
+        self.draw_count = draw_count
 
     def choose_starting_player(self, player_name: Optional[str], random: bool = True) -> None:
         """Method to allow manual choice of who goes first."""
@@ -77,9 +79,11 @@ class NoughtsAndCrosses:
             else:
                 return self.neg_player
 
-    def check_for_draw(self) -> None:
-        #  TODO
-        pass
+    def check_for_draw(self) -> bool:
+        draw = np.all(self.playing_grid != 0)
+        if draw:
+            self.draw_count += 1
+        return draw
 
     def reset_game_board(self) -> None:
         """Method to reset the game board"""

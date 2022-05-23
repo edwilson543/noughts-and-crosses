@@ -9,7 +9,8 @@ from tkinter_gui.app.main_game_window.widget_management import MainWindowWidgetM
 import tkinter as tk
 from math import floor
 
-#  TODO could maybe get rid of master frame
+#  TODO could maybe get rid of master window too
+# TODO add in weight=1 in row/column configure for all panels, except RHS which should stay fixed
 
 class NoughtsAndCrossesWindow(NoughtsAndCrosses):  # TODO update to not be a subclass - doesn't need the methods
     def __init__(self,
@@ -34,6 +35,8 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):  # TODO update to not be a sub
         game_window = tk.Tk()
         game_window.title("Noughts and Crosses")
         game_window.configure(background=Colour.window.value)
+        game_window.rowconfigure(index=0, weight=1)
+        game_window.columnconfigure(index=0, weight=1)
         self.create_all_game_components(master_window=game_window)
         game_window.mainloop()
 
@@ -45,7 +48,7 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):  # TODO update to not be a sub
         background_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
         background_frame.rowconfigure(index=[0, 1], minsize=FrameDimensions.game_info_frame.height, weight=1)
         background_frame.columnconfigure(index=0, minsize=FrameDimensions.game_frame.width, weight=1)
-        background_frame.columnconfigure(index=1, minsize=FrameDimensions.game_info_frame.width, weight=1)
+        background_frame.columnconfigure(index=1, minsize=FrameDimensions.game_info_frame.width, weight=0)
 
         # Frame that contains the playing grid (entire left)
         self.widget_manager.playing_grid_frame = tk.Frame(
@@ -72,6 +75,7 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):  # TODO update to not be a sub
 
     def get_active_game_frames_contents(self) -> NoughtsAndCrossesGameFrames:  # TODO update and split out
         """Method to instantiate the object that carries the active game frames"""
+        # TODO shouldn't need to mention the default parameters here
         game_frames_carrier = NoughtsAndCrossesGameFrames(
             game_rows_m=self.game_rows_m,
             game_cols_n=self.game_cols_n,
