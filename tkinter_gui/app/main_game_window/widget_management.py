@@ -13,6 +13,8 @@ class MainWindowWidgetManager:
     playing_grid_frame: tk.Frame = None
     playing_grid: np.array = None
     confirmation_button: tk.Button = None
+    pos_player_confirmation_button: tk.Button = None
+    neg_player_confirmation_button: tk.Button = None
 
     # Active game info grid
     game_info_frame: tk.Frame = None

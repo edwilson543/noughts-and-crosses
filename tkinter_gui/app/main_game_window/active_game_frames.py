@@ -31,10 +31,33 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         self.min_cell_width = floor(FrameDimensions.game_frame.width / game_cols_n)
 
     ##########
-    # Methods populating the two frames with the relevant buttons
+    # Methods populating / clearing the two frames with the relevant buttons
     ##########
-    def populate_empty_playing_grid(self):
+    def populate_game_info_grid(self) -> None:
+        """
+        Method that populates the game info grid with a confirmation button, and labels that indicate who's turn it is.
+        The confirmation button is the master button that processes the game.
 
+        Parameters: None
+        Returns: None
+        """
+        self.widget_manager.game_info_frame.rowconfigure(
+            index=[0, 1, 2], minsize=floor(FrameDimensions.game_info_frame.height / 3), weight=1)
+        self.widget_manager.game_info_frame.columnconfigure(
+            index=[0, 1, 2], minsize=floor(FrameDimensions.game_info_frame.width / 3), weight=1)
+
+        confirm_cell_choice_button = self.confirm_cell_choice_button()
+        confirm_cell_choice_button.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
+
+        player_turn_label = self.player_turn_label()
+        player_turn_label.grid(row=0, column=0, columnspan=3, padx=5, pady=5, sticky="nsew")
+
+        pos_player_label = self.player_label(pos_player=True)
+        pos_player_label.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+        neg_player_label = self.player_label(pos_player=False)
+        neg_player_label.grid(row=1, column=2, padx=5, pady=5, sticky="nsew")
+
+    def populate_empty_playing_grid(self):
         """
         Loops over the playing grid and creates an analogous grid of selection buttons.
         Note that this is only called once at the start of the game, so all cells are empty.
@@ -54,37 +77,6 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
                 available_cell_button.grid(row=row_index, column=col_index, sticky="nsew", padx=1, pady=1)
                 self.widget_manager.playing_grid[row_index, col_index] = available_cell_button
 
-    def populate_game_info_grid(self) -> None:
-        """
-        Method that populates the game info grid with a confirmation button, and indication of who's turn it is.
-
-        Parameters:
-        ----------
-        mater_frame: The frame that this grid will be packed into
-        playing_grid_frame: The playing grid frame - the confirmation button must be able to communicate with the
-        info grid.
-
-        Returns: None
-
-        """
-        self.widget_manager.game_info_frame.rowconfigure(
-            index=[0, 1, 2], minsize=floor(FrameDimensions.game_info_frame.height / 3), weight=1)
-        self.widget_manager.game_info_frame.columnconfigure(
-            index=[0, 1, 2], minsize=floor(FrameDimensions.game_info_frame.width / 3), weight =1)
-
-        confirm_cell_choice_button = self.confirm_cell_choice_button()
-        confirm_cell_choice_button.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
-
-        player_turn_label = self.player_turn_label()
-        player_turn_label.grid(row=0, column=0, columnspan=3, padx=5, pady=5, sticky="nsew")
-
-        pos_player_label = self.player_label(pos_player=True)
-        pos_player_label.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
-        neg_player_label = self.player_label(pos_player=False)
-        neg_player_label.grid(row=1, column=2, padx=5, pady=5, sticky="nsew")
-
-        # TODO add remaining features and format
-
     def clear_playing_grid(self) -> None:
         """
         Method to clear the playing grid at the end of a game and fill it with a new one.
@@ -97,6 +89,139 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
                     row_index=row_index, col_index=col_index)
                 available_cell_button.grid(row=row_index, column=col_index, sticky="nsew", padx=1, pady=1)
                 self.widget_manager.playing_grid[row_index, col_index] = available_cell_button
+
+    ##########
+    # Confirmation master button command method and sub-methods
+    ##########
+    def confirm_cell_choice_button_command(self) -> None:
+        """
+        Master command that is in effect the game loop.
+
+        Method to:
+        1) Disable the confirmation button as it has just been pressed
+        2) Confirm the cell selection and carry out the necessary GUI and backend processing
+        3) Check if this selection has resulted in a win/ draw and carry out the necessary processing
+        4) Switch which player's label is highlighted/raised to indicate that it's their go
+
+        Parameters: None
+        Returns: None
+        """
+        self.widget_manager.confirmation_button["state"] = tk.DISABLED
+        self.confirm_cell_selection()
+        self.end_of_game_check()
+        self.switch_highlighted_player()
+
+    def confirmation_button_switch(self):
+        pass
+
+    def confirm_cell_selection(self) -> None:
+        """
+        Method to:
+        1) Destroy the in-place unconfirmed cell button
+        2) Permanently marks the board as shown in the active unconfirmed cell.
+        3) Updates the backend board (the -1s, 0s and 1s) and checks whether a player has won
+        4) Sets active_unconfirmed_cell to None
+        """
+        self.widget_manager.playing_grid[self.active_unconfirmed_cell].destroy()
+        occupied_cell_label = self.occupied_cell_label()
+        occupied_cell_label.grid(row=self.active_unconfirmed_cell[0], column=self.active_unconfirmed_cell[1],
+                                 sticky="nsew")
+        self.mark_board(row_index=self.active_unconfirmed_cell[0], col_index=self.active_unconfirmed_cell[1])
+        self.active_unconfirmed_cell = None
+
+    def end_of_game_check(self) -> None:
+        """
+        Method called each time the confirm button is clicked, to:
+        1) Determine whether the game has been won, and award the winner a point if so.
+        2) Check if the game has reached stalemate (a draw)
+        """
+        winning_player = self.get_winning_player()
+        if winning_player is not None:
+            # TODO could launch a TopLevel to see if they want to continue playing
+            self.starting_player = self.get_player_turn() # TODO can add feature to choose whether winner/loser starts
+            self.reset_game_board()  # backend
+            self.clear_playing_grid()  # frontend
+
+            if winning_player == self.pos_player:
+                self.pos_player.award_point()
+                self.widget_manager.pos_player_win_count_label.configure(
+                    text=self.pos_player.win_count_label_text())
+            elif winning_player == self.neg_player:
+                self.neg_player.award_point()
+                self.widget_manager.neg_player_win_count_label.configure(
+                    text=self.neg_player.win_count_label_text())
+            else:
+                raise ValueError(
+                    "winning_player is not None in end_of_game check but neither player is equal to the"
+                    "winning player.")
+        elif self.check_for_draw():
+            self.reset_game_board()  # backend
+            self.clear_playing_grid()  # frontend
+            self.widget_manager.draw_count_label.configure(text=f"Draws:\n{self.draw_count}")
+
+    ##########
+    # Playing grid button commands
+    ##########
+    def available_cell_button_command(self, row_index: int, col_index: int) -> None:
+        """
+        Method to update the playing grid to highlight the unconfirmed cell choice, and revert a previous unconfirmed
+        choice that has been rejected back to an available cell button.
+        """
+        logging.info(f"Available cell button clicked at {row_index, col_index}")
+        # Activate the confirmation button
+        self.widget_manager.confirmation_button["state"] = tk.NORMAL
+
+        # Destroy exiting cell and replace with an available cell
+        self.replace_existing_unconfirmed_cell(row_index=row_index, col_index=col_index)
+
+        # Destroy existing available cell and replace with an unconfirmed cell button
+        self.replace_existing_avaialble_cell(row_index=row_index, col_index=col_index)
+
+    def unconfirmed_cell_choice_button_command(self) -> None:
+        """
+        Method to define what happens when the unconfirmed cell choice button is clicked.
+        An available cell button is inserted in place of the unconfirmed cell choice button.
+        Also, the active_unconfirmed_cell is set to None as there is no longer an active unconfirmed cell.
+
+        Purpose:
+        1) Two clicks on an empty cell highlights and then un-highlights that cell
+        2) To be part of the command when a new available cell is chosen as the active unconfirmed cell (i.e. first have
+        to remove the existing unconfirmed cell)
+        """
+
+        logging.info(f"Unconfirmed cell choice button clicked at {self.active_unconfirmed_cell}")
+        self.replace_existing_unconfirmed_cell(
+            row_index=self.active_unconfirmed_cell[0], col_index=self.active_unconfirmed_cell[1])
+        self.active_unconfirmed_cell = None
+        self.widget_manager.confirmation_button["state"] = tk.DISABLED
+
+    def replace_existing_avaialble_cell(self, row_index: int, col_index: int):
+        """Method to destroy an existing available cell and replace it with an unconfirmed cell button."""
+        # Destroy existing available cell
+        self.widget_manager.playing_grid[row_index, col_index].destroy()
+        # Replace with unconfirmed cell
+        self.active_unconfirmed_cell = (row_index, col_index)
+        unconfirmed_cell_choice_button = self.unconfirmed_cell_button()
+        unconfirmed_cell_choice_button.grid(row=self.active_unconfirmed_cell[0],
+                                            column=self.active_unconfirmed_cell[1],
+                                            sticky="nsew", padx=1, pady=1)
+        self.widget_manager.playing_grid[self.active_unconfirmed_cell] = unconfirmed_cell_choice_button
+        logging.info(f"New unconfirmed cell created at: {self.active_unconfirmed_cell}")
+
+    def replace_existing_unconfirmed_cell(self, row_index: int, col_index: int):
+        """Method to destroy the existing unconfirmed cell button and replace it with an available cell button."""
+        if self.active_unconfirmed_cell is not None:
+            # Destroy existing active unconfirmed cell choice button
+            self.widget_manager.playing_grid[self.active_unconfirmed_cell].destroy()
+
+            # Replace destroyed unconfirmed cell choice button with an available cell button
+            available_cell_button = self.available_cell_button(
+                row_index=self.active_unconfirmed_cell[0],
+                col_index=self.active_unconfirmed_cell[1])
+            available_cell_button.grid(row=self.active_unconfirmed_cell[0],
+                                       column=self.active_unconfirmed_cell[1], sticky="nsew")
+            self.widget_manager.playing_grid[self.active_unconfirmed_cell] = available_cell_button
+            logging.info(f"New available cell button created at: {row_index, col_index}")
 
     ##########
     # Labels/ buttons on the playing grid
@@ -136,88 +261,12 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         return available_cell_button
 
     ##########
-    # Commands for buttons on the playing grid
-    ##########
-    def available_cell_button_command(self, row_index: int, col_index: int) -> None:
-        """
-        Method to update the playing grid to highlight the unconfirmed cell choice, and revert a previous unconfirmed
-        choice that has been rejected back to a button.
-
-        Note this all needs to be contained within one method so that it can be added as the command function for the
-        available_cell_button.
-        """
-        logging.info(f"Available cell button clicked at {row_index, col_index}")
-        # Activate the confirmation button
-        self.widget_manager.confirmation_button["state"] = tk.NORMAL
-
-        logging.info(f"Existing active unconfirmed cell: {self.active_unconfirmed_cell}")
-        if self.active_unconfirmed_cell is not None:
-            # Destroy existing active unconfirmed cell choice button
-            self.widget_manager.playing_grid[self.active_unconfirmed_cell].destroy()
-
-            # Replace destroyed unconfirmed cell choice button with an available cell button
-            available_cell_button = self.available_cell_button(
-                row_index=self.active_unconfirmed_cell[0],
-                col_index=self.active_unconfirmed_cell[1])
-            available_cell_button.grid(row=self.active_unconfirmed_cell[0],
-                                       column=self.active_unconfirmed_cell[1], sticky="nsew")
-            self.widget_manager.playing_grid[self.active_unconfirmed_cell] = available_cell_button
-            logging.info(f"New available cell button created at: {row_index, col_index}")
-
-        # Set new unconfirmed cell to be the index, and place an unconfirmed cell choice button in it
-        self.active_unconfirmed_cell = (row_index, col_index)
-        unconfirmed_cell_choice_button = self.unconfirmed_cell_button()
-        unconfirmed_cell_choice_button.grid(row=self.active_unconfirmed_cell[0],
-                                            column=self.active_unconfirmed_cell[1],
-                                            sticky="nsew", padx=1, pady=1)
-        self.widget_manager.playing_grid[self.active_unconfirmed_cell] = unconfirmed_cell_choice_button
-        logging.info(f"New unconfirmed cell created at: {self.active_unconfirmed_cell}")
-
-    def unconfirmed_cell_choice_button_command(self) -> None:
-        """
-        Method to define what happens when the unconfirmed cell choice button is clicked.
-        An available cell button is inserted in place of the unconfirmed cell choice button.
-        Also, the active_unconfirmed_cell is set to None as there is no longer an active unconfirmed cell.
-
-        Purpose:
-        1) Two clicks on an empty cell highlights and then un-highlights that cell
-        2) To be part of the command when a new available cell is chosen as the active unconfirmed cell (i.e. first have
-        to remove the existing unconfirmed cell)
-        """
-
-        logging.info(f"Unconfirmed cell choice button clicked at {self.active_unconfirmed_cell}")
-
-        # Destroy existing unconfirmed cell choice button
-        self.widget_manager.playing_grid[self.active_unconfirmed_cell].destroy()
-
-        # Replace destroyed unconfirmed cell choice button with an available cell choice button
-        available_cell_button = self.available_cell_button(
-            row_index=self.active_unconfirmed_cell[0],
-            col_index=self.active_unconfirmed_cell[1])
-        available_cell_button.grid(row=self.active_unconfirmed_cell[0],
-                                   column=self.active_unconfirmed_cell[1], sticky="nsew")
-        self.widget_manager.playing_grid[self.active_unconfirmed_cell] = available_cell_button
-        logging.info(f"New available cell button created at {self.active_unconfirmed_cell}")
-
-        # Indicate that there is now no active unconfirmed cell and disable confirmation button
-        self.active_unconfirmed_cell = None
-        self.widget_manager.confirmation_button["state"] = tk.DISABLED
-
-    ##########
     # Buttons and labels relating to the game_info_grid
     ##########
-
     def confirm_cell_choice_button(self) -> tk.Button:
         """
         Master button that confirms the user's choice and therefore initiates all backend processing.
-
-        Parameters:
-        __________
-        None
-
-        Returns:
-        __________
-        The formatted button
+        Returns: The formatted button object
         """
         command_func = partial(self.confirm_cell_choice_button_command)
         confirm_cell_choice_button = tk.Button(
@@ -235,6 +284,7 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
     def player_turn_label(self) -> tk.Label:
         """
         Method to create a label that says "Player turn" above the coloured labels indicating who's turn it is.
+        Returns: The formatted label object
         """
         player_turn_label = tk.Label(master=self.widget_manager.game_info_frame,
                                      text="Player's Turn:",
@@ -245,7 +295,7 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
 
     def player_label(self, pos_player: bool) -> tk.Label:
         """
-        Method to create the player label's and show who's turn it is to mark the board
+        Method to create the player label's and show who's turn it is to take a turn at marking the board
         """
         if pos_player:
             player = self.pos_player
@@ -266,74 +316,6 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
             self.widget_manager.neg_player_label = player_label
         return player_label
 
-    ##########
-    # Command function for the confirmation button in the game info grid
-    ##########
-
-    def confirm_cell_choice_button_command(self) -> None:  # TODO move up top (and generally re-structure)
-        # TODO maybe split some of this out
-        """
-        Master command to initiate all backend processing
-
-        Method to:
-        1) Permanently marks the board as shown in the active unconfirmed cell.
-        2) Updates the backend board (the -1s, 0s and 1s) and checks whether a player has won
-        3) Sets active_unconfirmed_cell to None
-        4) Switch which player's label is highlighted/raised
-
-        Parameters: None
-
-        Returns: None
-        """
-
-        # Reset the cell choice button to disabled
-        self.widget_manager.confirmation_button["state"] = tk.DISABLED
-
-        # Permanently mark the board as shown in the active unconfirmed cell
-        occupied_cell_label = self.occupied_cell_label()
-        occupied_cell_label.grid(row=self.active_unconfirmed_cell[0], column=self.active_unconfirmed_cell[1],
-                                 sticky="nsew")
-        self.mark_board(row_index=self.active_unconfirmed_cell[0], col_index=self.active_unconfirmed_cell[1])
-        self.active_unconfirmed_cell = None
-
-        # Check for a win of the game
-        self.end_of_game_check()
-
-        # Switch which player's label is highlighted
-        pos_player_label = self.widget_manager.pos_player_label
-        neg_player_label = self.widget_manager.neg_player_label
-
-        pos_player_label.configure(background=self.get_player_label_colour(player=self.pos_player),
-                                   relief=self.get_player_label_relief(player=self.pos_player))
-        neg_player_label.configure(background=self.get_player_label_colour(player=self.neg_player),
-                                   relief=self.get_player_label_relief(player=self.neg_player))
-
-    def end_of_game_check(self) -> None:
-        """
-        Method called each time the confirm button is clicked, to:
-        1) Determine whether the game has been won, and award the winner a point if so.
-        2) Check if the game has reached stalemate (a draw)
-        """
-        winning_player = self.get_winning_player()
-        if winning_player is not None:
-            # TODO (longer) launch a TopLevel to see if they want to continue playing
-            self.reset_game_board()  # backend
-            self.clear_playing_grid()  # frontend
-
-            if winning_player == self.pos_player:
-                self.pos_player.award_point()
-                self.widget_manager.pos_player_win_count_label.configure(text=self.pos_player.win_count_label_text())
-            elif winning_player == self.neg_player:
-                self.neg_player.award_point()
-                self.widget_manager.neg_player_win_count_label.configure(text=self.neg_player.win_count_label_text())
-            else:
-                raise ValueError("winning_player is not None in end_of_game check but neither player is equal to the"
-                                 "winning player.")
-        elif self.check_for_draw():
-            self.reset_game_board()  # backend
-            self.clear_playing_grid()  # frontend
-            self.widget_manager.draw_count_label.configure(text=f"Draws:\n{self.draw_count}")
-
     #  Lower level methods used for formatting
     def get_player_turn_marking(self) -> str:
         """Method to extract the player turn from the game baseclass as a 1/-1 and return it as an X or O."""
@@ -348,8 +330,17 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         else:
             return Colour.occupied_cell_o.value
 
+    def switch_highlighted_player(self):
+        """Method to flick between who's cell is highlighted depending on who's go it is"""
+        self.widget_manager.pos_player_label.configure(
+            background=self.get_player_label_colour(player=self.pos_player),
+            relief=self.get_player_label_relief(player=self.pos_player))
+        self.widget_manager.neg_player_label.configure(
+            background=self.get_player_label_colour(player=self.neg_player),
+            relief=self.get_player_label_relief(player=self.neg_player))
+
     def get_player_label_colour(self, player: Player) -> str:
-        """Highlights the player's label if it's there go, otherwise their label is not highlighted."""
+        """Highlights the player's label if it's their go, otherwise their label is not highlighted."""
         if self.get_player_turn() == player.active_symbol.value:
             return Colour.unconfirmed_cell.value
         else:

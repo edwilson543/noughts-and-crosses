@@ -6,7 +6,7 @@ from game.constants.game_constants import GameValue
 from game.app.player_base_class import Player
 
 pos_player = Player(name="Ed", active_symbol=GameValue.O)
-neg_player = Player(name="Balint", active_symbol=GameValue.X)
+neg_player = Player(name="Libby", active_symbol=GameValue.X)
 ##########
 
 # TODO Add window to see who wants to go first and set this as player first attribute

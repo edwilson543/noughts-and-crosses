@@ -1,4 +1,3 @@
-from game.app.game_base_class import NoughtsAndCrosses
 from game.app.player_base_class import Player
 from game.constants.game_constants import GameValue
 from tkinter_gui.constants.dimensions import FrameDimensions
@@ -7,12 +6,9 @@ from tkinter_gui.app.main_game_window.active_game_frames import NoughtsAndCrosse
 from tkinter_gui.app.main_game_window.historic_games_frame import HistoricInfoFrame
 from tkinter_gui.app.main_game_window.widget_management import MainWindowWidgetManager
 import tkinter as tk
-from math import floor
 
-#  TODO could maybe get rid of master window too
-# TODO add in weight=1 in row/column configure for all panels, except RHS which should stay fixed
 
-class NoughtsAndCrossesWindow(NoughtsAndCrosses):  # TODO update to not be a subclass - doesn't need the methods
+class NoughtsAndCrossesWindow:
     def __init__(self,
                  game_rows_m: int,
                  game_cols_n: int,
@@ -22,12 +18,13 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):  # TODO update to not be a sub
                  starting_player: GameValue = GameValue.X,
                  active_unconfirmed_cell: (int, int) = None,
                  widget_manager=MainWindowWidgetManager()):
-        super().__init__(game_rows_m, game_cols_n, win_length_k, pos_player, neg_player, starting_player)
-        self.active_unconfirmed_cell = active_unconfirmed_cell
+        self.game_rows_m = game_rows_m
+        self.game_cols_n = game_cols_n
+        self.win_length_k = win_length_k
+        self.pos_player = pos_player
+        self.neg_player = neg_player
+        self.starting_player = starting_player
         self.widget_manager = widget_manager
-        self.game_frames = NoughtsAndCrossesGameFrames
-        self.min_cell_height = floor(FrameDimensions.game_frame.height / game_rows_m)
-        self.min_cell_width = floor(FrameDimensions.game_frame.width / game_cols_n)
 
     def launch_playing_window(self):
         """Method for launching the main noughts and crosses game play window and controlling the game flow"""
@@ -73,9 +70,8 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):  # TODO update to not be a sub
         historic_info_frame_contents = self.get_historic_info_frame_contents()
         historic_info_frame_contents.populate_historic_info_grid()
 
-    def get_active_game_frames_contents(self) -> NoughtsAndCrossesGameFrames:  # TODO update and split out
+    def get_active_game_frames_contents(self) -> NoughtsAndCrossesGameFrames:
         """Method to instantiate the object that carries the active game frames"""
-        # TODO shouldn't need to mention the default parameters here
         game_frames_carrier = NoughtsAndCrossesGameFrames(
             game_rows_m=self.game_rows_m,
             game_cols_n=self.game_cols_n,
