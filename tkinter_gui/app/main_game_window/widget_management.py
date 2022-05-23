@@ -9,6 +9,9 @@ class MainWindowWidgetManager:
     the different frames to be tied together in the main window.
     Note only widgets that get updated throughout the game are included here
     """
+    # Main window
+    main_window: tk.Tk = None
+
     # Playing grid
     playing_grid_frame: tk.Frame = None
     playing_grid: np.array = None

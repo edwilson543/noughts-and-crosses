@@ -30,14 +30,15 @@ class NoughtsAndCrossesWindow(ActiveGameFrames, HistoricInfoFrame):
         game_window.configure(background=Colour.window.value)
         game_window.rowconfigure(index=0, weight=1)
         game_window.columnconfigure(index=0, weight=1)
-        self.create_all_game_components(master_window=game_window)
+        self.widget_manager.main_window = game_window
+        self.create_all_game_components()
         game_window.mainloop()
 
-    def create_all_game_components(self, master_window: tk.Tk):
+    def create_all_game_components(self):
         """Method to create all the frames used in the main game window and fill the with their components"""
         # Background frame that contains all components of the game
-        background_frame = tk.Frame(master=master_window, background=Colour.background.value, borderwidth=3,
-                                    relief=tk.RIDGE)
+        background_frame = tk.Frame(master=self.widget_manager.main_window, background=Colour.background.value,
+                                    borderwidth=3, relief=tk.RIDGE)
         background_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
         background_frame.rowconfigure(index=[0, 1], minsize=FrameDimensions.game_info_frame.height, weight=1)
         background_frame.columnconfigure(index=0, minsize=FrameDimensions.game_frame.width, weight=1)
