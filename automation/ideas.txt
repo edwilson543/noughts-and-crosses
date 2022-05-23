@@ -1,0 +1,15 @@
+Noting that square board is horizontally, vertically, bi-diagonally and rotationally symmetric, we can significantly
+simplify how many board configurations to look at.
+
+Define an equivalence class where boards are equivalent if the configuration is symmetrically the same.
+
+Then we just need to identify the unique members of this equivalence class for a board of given dimensions.
+
+When using the training dataset, boards in the same equivalence class can thus be treated as the same therefore hugely
+increasing the value of each individual simulation.
+i.e. only train on board configurations in the equivalence class and map all game scenario data points to the
+equivalence class.
+
+When determining the optimum next move when in a given configuration, we need to map the actual configuration to the
+configuration present in the equivalence class, get the optimum move for the equivalent configuration, and then map back
+to the actual configuration.
