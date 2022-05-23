@@ -4,6 +4,7 @@ from game.app.game_base_class import NoughtsAndCrosses
 from game.app.player_base_class import Player
 from game.constants.game_constants import GameValue
 from tkinter_gui.app.main_game_window.widget_management import MainWindowWidgetManager
+from tkinter_gui.app.game_continuation_window.game_continuation_window import GameContinuationPopUp
 from tkinter_gui.constants.dimensions import FrameDimensions
 from tkinter_gui.constants.style_and_colours import Colour, Font, Relief
 import tkinter as tk
@@ -111,8 +112,8 @@ class ActiveGameFrames(NoughtsAndCrosses):
         """
         self.confirmation_button_switch()
         self.confirm_cell_selection()
-        self.end_of_game_check()
         self.switch_highlighted_confirmation_button()
+        self.end_of_game_check()
 
     def confirmation_button_switch(self):
         """
@@ -150,11 +151,13 @@ class ActiveGameFrames(NoughtsAndCrosses):
         """
         winning_player = self.get_winning_player()
         if winning_player is not None:
-            # TODO could launch a TopLevel to see if they want to continue playing, winner or loser starts
             # TODO can also make the winning streak flash and dance
+            # Would need to separate out to do this though, because if the popup comes first then the rest of the if
+            # loop doesn't execute
             self.starting_player = self.get_player_turn()
             self.reset_game_board()  # backend
             self.clear_playing_grid()  # frontend
+            self.initialise_confirmation_buttons()
 
             if winning_player == self.pos_player:
                 self.pos_player.award_point()
@@ -168,10 +171,16 @@ class ActiveGameFrames(NoughtsAndCrosses):
                 raise ValueError(
                     "winning_player is not None in end_of_game check but neither player is equal to the"
                     "winning player.")
+            pop_up = GameContinuationPopUp(text=f"{winning_player.name} wins!", widget_manager=self.widget_manager)
+            pop_up.launch_continuation_pop_up()
+
         elif self.check_for_draw():
             self.reset_game_board()  # backend
             self.clear_playing_grid()  # frontend
             self.widget_manager.draw_count_label.configure(text=f"Draws:\n{self.draw_count}")
+            self.initialise_confirmation_buttons()
+            pop_up = GameContinuationPopUp(text="Game ended in a draw", widget_manager=self.widget_manager)
+            pop_up.launch_continuation_pop_up()
 
     ##########
     # Playing grid button commands

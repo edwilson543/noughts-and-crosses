@@ -3,6 +3,8 @@ from game.constants.game_constants import GameValue
 import numpy as np
 from typing import Optional, Union
 
+#  TODO could use a data class to carry the attributes for this and all subclasses
+
 
 class NoughtsAndCrosses:
     """Base class to reflect the game play of a noughts and crosses game."""

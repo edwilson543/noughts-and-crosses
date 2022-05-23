@@ -29,6 +29,13 @@ class Colour(Enum):
     player_win_count_labels = "#013d0c"
     player_win_count_font = "white"
 
+    # Game continuation pop up
+    pop_up_window_background = "black"
+    game_outcome_label = "black"
+    game_outcome_label_font = "white"
+    game_continuation_exit_buttons = "black"
+    game_continuation_exit_buttons_font = "white"
+
 
 class Font(Enum):
     xo_font = "Times New Roman"
@@ -51,3 +58,6 @@ class Relief(Enum):
     game_win_count_label = tk.SUNKEN
     player_win_count_label = tk.SUNKEN
 
+    # Game continuation pop up
+    game_outcome_label = tk.SUNKEN
+    game_continuation_exit_buttons = tk.RAISED
