@@ -10,7 +10,6 @@ import tkinter as tk
 from math import floor
 
 
-#  TODO whether need to destroy replaced widgets, for fine to just grid in a new one
 
 class NoughtsAndCrossesWindow(NoughtsAndCrosses):  # TODO update to not be a subclass - doesn't need the methods
     def __init__(self,
@@ -49,30 +48,29 @@ class NoughtsAndCrossesWindow(NoughtsAndCrosses):  # TODO update to not be a sub
         background_frame.columnconfigure(index=1, minsize=FrameDimensions.game_info_frame.width, weight=1)
 
         # Frame that contains the playing grid (entire left)
-        game_frame = tk.Frame(
+        self.widget_manager.playing_grid_frame = tk.Frame(
             master=background_frame, background=Colour.game_background.value,
             borderwidth=5, relief=tk.SUNKEN)
-        game_frame.grid(row=0, column=0, rowspan=2, sticky="nsew", padx=10, pady=10)
-        active_game_frames_carrier = self.get_active_game_frames_object()
-        active_game_frames_carrier.populate_empty_playing_grid(master_frame=game_frame)
+        self.widget_manager.playing_grid_frame.grid(row=0, column=0, rowspan=2, sticky="nsew", padx=10, pady=10)
+        active_game_frames_carrier = self.get_active_game_frames_contents()
+        active_game_frames_carrier.populate_empty_playing_grid()
 
         # Frame for the buttons that control the gameplay (top-right)
-        game_info_frame = tk.Frame(
+        self.widget_manager.game_info_frame = tk.Frame(
             master=background_frame, background=Colour.game_buttons_background.value,
             borderwidth=5, relief=tk.SUNKEN)
-        game_info_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
-        active_game_frames_carrier.populate_game_info_grid(master_frame=game_info_frame, playing_grid_frame=game_frame)
+        self.widget_manager.game_info_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
+        active_game_frames_carrier.populate_game_info_grid()
 
         # Frame for the labels that says the status across multiple games (bottom-right)
-        historic_info_frame = tk.Frame(
+        self.widget_manager.historic_info_frame = tk.Frame(
             master=background_frame, background=Colour.game_status_background.value,
             borderwidth=5, relief=tk.SUNKEN)
-        historic_info_frame.grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
+        self.widget_manager.historic_info_frame.grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
         historic_info_frame_contents = self.get_historic_info_frame_contents()
-        historic_info_frame_contents.populate_historic_info_grid(master_frame=historic_info_frame)
+        historic_info_frame_contents.populate_historic_info_grid()
 
-
-    def get_active_game_frames_object(self) -> NoughtsAndCrossesGameFrames:  # TODO update and split out
+    def get_active_game_frames_contents(self) -> NoughtsAndCrossesGameFrames:  # TODO update and split out
         """Method to instantiate the object that carries the active game frames"""
         game_frames_carrier = NoughtsAndCrossesGameFrames(
             game_rows_m=self.game_rows_m,

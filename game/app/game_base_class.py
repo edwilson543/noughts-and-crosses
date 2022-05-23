@@ -148,4 +148,3 @@ class NoughtsAndCrosses:
         in that the bottom row becomes the top, but otherwise does not affect the length of a win.
         """
         return self.get_south_east_diagonal_arrays(playing_grid=np.flipud(self.playing_grid))
-
