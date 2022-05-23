@@ -9,7 +9,7 @@ from tkinter_gui.app.main_game_window.widget_management import MainWindowWidgetM
 import tkinter as tk
 from math import floor
 
-
+#  TODO could maybe get rid of master frame
 
 class NoughtsAndCrossesWindow(NoughtsAndCrosses):  # TODO update to not be a subclass - doesn't need the methods
     def __init__(self,

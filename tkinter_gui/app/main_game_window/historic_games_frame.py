@@ -50,10 +50,9 @@ class HistoricInfoFrame:
         return game_win_count_label
 
     def get_player_win_count_label(self, player: Player):
-        text = f"{player.name}:\n{player.active_game_win_count}"
         player_win_count_label = tk.Label(
             master=self.widget_manager.historic_info_frame,
-            text=text,
+            text=player.win_count_label_text(),
             font=(Font.default_font.value, floor(FrameDimensions.historic_info_frame.height / 12)),
             background=Colour.game_win_count_label.value,
             foreground=Colour.game_win_count_font.value,

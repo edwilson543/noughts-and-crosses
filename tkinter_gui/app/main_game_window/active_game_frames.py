@@ -13,7 +13,6 @@ import numpy as np
 import logging
 
 
-# TODO look through and remove references to master frame - they are almost always not needed
 
 class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
     def __init__(self,
@@ -87,7 +86,10 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         # TODO add remaining features and format
 
     def clear_playing_grid(self) -> None:
-        """Method to clear the playing grid at the end of a game and fill it with a new one"""
+        """
+        Method to clear the playing grid at the end of a game and fill it with a new one.
+        All buttons and labels are removed, and a grid is populated with only available buttons.
+        """
         for row_index in range(0, self.game_rows_m):
             for col_index in range(0, self.game_cols_n):
                 self.widget_manager.playing_grid[row_index, col_index].destroy()
@@ -268,7 +270,8 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
     # Command function for the confirmation button in the game info grid
     ##########
 
-    def confirm_cell_choice_button_command(self) -> None:
+    def confirm_cell_choice_button_command(self) -> None:  # TODO move up top (and generally re-structure)
+        # TODO maybe split some of this out
         """
         Master command to initiate all backend processing
 
@@ -294,20 +297,7 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         self.active_unconfirmed_cell = None
 
         # Check for a win of the game
-        winning_player = self.get_winning_player()
-        if winning_player is not None:
-            # TODO (longer) launch a TopLevel to see if they want to continue playing
-            self.reset_game_board()  # backend
-            self.clear_playing_grid()  # frontend
-            # Reset the game and award the player a point
-            if winning_player == self.pos_player:
-                self.pos_player.award_point()
-                self.widget_manager.pos_player_win_count_label.configure(
-                    text=f"{self.pos_player.name}:\n{self.pos_player.active_game_win_count}"
-                )
-            # TODO each time the button is clicked, check whether a win has been achieved
-            # And then update the win count labels accordingly and reset the board (both front and backend)
-            pass
+        self.end_of_game_check()
 
         # Switch which player's label is highlighted
         pos_player_label = self.widget_manager.pos_player_label
@@ -318,7 +308,29 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         neg_player_label.configure(background=self.get_player_label_colour(player=self.neg_player),
                                    relief=self.get_player_label_relief(player=self.neg_player))
 
-    # Lower level methods used for formatting
+    def end_of_game_check(self) -> None:
+        """
+        Method called each time the confirm button is clicked, to determine whether the game has been won, and
+        award a winner if so. Also checks for a draw
+        """
+        winning_player = self.get_winning_player()
+        if winning_player is not None:
+            # TODO (longer) launch a TopLevel to see if they want to continue playing
+            self.reset_game_board()  # backend
+            self.clear_playing_grid()  # frontend
+
+            if winning_player == self.pos_player:
+                self.pos_player.award_point()
+                self.widget_manager.pos_player_win_count_label.configure(text=self.pos_player.win_count_label_text())
+            elif winning_player == self.neg_player:
+                self.neg_player.award_point()
+                self.widget_manager.neg_player_win_count_label.configure(text=self.neg_player.win_count_label_text())
+            else:
+                # TODO update the draws button
+                pass
+
+
+    #  Lower level methods used for formatting
     def get_player_turn_marking(self) -> str:
         """Method to extract the player turn from the game baseclass as a 1/-1 and return it as an X or O."""
         turn_int = self.get_player_turn()

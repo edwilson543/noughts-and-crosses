@@ -77,6 +77,10 @@ class NoughtsAndCrosses:
             else:
                 return self.neg_player
 
+    def check_for_draw(self) -> None:
+        #  TODO
+        pass
+
     def reset_game_board(self) -> None:
         """Method to reset the game board"""
         self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n))
