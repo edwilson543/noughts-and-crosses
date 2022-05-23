@@ -12,7 +12,7 @@ class MainWindowWidgetManager:
     # Playing grid
     playing_grid_frame: tk.Frame = None
     playing_grid: np.array = None
-    confirmation_button: tk.Button = None
+    active_confirmation_button: tk.Button = None
     pos_player_confirmation_button: tk.Button = None
     neg_player_confirmation_button: tk.Button = None
 

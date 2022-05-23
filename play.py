@@ -13,5 +13,5 @@ neg_player = Player(name="Libby", active_symbol=GameValue.X)
 
 if __name__ == "__main__" :
     game = NoughtsAndCrossesWindow(game_rows_m=3, game_cols_n=3, win_length_k=3,
-                                   neg_player=neg_player, pos_player=pos_player, starting_player=GameValue.O.value)
+                                   neg_player=neg_player, pos_player=pos_player, starting_player=GameValue.X.value)
     game.launch_playing_window()
