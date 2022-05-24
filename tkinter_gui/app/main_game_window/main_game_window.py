@@ -1,10 +1,10 @@
 from game.app.player_base_class import Player
 from game.constants.game_constants import GameValue
-from tkinter_gui.constants.dimensions import FrameDimensions
+from tkinter_gui.constants.dimensions import MainWindowDimensions
 from tkinter_gui.constants.style_and_colours import Colour
 from tkinter_gui.app.main_game_window.active_game_frames import ActiveGameFrames
 from tkinter_gui.app.main_game_window.historic_games_frame import HistoricInfoFrame
-from tkinter_gui.app.main_game_window.widget_management import MainWindowWidgetManager
+from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindowWidgetManager
 import tkinter as tk
 
 
@@ -34,15 +34,17 @@ class NoughtsAndCrossesWindow(ActiveGameFrames, HistoricInfoFrame):
         self.create_all_game_components()
         game_window.mainloop()
 
+# TODO method that adds all components to widget manager
+
     def create_all_game_components(self):
         """Method to create all the frames used in the main game window and fill the with their components"""
         # Background frame that contains all components of the game
         background_frame = tk.Frame(master=self.widget_manager.main_window, background=Colour.background.value,
                                     borderwidth=3, relief=tk.RIDGE)
         background_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
-        background_frame.rowconfigure(index=[0, 1], minsize=FrameDimensions.game_info_frame.height, weight=1)
-        background_frame.columnconfigure(index=0, minsize=FrameDimensions.game_frame.width, weight=1)
-        background_frame.columnconfigure(index=1, minsize=FrameDimensions.game_info_frame.width, weight=0)
+        background_frame.rowconfigure(index=[0, 1], minsize=MainWindowDimensions.game_info_frame.height, weight=1)
+        background_frame.columnconfigure(index=0, minsize=MainWindowDimensions.game_frame.width, weight=1)
+        background_frame.columnconfigure(index=1, minsize=MainWindowDimensions.game_info_frame.width, weight=0)
 
         # Frame that contains the playing grid (entire left)
         self.widget_manager.playing_grid_frame = tk.Frame(

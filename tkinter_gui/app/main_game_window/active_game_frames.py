@@ -3,9 +3,9 @@
 from game.app.game_base_class import NoughtsAndCrosses
 from game.app.player_base_class import Player
 from game.constants.game_constants import GameValue
-from tkinter_gui.app.main_game_window.widget_management import MainWindowWidgetManager
+from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindowWidgetManager
 from tkinter_gui.app.game_continuation_window.game_continuation_window import GameContinuationPopUp
-from tkinter_gui.constants.dimensions import FrameDimensions
+from tkinter_gui.constants.dimensions import MainWindowDimensions
 from tkinter_gui.constants.style_and_colours import Colour, Font, Relief
 import tkinter as tk
 from math import floor
@@ -28,8 +28,8 @@ class ActiveGameFrames(NoughtsAndCrosses):
         super().__init__(game_rows_m, game_cols_n, win_length_k, pos_player, neg_player, starting_player, draw_count)
         self.active_unconfirmed_cell = active_unconfirmed_cell
         self.widget_manager = widget_manager
-        self.min_cell_height = floor(FrameDimensions.game_frame.height / game_rows_m)
-        self.min_cell_width = floor(FrameDimensions.game_frame.width / game_cols_n)
+        self.min_cell_height = floor(MainWindowDimensions.game_frame.height / game_rows_m)
+        self.min_cell_width = floor(MainWindowDimensions.game_frame.width / game_cols_n)
 
     ##########
     # Methods populating / clearing the two frames with the relevant buttons
@@ -43,9 +43,9 @@ class ActiveGameFrames(NoughtsAndCrosses):
         Returns: None
         """
         self.widget_manager.game_info_frame.rowconfigure(
-            index=[0, 1, 2], minsize=floor(FrameDimensions.game_info_frame.height / 3), weight=1)
+            index=[0, 1, 2], minsize=floor(MainWindowDimensions.game_info_frame.height / 3), weight=1)
         self.widget_manager.game_info_frame.columnconfigure(
-            index=[0, 1], minsize=floor(FrameDimensions.game_info_frame.width / 2), weight=1)
+            index=[0, 1], minsize=floor(MainWindowDimensions.game_info_frame.width / 2), weight=1)
 
         player_turn_label = self.player_turn_label()
         player_turn_label.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
@@ -297,7 +297,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
             command=command_func,
             state=tk.DISABLED,
             foreground=Colour.info_panels_font.value,
-            font=(Font.default_font.value, floor(FrameDimensions.game_info_frame.height / 10)),
+            font=(Font.default_font.value, floor(MainWindowDimensions.game_info_frame.height / 10)),
             text="Confirm")
 
         return confirm_cell_choice_button
@@ -311,7 +311,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
                                      text="Player's Turn:",
                                      relief=Relief.players_turn.value,
                                      background=Colour.players_turn_label.value,
-                                     font=(Font.default_font.value, floor(FrameDimensions.game_info_frame.height / 10)))
+                                     font=(Font.default_font.value, floor(MainWindowDimensions.game_info_frame.height / 10)))
         return player_turn_label
 
     def player_label(self, pos_player: bool) -> tk.Label:
@@ -328,7 +328,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         player_label = tk.Label(master=self.widget_manager.game_info_frame,
                                 text=text,
                                 background=colour,
-                                font=(Font.default_font.value, floor(FrameDimensions.game_info_frame.height / 10)),
+                                font=(Font.default_font.value, floor(MainWindowDimensions.game_info_frame.height / 10)),
                                 relief=Relief.player_labels.value)
         if pos_player:
             self.widget_manager.pos_player_label = player_label

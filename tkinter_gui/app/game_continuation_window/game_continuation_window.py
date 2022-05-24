@@ -1,7 +1,7 @@
 """Module containing the class that produces the top up when a player has won or there is a draw"""
 
-from tkinter_gui.app.main_game_window.widget_management import MainWindowWidgetManager
-from tkinter_gui.constants.dimensions import FrameDimensions
+from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindowWidgetManager
+from tkinter_gui.constants.dimensions import MainWindowDimensions
 from tkinter_gui.constants.style_and_colours import Colour, Relief, Font
 from math import floor
 import tkinter as tk
@@ -26,8 +26,8 @@ class GameContinuationPopUp:
 
     def populate_pop_up_window(self):
         """Method to fill up the pop_up window with all the relevant components"""
-        self.pop_up_window.rowconfigure(index=[0, 1], minsize=FrameDimensions.pop_up_window.height / 2, weight=1)
-        self.pop_up_window.columnconfigure(index=[0, 1], minsize=FrameDimensions.pop_up_window.width / 2, weight=1)
+        self.pop_up_window.rowconfigure(index=[0, 1], minsize=MainWindowDimensions.pop_up_window.height / 2, weight=1)
+        self.pop_up_window.columnconfigure(index=[0, 1], minsize=MainWindowDimensions.pop_up_window.width / 2, weight=1)
 
         game_outcome_label = self.get_game_outcome_label()
         game_outcome_label.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
@@ -46,7 +46,7 @@ class GameContinuationPopUp:
             text=self.text,
             background=Colour.game_outcome_label.value,
             foreground=Colour.game_outcome_label_font.value,
-            font=(Font.default_font.value, floor(FrameDimensions.pop_up_window.height / 6)),
+            font=(Font.default_font.value, floor(MainWindowDimensions.pop_up_window.height / 6)),
             relief=Relief.game_outcome_label.value
         )
         return game_outcome_label
@@ -59,7 +59,7 @@ class GameContinuationPopUp:
             text="Play Again",
             background=Colour.game_continuation_exit_buttons.value,
             foreground=Colour.game_continuation_exit_buttons_font.value,
-            font=(Font.default_font.value, floor(FrameDimensions.pop_up_window.height / 6)),
+            font=(Font.default_font.value, floor(MainWindowDimensions.pop_up_window.height / 6)),
             relief=Relief.game_continuation_exit_buttons.value
         )
         return game_continuation_button
@@ -72,7 +72,7 @@ class GameContinuationPopUp:
             text="Exit Game",
             background=Colour.game_continuation_exit_buttons.value,
             foreground=Colour.game_continuation_exit_buttons_font.value,
-            font=(Font.default_font.value, floor(FrameDimensions.pop_up_window.height / 6)),
+            font=(Font.default_font.value, floor(MainWindowDimensions.pop_up_window.height / 6)),
             relief=Relief.game_continuation_exit_buttons.value
         )
         return exit_game_button
