@@ -34,7 +34,6 @@ class NoughtsAndCrossesWindow(ActiveGameFrames, HistoricInfoFrame):
         self.create_all_game_components()
         game_window.mainloop()
 
-# TODO method that adds all components to widget manager
 
     def create_all_game_components(self):
         """Method to create all the frames used in the main game window and fill the with their components"""

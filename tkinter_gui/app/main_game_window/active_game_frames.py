@@ -50,7 +50,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         player_turn_label = self.player_turn_label()
         player_turn_label.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
 
-        pos_player_label = self.player_label(pos_player=True)
+        pos_player_label = self.player_label(pos_player=True)  # These don't go to widget manager as they're static
         pos_player_label.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
         neg_player_label = self.player_label(pos_player=False)
         neg_player_label.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")

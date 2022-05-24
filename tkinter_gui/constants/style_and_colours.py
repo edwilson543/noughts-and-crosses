@@ -36,10 +36,19 @@ class Colour(Enum):
     game_continuation_exit_buttons = "black"
     game_continuation_exit_buttons_font = "white"
 
+    # Game setup window
+    game_parameters_frame_background = "black"
+    col_scale_background = "#8e9aad"
+    col_scale_trough = "#79acfc"
+    row_scale_background = "#800900"
+    row_scale_trough = "#ffa59e"
+    win_scale_background = "#a4fcae"
+    win_scale_trough = "#28ad37"
+
 
 class Font(Enum):
     xo_font = "Times New Roman"
-    default_font = "Didot"
+    default_font = "Times New Roman"
 
 
 class Relief(Enum):
@@ -61,3 +70,6 @@ class Relief(Enum):
     # Game continuation pop up
     game_outcome_label = tk.SUNKEN
     game_continuation_exit_buttons = tk.RAISED
+
+    # Game setup window
+    row_col_win_labels = tk.RIDGE
