@@ -9,7 +9,7 @@ pos_player = Player(name="Ed", active_symbol=GameValue.O)
 neg_player = Player(name="Libby", active_symbol=GameValue.X)
 ##########
 
-# TODO Add window to see who wants to go first and set this as player first attribute
+# TODO Add main_window to see who wants to go first and set this as player first attribute
 
 if __name__ == "__main__" :
     game = NoughtsAndCrossesWindow(game_rows_m=3, game_cols_n=3, win_length_k=3,

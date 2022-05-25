@@ -3,10 +3,11 @@ import tkinter as tk
 
 
 class Colour(Enum):
-    window = "black"
-    background = "black"
+    # Main main_window
+    main_window = "black"
+    main_frame_background = "black"
 
-    # Inside the frames on the mian window
+    # Inside the frames on the mian main_window
     game_background = "#d1c7c7"
     game_buttons_background = "#b2d1f7"
     game_status_background = "#78f599"
@@ -36,7 +37,8 @@ class Colour(Enum):
     game_continuation_exit_buttons = "black"
     game_continuation_exit_buttons_font = "white"
 
-    # Game setup window
+    # Game setup main window
+    # Game parameters frame
     game_parameters_frame_background = "black"
     col_scale_background = "#8e9aad"
     col_scale_trough = "#79acfc"
@@ -44,6 +46,13 @@ class Colour(Enum):
     row_scale_trough = "#ffa59e"
     win_scale_background = "#a4fcae"
     win_scale_trough = "#28ad37"
+
+    # Player info frame
+    player_info_frame_background = "black"
+    player_info_labels = "#9ec4e6"
+    player_name_entry = "white"
+    starting_player_label = "#acad76"
+    starting_player_radio = "#fcffa1"
 
 
 class Font(Enum):
@@ -71,5 +80,12 @@ class Relief(Enum):
     game_outcome_label = tk.SUNKEN
     game_continuation_exit_buttons = tk.RAISED
 
-    # Game setup window
+    # Game setup main_window
+    # Game parameters frame
     row_col_win_labels = tk.RIDGE
+
+    # Player info frame
+    player_info_labels = tk.GROOVE
+    player_name_entry = tk.SUNKEN
+    starting_player_label = tk.RIDGE
+    starting_player_radio = tk.RAISED

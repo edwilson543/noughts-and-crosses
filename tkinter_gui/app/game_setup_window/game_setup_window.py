@@ -1,4 +1,4 @@
-"""Module to display the window that appears when players are setting up the game."""
+"""Module to display the main_window that appears when players are setting up the game."""
 from tkinter_gui.constants.dimensions import SetupWindowDimensions
 
 

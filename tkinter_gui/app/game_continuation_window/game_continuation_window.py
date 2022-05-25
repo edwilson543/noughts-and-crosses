@@ -16,7 +16,7 @@ class GameContinuationPopUp:
         self.pop_up_window = pop_up_window
 
     def launch_continuation_pop_up(self):
-        """Method to launch the pop up window"""
+        """Method to launch the pop up main_window"""
         pop_up = tk.Toplevel(self.widget_manager.main_window, background=Colour.pop_up_window_background.value)
 
         pop_up.resizable(width=False, height=False)
@@ -25,7 +25,7 @@ class GameContinuationPopUp:
         pop_up.mainloop()
 
     def populate_pop_up_window(self):
-        """Method to fill up the pop_up window with all the relevant components"""
+        """Method to fill up the pop_up main_window with all the relevant components"""
         self.pop_up_window.rowconfigure(index=[0, 1], minsize=MainWindowDimensions.pop_up_window.height / 2, weight=1)
         self.pop_up_window.columnconfigure(index=[0, 1], minsize=MainWindowDimensions.pop_up_window.width / 2, weight=1)
 
@@ -79,9 +79,9 @@ class GameContinuationPopUp:
 
     # Button commands
     def continue_game_button_command(self):
-        """Method that just shuts the pop_up_window window"""
+        """Method that just shuts the pop_up_window main_window"""
         self.pop_up_window.destroy()
 
     def exit_game_button_command(self):
-        """Method that ends the game by shutting the main window"""
+        """Method that ends the game by shutting the main main_window"""
         self.widget_manager.main_window.destroy()

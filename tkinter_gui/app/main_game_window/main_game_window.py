@@ -23,11 +23,11 @@ class NoughtsAndCrossesWindow(ActiveGameFrames, HistoricInfoFrame):
                          draw_count, active_unconfirmed_cell, widget_manager)
 
     def launch_playing_window(self):
-        """Method for launching the main noughts and crosses game play window and controlling the game flow"""
-        # Define and configure the window
+        """Method for launching the main noughts and crosses game play main_window and controlling the game flow"""
+        # Define and configure the main_window
         game_window = tk.Tk()
         game_window.title("Noughts and Crosses")
-        game_window.configure(background=Colour.window.value)
+        game_window.configure(background=Colour.main_window.value)
         game_window.rowconfigure(index=0, weight=1)
         game_window.columnconfigure(index=0, weight=1)
         self.widget_manager.main_window = game_window
@@ -36,9 +36,9 @@ class NoughtsAndCrossesWindow(ActiveGameFrames, HistoricInfoFrame):
 
 
     def create_all_game_components(self):
-        """Method to create all the frames used in the main game window and fill the with their components"""
+        """Method to create all the frames used in the main game main_window and fill the with their components"""
         # Background frame that contains all components of the game
-        background_frame = tk.Frame(master=self.widget_manager.main_window, background=Colour.background.value,
+        background_frame = tk.Frame(master=self.widget_manager.main_window, background=Colour.main_frame_background.value,
                                     borderwidth=3, relief=tk.RIDGE)
         background_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
         background_frame.rowconfigure(index=[0, 1], minsize=MainWindowDimensions.game_info_frame.height, weight=1)

@@ -15,7 +15,7 @@ class Dimension:
 
 
 ##########
-# Dimensions for the main window and pop up
+# Dimensions for the main main_window and pop up
 ##########
 
 game_frame = Dimension(width=600, height=450)
@@ -33,15 +33,16 @@ class MainWindowDimensions:
 
 
 ##########
-# Dimensions for the setup window
+# Dimensions for the setup main_window
 ##########
 
 game_parameters_frame = Dimension(width=300, height=300)
 game_parameters_frame_cells = Dimension(width=int(game_parameters_frame.width/5),
                                         height=int(game_parameters_frame.height/5))
-
+player_info_frame = Dimension(width=300, height=300)
 
 @dataclass(frozen=True)
 class SetupWindowDimensions:
     game_parameters_frame = game_parameters_frame
     game_parameters_frame_cells = game_parameters_frame_cells
+    player_info_frame = player_info_frame

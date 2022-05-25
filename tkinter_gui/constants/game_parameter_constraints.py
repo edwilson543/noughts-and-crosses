@@ -1,11 +1,12 @@
 from enum import Enum
 
 
-class GameSizeParameters(Enum):
+class GameParameterConstraint(Enum):
     """
     Enum for the min/max length of each parameter of the game board.
     This is due to avoid the UI looking stupid
     """
+    # Game structural parameters
     min_rows = 3
     max_rows = 20
     min_cols = 3
@@ -16,3 +17,6 @@ class GameSizeParameters(Enum):
     default_rows = 3
     default_cols = 3
     default_win_length = 3
+
+    # Player info
+    max_player_length = 8

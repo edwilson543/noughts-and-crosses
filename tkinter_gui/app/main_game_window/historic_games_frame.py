@@ -8,7 +8,7 @@ import tkinter as tk
 
 class HistoricInfoFrame:
     """
-    Frame that goes in the bottom right of the main window, and stores the players' win counts.
+    Frame that goes in the bottom right of the main main_window, and stores the players' win counts.
     """
 
     def __init__(self,
