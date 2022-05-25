@@ -41,6 +41,7 @@ game_parameters_frame_cells = Dimension(width=int(game_parameters_frame.width/5)
                                         height=int(game_parameters_frame.height/5))
 player_info_frame = Dimension(width=300, height=300)
 
+
 @dataclass(frozen=True)
 class SetupWindowDimensions:
     game_parameters_frame = game_parameters_frame

@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 import tkinter as tk
 
+
 @dataclass(frozen=False)
 class GameSetupWidgets:
     # Setup main_window
     setup_window: tk.Tk = None
+    confirm_details_button: tk.Tk = None
 
     # Game parameters
     game_parameters_frame: tk.Frame = None

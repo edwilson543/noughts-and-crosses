@@ -29,24 +29,24 @@ class GameParametersFrame:
         self._upload_widgets_to_widget_manager()
 
         self.widget_manager.game_rows_scale.grid(row=1, column=0, rowspan=3, sticky="ns", padx=5, pady=5)
-        self.widget_manager.game_cols_scale.grid(row=4, column=1, columnspan=3, sticky="ew", padx=5, pady=5)
-        self.widget_manager.win_length_scale.grid(row=0, column=1, columnspan=3, sticky="ew", padx=5, pady=5)
-        self.widget_manager.game_rows_label.grid(row=2, column=1, columnspan=3, sticky="nsew", padx=5, pady=5)
-        self.widget_manager.game_cols_label.grid(row=3, column=1, columnspan=3, sticky="nsew", padx=5, pady=5)
-        self.widget_manager.win_length_label.grid(row=1, column=1, columnspan=3, sticky="nsew", padx=5, pady=5)
+        self.widget_manager.game_cols_scale.grid(row=4, column=1, columnspan=4, sticky="ew", padx=5, pady=5)
+        self.widget_manager.win_length_scale.grid(row=0, column=1, columnspan=4, sticky="ew", padx=5, pady=5)
+        self.widget_manager.game_rows_label.grid(row=2, column=1, columnspan=4, sticky="nsew", padx=5, pady=5)
+        self.widget_manager.game_cols_label.grid(row=3, column=1, columnspan=4, sticky="nsew", padx=5, pady=5)
+        self.widget_manager.win_length_label.grid(row=1, column=1, columnspan=4, sticky="nsew", padx=5, pady=5)
 
     def _configure_game_parameters_frame(self):
         """Method to format the game parameters frame"""
         self.widget_manager.game_parameters_frame = tk.Frame(
             master=self.widget_manager.setup_window,
             background=Colour.game_parameters_frame_background.value,
-            borderwidth=3
+            borderwidth=3, relief=Relief.game_parameters_frame.value
         )
         self.widget_manager.game_parameters_frame.rowconfigure(
             index=[0, 1, 2, 3, 4], weight=1,
             minsize=SetupWindowDimensions.game_parameters_frame_cells.height)
         self.widget_manager.game_parameters_frame.columnconfigure(
-            index=[0, 1, 2, 3], weight=1,
+            index=[0, 1, 2, 3, 4], weight=1,
             minsize=SetupWindowDimensions.game_parameters_frame_cells.width)
 
     def _upload_widgets_to_widget_manager(self) -> None:
@@ -164,7 +164,7 @@ class GameParametersFrame:
             text=f"Rows: {GameParameterConstraint.default_rows.value}",
             relief=Relief.row_col_win_labels.value,
             anchor=tk.CENTER,
-            font=(Font.default_font.value, floor(SetupWindowDimensions.game_parameters_frame_cells.height / 4)),
+            font=(Font.default_font.value, floor(SetupWindowDimensions.game_parameters_frame_cells.height / 3)),
             background=Colour.row_scale_trough.value
         )
         return game_rows_label
@@ -176,7 +176,7 @@ class GameParametersFrame:
             text=f"Columns: {GameParameterConstraint.default_cols.value}",
             relief=Relief.row_col_win_labels.value,
             anchor=tk.CENTER,
-            font=(Font.default_font.value, floor(SetupWindowDimensions.game_parameters_frame_cells.height / 4)),
+            font=(Font.default_font.value, floor(SetupWindowDimensions.game_parameters_frame_cells.height / 3)),
             background=Colour.col_scale_background.value,
         )
         return game_cols_label
@@ -188,14 +188,7 @@ class GameParametersFrame:
             text=f"Win length: {GameParameterConstraint.default_win_length.value}",
             relief=Relief.row_col_win_labels.value,
             anchor=tk.CENTER,
-            font=(Font.default_font.value, floor(SetupWindowDimensions.game_parameters_frame_cells.height / 4)),
+            font=(Font.default_font.value, floor(SetupWindowDimensions.game_parameters_frame_cells.height / 3)),
             background=Colour.win_scale_background.value
         )
         return win_length_label
-
-# main_window = tk.Tk()
-# frame = GameParametersFrame(widget_manager=GameSetupWidgets())
-# frame.widget_manager.game_parameters_frame = tk.Frame(master=main_window)
-# frame.populate_game_parameters_frame()
-# frame.widget_manager.game_parameters_frame.pack()
-# main_window.mainloop()

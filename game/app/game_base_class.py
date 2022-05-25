@@ -2,8 +2,20 @@ from game.app.player_base_class import Player
 from game.constants.game_constants import GameValue
 import numpy as np
 from typing import Optional, Union
+from dataclasses import dataclass
 
-#  TODO could use a data class to carry the attributes for this and all subclasses
+#  TODO use a data class to carry the attributes for this and all subclasses
+
+
+@dataclass(frozen=False)
+class NoughtsAndCrossesParameters:
+    """Dataclass storing all the non-default parameters for the Noughts and Crosses game."""
+    game_rows_m: int
+    game_cols_n: int
+    win_length_k: int
+    player_x: Player
+    player_o: Player
+    starting_player: GameValue
 
 
 class NoughtsAndCrosses:
@@ -15,7 +27,7 @@ class NoughtsAndCrosses:
                  win_length_k: int,
                  pos_player: Player,
                  neg_player: Player,
-                 starting_player: GameValue = None,
+                 starting_player: GameValue,
                  draw_count: int = 0):
         self.game_rows_m = game_rows_m
         self.game_cols_n = game_cols_n

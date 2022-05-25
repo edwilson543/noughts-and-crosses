@@ -28,23 +28,23 @@ class PlayerInfoFrame:
         # Player naming
         player_x_label = self.get_player_label(player_x=True)
         player_o_label = self.get_player_label(player_x=False)
-        player_x_label.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
-        player_o_label.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
+        player_x_label.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+        player_o_label.grid(row=0, column=2, columnspan=2, sticky="nsew", padx=5, pady=5)
 
-        self.widget_manager.player_x_entry.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
-        self.widget_manager.player_o_entry.grid(row=1, column=1, sticky="nsew", padx=5, pady=5)
+        self.widget_manager.player_x_entry.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+        self.widget_manager.player_o_entry.grid(row=1, column=2, columnspan=2, sticky="nsew", padx=5, pady=5)
 
         starting_player_label = self.get_starting_player_label()
-        starting_player_label.grid(row=2, column=0, sticky="nsew", padx=5, pady=1)
-        self.widget_manager.random_player_starts_radio.grid(row=3, column=0, sticky="ew", padx=5, pady=1)
-        self.widget_manager.player_x_starts_radio.grid(row=4, column=0, sticky="ew", padx=5, pady=1)
-        self.widget_manager.player_o_starts_radio.grid(row=5, column=0, sticky="ew", padx=5, pady=1)
+        starting_player_label.grid(row=2, column=1, columnspan=2, sticky="nsew", padx=5, pady=1)
+        self.widget_manager.random_player_starts_radio.grid(row=3, column=1, columnspan=2, sticky="ew", padx=5, pady=1)
+        self.widget_manager.player_x_starts_radio.grid(row=4, column=1, columnspan=2, sticky="ew", padx=5, pady=1)
+        self.widget_manager.player_o_starts_radio.grid(row=5, column=1, columnspan=2, sticky="ew", padx=5, pady=1)
 
     def _configure_player_info_frame(self):
         self.widget_manager.player_info_frame = tk.Frame(
             master=self.widget_manager.setup_window,
             background=Colour.player_info_frame_background.value,
-            borderwidth=3
+            borderwidth=3, relief=Relief.player_info_frame.value,
         )
         self.widget_manager.player_info_frame.rowconfigure(
             index=[0, 1], minsize=floor(SetupWindowDimensions.player_info_frame.height / 5), weight=1)
@@ -153,11 +153,3 @@ class PlayerInfoFrame:
             relief=Relief.starting_player_radio.value,
             font=(Font.default_font.value, floor(SetupWindowDimensions.player_info_frame.height/20)))
         self.widget_manager.random_player_starts_radio = random_player_starts
-
-
-main_window = tk.Tk()
-frame = PlayerInfoFrame(widget_manager=GameSetupWidgets())
-frame.widget_manager.player_info_frame = tk.Frame(master=main_window)
-frame.populate_player_info_frame()
-frame.widget_manager.player_info_frame.pack()
-main_window.mainloop()

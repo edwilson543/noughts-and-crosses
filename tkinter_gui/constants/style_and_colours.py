@@ -39,6 +39,7 @@ class Colour(Enum):
 
     # Game setup main window
     # Game parameters frame
+    setup_window_background = "black"
     game_parameters_frame_background = "black"
     col_scale_background = "#8e9aad"
     col_scale_trough = "#79acfc"
@@ -82,9 +83,11 @@ class Relief(Enum):
 
     # Game setup main_window
     # Game parameters frame
+    game_parameters_frame = tk.RIDGE
     row_col_win_labels = tk.RIDGE
 
     # Player info frame
+    player_info_frame = tk.RIDGE
     player_info_labels = tk.GROOVE
     player_name_entry = tk.SUNKEN
     starting_player_label = tk.RIDGE
