@@ -5,10 +5,13 @@ import numpy as np
 @dataclass(frozen=False)
 class MainWindowWidgetManager:
     """
-    Data class that stores all widgets in the main window (across all frames) and therefore allows the widgets within
-    the different frames to be tied together in the main window.
+    Data class that stores all widgets in the main main_window (across all frames) and therefore allows the widgets within
+    the different frames to be tied together in the main main_window.
     Note only widgets that get updated throughout the game are included here
     """
+    # Main main_window
+    main_window: tk.Tk = None
+
     # Playing grid
     playing_grid_frame: tk.Frame = None
     playing_grid: np.array = None

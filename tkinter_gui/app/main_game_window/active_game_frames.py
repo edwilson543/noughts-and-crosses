@@ -3,8 +3,9 @@
 from game.app.game_base_class import NoughtsAndCrosses
 from game.app.player_base_class import Player
 from game.constants.game_constants import GameValue
-from tkinter_gui.app.main_game_window.widget_management import MainWindowWidgetManager
-from tkinter_gui.constants.dimensions import FrameDimensions
+from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindowWidgetManager
+from tkinter_gui.app.game_continuation_window.game_continuation_window import GameContinuationPopUp
+from tkinter_gui.constants.dimensions import MainWindowDimensions
 from tkinter_gui.constants.style_and_colours import Colour, Font, Relief
 import tkinter as tk
 from math import floor
@@ -13,7 +14,7 @@ import numpy as np
 import logging
 
 
-class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
+class ActiveGameFrames(NoughtsAndCrosses):
     def __init__(self,
                  game_rows_m: int,
                  game_cols_n: int,
@@ -27,8 +28,8 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         super().__init__(game_rows_m, game_cols_n, win_length_k, pos_player, neg_player, starting_player, draw_count)
         self.active_unconfirmed_cell = active_unconfirmed_cell
         self.widget_manager = widget_manager
-        self.min_cell_height = floor(FrameDimensions.game_frame.height / game_rows_m)
-        self.min_cell_width = floor(FrameDimensions.game_frame.width / game_cols_n)
+        self.min_cell_height = floor(MainWindowDimensions.game_frame.height / game_rows_m)
+        self.min_cell_width = floor(MainWindowDimensions.game_frame.width / game_cols_n)
 
     ##########
     # Methods populating / clearing the two frames with the relevant buttons
@@ -41,25 +42,24 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         Parameters: None
         Returns: None
         """
-        # TODO sort out formatting so that confirmation buttons are below the player buttons
         self.widget_manager.game_info_frame.rowconfigure(
-            index=[0, 1, 2], minsize=floor(FrameDimensions.game_info_frame.height / 3), weight=1)
+            index=[0, 1, 2], minsize=floor(MainWindowDimensions.game_info_frame.height / 3), weight=1)
         self.widget_manager.game_info_frame.columnconfigure(
-            index=[0, 1, 2], minsize=floor(FrameDimensions.game_info_frame.width / 3), weight=1)
-
-        self.widget_manager.pos_player_confirmation_button = self.confirm_cell_choice_button()
-        self.widget_manager.pos_player_confirmation_button.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
-        self.widget_manager.neg_player_confirmation_button = self.confirm_cell_choice_button()
-        self.widget_manager.neg_player_confirmation_button.grid(row=1, column=3, padx=5, pady=5, sticky="nsew")
-        self.initialise_confirmation_buttons()
+            index=[0, 1], minsize=floor(MainWindowDimensions.game_info_frame.width / 2), weight=1)
 
         player_turn_label = self.player_turn_label()
-        player_turn_label.grid(row=0, column=0, columnspan=4, padx=5, pady=5, sticky="nsew")
+        player_turn_label.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
 
-        pos_player_label = self.player_label(pos_player=True)
+        pos_player_label = self.player_label(pos_player=True)  # These don't go to widget manager as they're static
         pos_player_label.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
         neg_player_label = self.player_label(pos_player=False)
-        neg_player_label.grid(row=1, column=2, padx=5, pady=5, sticky="nsew")
+        neg_player_label.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
+
+        self.widget_manager.pos_player_confirmation_button = self.confirm_cell_choice_button()
+        self.widget_manager.pos_player_confirmation_button.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
+        self.widget_manager.neg_player_confirmation_button = self.confirm_cell_choice_button()
+        self.widget_manager.neg_player_confirmation_button.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
+        self.initialise_confirmation_buttons()
 
     def populate_empty_playing_grid(self):
         """
@@ -110,22 +110,22 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         Parameters: None
         Returns: None
         """
-        # self.widget_manager.active_confirmation_button["state"] = tk.DISABLED
         self.confirmation_button_switch()
         self.confirm_cell_selection()
+        self.switch_highlighted_confirmation_button()
         self.end_of_game_check()
-        self.switch_highlighted_player()
 
     def confirmation_button_switch(self):
-        # TODO include colouring too, and generally sort out
         """
         Method to switch which player's confirmation button is showing as active.
         Parameters:
         initiation: if this is the game initiation, then
         """
         if self.get_player_turn() == self.pos_player.active_symbol.value:
+            self.widget_manager.active_confirmation_button["state"] = tk.DISABLED
             self.widget_manager.active_confirmation_button = self.widget_manager.neg_player_confirmation_button
         else:
+            self.widget_manager.active_confirmation_button["state"] = tk.DISABLED
             self.widget_manager.active_confirmation_button = self.widget_manager.pos_player_confirmation_button
 
     def confirm_cell_selection(self) -> None:
@@ -151,10 +151,13 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         """
         winning_player = self.get_winning_player()
         if winning_player is not None:
-            # TODO could launch a TopLevel to see if they want to continue playing
-            self.starting_player = self.get_player_turn() # TODO can add feature to choose whether winner/loser starts
+            # TODO can also make the winning streak flash and dance
+            # Would need to separate out to do this though, because if the popup comes first then the rest of the if
+            # loop doesn't execute
+            self.starting_player = self.get_player_turn()
             self.reset_game_board()  # backend
             self.clear_playing_grid()  # frontend
+            self.initialise_confirmation_buttons()
 
             if winning_player == self.pos_player:
                 self.pos_player.award_point()
@@ -168,10 +171,16 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
                 raise ValueError(
                     "winning_player is not None in end_of_game check but neither player is equal to the"
                     "winning player.")
+            pop_up = GameContinuationPopUp(text=f"{winning_player.name} wins!", widget_manager=self.widget_manager)
+            pop_up.launch_continuation_pop_up()
+
         elif self.check_for_draw():
             self.reset_game_board()  # backend
             self.clear_playing_grid()  # frontend
             self.widget_manager.draw_count_label.configure(text=f"Draws:\n{self.draw_count}")
+            self.initialise_confirmation_buttons()
+            pop_up = GameContinuationPopUp(text="Game ended in a draw", widget_manager=self.widget_manager)
+            pop_up.launch_continuation_pop_up()
 
     ##########
     # Playing grid button commands
@@ -189,7 +198,7 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         self.replace_existing_unconfirmed_cell(row_index=row_index, col_index=col_index)
 
         # Destroy existing available cell and replace with an unconfirmed cell button
-        self.replace_existing_avaialble_cell(row_index=row_index, col_index=col_index)
+        self.replace_existing_available_cell(row_index=row_index, col_index=col_index)
 
     def unconfirmed_cell_choice_button_command(self) -> None:
         """
@@ -209,7 +218,7 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         self.active_unconfirmed_cell = None
         self.widget_manager.active_confirmation_button["state"] = tk.DISABLED
 
-    def replace_existing_avaialble_cell(self, row_index: int, col_index: int):
+    def replace_existing_available_cell(self, row_index: int, col_index: int):
         """Method to destroy an existing available cell and replace it with an unconfirmed cell button."""
         # Destroy existing available cell
         self.widget_manager.playing_grid[row_index, col_index].destroy()
@@ -287,10 +296,9 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
             master=self.widget_manager.game_info_frame,
             command=command_func,
             state=tk.DISABLED,
-            background=Colour.unconfirmed_cell.value,
             foreground=Colour.info_panels_font.value,
-            font=(Font.default_font.value, floor(FrameDimensions.game_info_frame.height / 10)),
-            text="Confirm\nSelection")
+            font=(Font.default_font.value, floor(MainWindowDimensions.game_info_frame.height / 10)),
+            text="Confirm")
 
         return confirm_cell_choice_button
 
@@ -303,7 +311,7 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
                                      text="Player's Turn:",
                                      relief=Relief.players_turn.value,
                                      background=Colour.players_turn_label.value,
-                                     font=(Font.default_font.value, floor(FrameDimensions.game_info_frame.height / 10)))
+                                     font=(Font.default_font.value, floor(MainWindowDimensions.game_info_frame.height / 10)))
         return player_turn_label
 
     def player_label(self, pos_player: bool) -> tk.Label:
@@ -316,13 +324,12 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
             player = self.neg_player
         x_or_o = GameValue(player.active_symbol).name
         text = f"{player.name}:\n{x_or_o}"
-        colour = self.get_player_label_colour(player=player)
-        relief = self.get_player_label_relief(player=player)
+        colour = self.get_occupied_cell_colour(marking=player.active_symbol.name)
         player_label = tk.Label(master=self.widget_manager.game_info_frame,
                                 text=text,
                                 background=colour,
-                                font=(Font.default_font.value, floor(FrameDimensions.game_info_frame.height / 10)),
-                                relief=relief)
+                                font=(Font.default_font.value, floor(MainWindowDimensions.game_info_frame.height / 10)),
+                                relief=Relief.player_labels.value)
         if pos_player:
             self.widget_manager.pos_player_label = player_label
         else:
@@ -332,6 +339,10 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
     # Lower level methods used for game processing
     def initialise_confirmation_buttons(self) -> None:
         """Method that decides which confirmation button should be active at the start of the game."""
+        self.widget_manager.pos_player_confirmation_button.configure(
+            background=self.get_player_confirmation_button_colour(player=self.pos_player))
+        self.widget_manager.neg_player_confirmation_button.configure(
+            background=self.get_player_confirmation_button_colour(player=self.neg_player))
         if self.starting_player == self.neg_player.active_symbol.value:
             self.widget_manager.active_confirmation_button = self.widget_manager.neg_player_confirmation_button
         else:
@@ -351,25 +362,25 @@ class NoughtsAndCrossesGameFrames(NoughtsAndCrosses):
         else:
             return Colour.occupied_cell_o.value
 
-    def switch_highlighted_player(self):
+    def switch_highlighted_confirmation_button(self):
         """Method to flick between who's cell is highlighted depending on who's go it is"""
-        self.widget_manager.pos_player_label.configure(
-            background=self.get_player_label_colour(player=self.pos_player),
-            relief=self.get_player_label_relief(player=self.pos_player))
-        self.widget_manager.neg_player_label.configure(
-            background=self.get_player_label_colour(player=self.neg_player),
-            relief=self.get_player_label_relief(player=self.neg_player))
+        self.widget_manager.pos_player_confirmation_button.configure(
+            background=self.get_player_confirmation_button_colour(player=self.pos_player),
+            relief=self.get_player_confirmation_button_relief(player=self.pos_player))
+        self.widget_manager.neg_player_confirmation_button.configure(
+            background=self.get_player_confirmation_button_colour(player=self.neg_player),
+            relief=self.get_player_confirmation_button_relief(player=self.neg_player))
 
-    def get_player_label_colour(self, player: Player) -> str:
+    def get_player_confirmation_button_colour(self, player: Player) -> str:
         """Highlights the player's label if it's their go, otherwise their label is not highlighted."""
         if self.get_player_turn() == player.active_symbol.value:
             return Colour.unconfirmed_cell.value
         else:
             return self.get_occupied_cell_colour(marking=GameValue(player.active_symbol).name)
 
-    def get_player_label_relief(self, player: Player):
+    def get_player_confirmation_button_relief(self, player: Player):
         """Raises the player's label if it's there go, otherwise their label is sunken."""
         if self.get_player_turn() == player.active_symbol.value:
-            return Relief.active_player_label.value
+            return Relief.active_player_confirmation_button.value
         else:
-            return Relief.inactive_player_label.value
+            return Relief.inactive_player_confirmation_button.value

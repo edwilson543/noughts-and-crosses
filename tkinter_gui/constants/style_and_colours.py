@@ -3,10 +3,11 @@ import tkinter as tk
 
 
 class Colour(Enum):
-    window = "black"
-    background = "black"
+    # Main main_window
+    main_window = "black"
+    main_frame_background = "black"
 
-    # Inside the frames on the mian window
+    # Inside the frames on the mian main_window
     game_background = "#d1c7c7"
     game_buttons_background = "#b2d1f7"
     game_status_background = "#78f599"
@@ -20,7 +21,7 @@ class Colour(Enum):
 
     # Inside the game info frame
     info_panels_font = "black"
-    players_turn_label = "#616bed"
+    players_turn_label = "#8bb2f0"
     players_turn_font = "black"
 
     # Inside the historic game info frame
@@ -29,11 +30,35 @@ class Colour(Enum):
     player_win_count_labels = "#013d0c"
     player_win_count_font = "white"
 
+    # Game continuation pop up
+    pop_up_window_background = "black"
+    game_outcome_label = "black"
+    game_outcome_label_font = "white"
+    game_continuation_exit_buttons = "black"
+    game_continuation_exit_buttons_font = "white"
+
+    # Game setup main window
+    # Game parameters frame
+    setup_window_background = "black"
+    game_parameters_frame_background = "black"
+    col_scale_background = "#8e9aad"
+    col_scale_trough = "#79acfc"
+    row_scale_background = "#800900"
+    row_scale_trough = "#ffa59e"
+    win_scale_background = "#a4fcae"
+    win_scale_trough = "#28ad37"
+
+    # Player info frame
+    player_info_frame_background = "black"
+    player_info_labels = "#9ec4e6"
+    player_name_entry = "white"
+    starting_player_label = "#acad76"
+    starting_player_radio = "#fcffa1"
 
 
 class Font(Enum):
     xo_font = "Times New Roman"
-    default_font = "Didot"
+    default_font = "Times New Roman"
 
 
 class Relief(Enum):
@@ -44,10 +69,26 @@ class Relief(Enum):
 
     # Active info grid
     players_turn = tk.SUNKEN
-    active_player_label = tk.RAISED
-    inactive_player_label = tk.SUNKEN
+    active_player_confirmation_button = tk.RAISED
+    inactive_player_confirmation_button = tk.SUNKEN
+    player_labels = tk.SUNKEN
 
     # Historic info grid
     game_win_count_label = tk.SUNKEN
     player_win_count_label = tk.SUNKEN
 
+    # Game continuation pop up
+    game_outcome_label = tk.SUNKEN
+    game_continuation_exit_buttons = tk.RAISED
+
+    # Game setup main_window
+    # Game parameters frame
+    game_parameters_frame = tk.RIDGE
+    row_col_win_labels = tk.RIDGE
+
+    # Player info frame
+    player_info_frame = tk.RIDGE
+    player_info_labels = tk.GROOVE
+    player_name_entry = tk.SUNKEN
+    starting_player_label = tk.RIDGE
+    starting_player_radio = tk.RAISED
