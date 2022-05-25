@@ -4,71 +4,69 @@ import numpy as np
 from typing import Optional, Union
 from dataclasses import dataclass
 
+
 #  TODO use a data class to carry the attributes for this and all subclasses
 
 
 @dataclass(frozen=False)
 class NoughtsAndCrossesParameters:
     """Dataclass storing all the non-default parameters for the Noughts and Crosses game."""
-    game_rows_m: int
-    game_cols_n: int
-    win_length_k: int
-    player_x: Player
-    player_o: Player
-    starting_player: GameValue
+    game_rows_m: int = None
+    game_cols_n: int = None
+    win_length_k: int = None
+    player_x: Player = None
+    player_o: Player = None
+    starting_player: GameValue = None
 
 
 class NoughtsAndCrosses:
     """Base class to reflect the game play of a noughts and crosses game."""
 
     def __init__(self,
-                 game_rows_m: int,
-                 game_cols_n: int,
-                 win_length_k: int,
-                 pos_player: Player,
-                 neg_player: Player,
-                 starting_player: GameValue,
+                 parameters: NoughtsAndCrossesParameters,
                  draw_count: int = 0):
-        self.game_rows_m = game_rows_m
-        self.game_cols_n = game_cols_n
-        self.playing_grid = np.zeros(shape=(game_rows_m, game_cols_n))
-        self.win_length_k = win_length_k
-        self.pos_player = pos_player
-        self.neg_player = neg_player
-        self.starting_player = starting_player
+        self.parameters = parameters
         self.draw_count = draw_count
+        self.playing_grid = np.zeros(shape=(self.parameters.game_rows_m, self.parameters.game_cols_n))
 
-    def choose_starting_player(self, player_name: Optional[str], random: bool = True) -> None:
-        """Method to allow manual choice of who goes first."""
+    ##########
+    # Methods that are a part of the core game play flow
+    ##########
+    def set_starting_player(self, player_marking: Optional[GameValue], random: bool = True) -> None:
+        """
+        Method to allow choice of who goes first, or to be randomly selected.
+        Note that the starting player is carried as either 1 or -1 (which corresponds with the GameValue Enum)
+        """
         if random:
-            self.starting_player = np.random.choice([-1, 1])
-        elif player_name == self.pos_player.name:
-            self.starting_player = self.pos_player.active_symbol.value  # this will be 1
-        elif player_name == self.pos_player.name:
-            self.starting_player = self.pos_player.active_symbol.value  # this will be -1
+            self.parameters.starting_player = np.random.choice([GameValue.X.value, GameValue.O.value])
+        elif player_marking == GameValue.X.name:
+            self.parameters.starting_player = GameValue.X.value  # equal to 1
+        elif player_marking == GameValue.O.name:
+            self.parameters.starting_player = GameValue.O.value  # equal -1
         else:
             raise ValueError("Attempted to call choose_starting_player method non-randomly but with a player_name"
                              "that did not match either of the players.")
 
     def get_player_turn(self) -> GameValue:
         """
-        Method to determine who's turn it is to mark the board, using sum of the board 1s/-1s and who went first.
-        If this is the first turn, a player is randomly selected to go first
+        Method to determine who's turn it is to mark the board, using sum of the board 1s/-1s.
+        If the sum is zero then both player's have had an equal number of turns, and therefore it's the starting
+        player's turn. Otherwise, the starting player has had an extra go, so it's the other player's turn.
 
         Returns:
-        GameValue value (1 or -1) - the piece that will get placed following the next turn. Determined by summing the
-        1s and -1s - whoever has placed the most
+        GameValue value (1 or -1) - the piece that will get placed following the next turn.
         """
         board_status = self.playing_grid.sum().sum()
         if board_status != 0:  # The starting player has had one more turn than the other player
             player_turn = -board_status
             return - board_status
         else:
-            return self.starting_player
+            return self.parameters.starting_player
 
     def mark_board(self, row_index: int, col_index: int) -> None:
         """
-        Method to make a new entry on the game board.
+        Method to make a new entry on the game board. Note that there is no opportunity to mark out of turn, because the
+        get_player_turn method is called within this method.
         Parameters:
         Row/col index - the index of the playing_grid where the mark will be made
         Returns:
@@ -83,30 +81,39 @@ class NoughtsAndCrosses:
             raise ValueError(f"mark_board attempted to mark non-empty cell at {row_index, col_index}.")
 
     def get_winning_player(self) -> Union[None, Player]:
-        """Method to perform the winning board search, and return None or the winning player"""
+        """
+        Method to perform the winning board search, and return None or the winning player,
+        depending on if there's a winning player.
+        """
         if not self.winning_board_search():
             return None
         else:
             previous_mark_made_by = - self.get_player_turn()
-            if previous_mark_made_by == self.pos_player.active_symbol.value:
-                return self.pos_player
+            if previous_mark_made_by == GameValue.X.value:
+                return self.parameters.player_x
             else:
-                return self.neg_player
+                return self.parameters.player_o
 
     def check_for_draw(self) -> bool:
+        """
+        Method that checks whether or not the board has reached a stalemate.
+        This is currently naive in that it just checks for a full board - a draw may in fact have been guaranteed sooner
+        than the board being full.
+        #  TODO think about how to address this
+        """
         draw = np.all(self.playing_grid != 0)
         if draw:
             self.draw_count += 1
         return draw
 
     def reset_game_board(self) -> None:
-        """Method to reset the game board"""
-        self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n))
+        """Method to reset the game board - replaces all entries in the playing_grid with a zero"""
+        self.playing_grid = np.zeros(shape=(self.parameters.game_rows_m, self.parameters.game_cols_n))
 
+    # Lower level methods that are needed for the core game flow
     ##########
-    # Method to do the whole board search
+    # Search algorithm for the whole board win search
     ##########
-
     def winning_board_search(self) -> bool:
         """
         Method to check whether or not the board has reached a winning state.
@@ -119,54 +126,75 @@ class NoughtsAndCrosses:
         """
         row_arrays: list = self.get_row_arrays()
         col_arrays: list = self.get_col_arrays()
-        south_east_diag_arrays: list = self.get_south_east_diagonal_arrays(playing_grid=self.playing_grid)
-        north_west_diag_arrays: list = self.get_south_west_diagonal_arrays()
-        all_arrays: list = row_arrays + col_arrays + south_east_diag_arrays + north_west_diag_arrays
+        south_east_arrays: list = self.get_south_east_diagonal_arrays(playing_grid=self.playing_grid)
+        north_east_arrays: list = self.get_north_east_diagonal_arrays()
+        all_arrays: list = row_arrays + col_arrays + south_east_arrays + north_east_arrays
         any_win: bool = self.search_array_list_for_win(array_list=all_arrays)
         return any_win
 
-    ##########
     #  Methods called in winning_board_search
-    ##########
-
     def search_array_list_for_win(self, array_list: list[np.array]) -> bool:
         """
-        Searches a list of numpy arrays for one that contains a win
+        Searches a list of numpy arrays for an array of consecutive markings (1s or -1s), representing a win.
 
-        Checks all relevant arrays of length at least self.win_length_k, and then convolutes each section of length
-        self.win_length_k them with an array of ones i.e. sums each section. Then checks if the sum of any sections is
-        at least the length of the array.
+        Each section of length self.win_length_k is convoluted with an array of ones of length self.win_length_k.
+        i.e. the sum of each section of each array of length self.win_length_k is taken, because the board is 1s and -1s
+        The algorithm then checks if the sum of any sections is at least the required winning streak length.
         """
         for array in array_list:
-            convoluted_array = np.convolve(array, np.ones(self.win_length_k, dtype=int), mode="valid")
+            convoluted_array = np.convolve(array, np.ones(self.parameters.win_length_k, dtype=int), mode="valid")
             # "valid" kwarg means only where the np.ones array fully overlaps with the row gets calculated
             max_consecutive = max(abs(convoluted_array))
-            if max_consecutive == self.win_length_k:
+            if max_consecutive == self.parameters.win_length_k:
                 return True  # Diagonals contains a winning array
         return False  # The algorithm has looped over all south-east diagonals and not found any winning boards
 
     def get_row_arrays(self) -> list[np.array]:
-        row_array_list = [self.playing_grid[row_index] for row_index in range(0, self.game_rows_m)]
+        """Returns: a list of the row arrays on the playing grid"""
+        row_array_list = [self.playing_grid[row_index] for row_index in range(0, self.parameters.game_rows_m)]
         return row_array_list
 
     def get_col_arrays(self) -> list[np.array]:
-        col_array_list = [self.playing_grid[:, col_index] for col_index in range(0, self.game_cols_n)]
+        """Returns: a list of the column arrays on the playing grid"""
+        col_array_list = [self.playing_grid[:, col_index] for col_index in range(0, self.parameters.game_cols_n)]
         return col_array_list
 
     def get_south_east_diagonal_arrays(self, playing_grid: np.array) -> list[np.array]:
         """
-        Playing grid parameter included so that this method can be re-used to check for south west diagonals too.
+        Method to extract the south_east diagonals of sufficient length from the playing grid
         The first element in the diagonal_offset_list is the diagonals in the lower triangle and leading diagonal (of
         at least length self.win_length_k), the second element is those in the upper triangle
+
+        Parameters:
+        __________
+        playing_grid - so that this method can be re-used to check for north east diagonals too.
+
+        Returns:
+        __________
+        A list of the south east diagonal arrays on the playing grid, of length at least self.win_length_k.
+        i.e. south east diagonal arrays too short to contain a winning streak are intentionally excluded, to avoid
+        being searched unnecessarily.
         """
-        diagonal_offset_list = list(range(-(self.game_rows_m - self.win_length_k), 0)) + \
-                               list(range(0, self.game_cols_n - self.win_length_k + 1))
+        diagonal_offset_list = list(range(-(self.parameters.game_rows_m - self.parameters.win_length_k), 0)) + \
+                               list(range(0, self.parameters.game_cols_n - self.parameters.win_length_k + 1))
         diagonal_array_list = [np.diagonal(playing_grid, offset) for offset in diagonal_offset_list]
         return diagonal_array_list
 
-    def get_south_west_diagonal_arrays(self) -> list[np.array]:
+    def get_north_east_diagonal_arrays(self) -> list[np.array]:
         """
+        Method to extract the north_east diagonals of sufficient length from the playing grid
+
         Takes the south-east diagonals of the board flipped upside down - does reverse the order of the arrays
         in that the bottom row becomes the top, but otherwise does not affect the length of a win.
+
+        Parameters:
+        __________
+        playing_grid - so that this method can use the check for south east diagonals without having to re-write code.
+
+        Returns:
+        __________
+        A list of the north east diagonal arrays on the playing grid, of length at least self.win_length_k.
+        Note they are north east because the board has been flipped upside down, so reading along a 1D array generated
+        by this method would represent travelling north east on the playing grid.
         """
         return self.get_south_east_diagonal_arrays(playing_grid=np.flipud(self.playing_grid))

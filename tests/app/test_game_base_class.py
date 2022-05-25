@@ -1,40 +1,24 @@
-from game.app.game_base_class import NoughtsAndCrosses
+from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesParameters
 import pytest
 import numpy as np
 
 
-@pytest.fixture(scope="module")
-def test_rows():
-    return 4
-
-
-@pytest.fixture(scope="module")
-def test_cols():
-    return 3
-
-
-@pytest.fixture(scope="module")
-def test_win_length():
-    return 3
-
-#  TODO update for new search algorithm
-
 class TestNoughtsAndCrossesSearchAlgorithm:
     """
     Test class purely for testing the search algorithm of the NoughtsAndCrosses class
-    (And its components)
+    (Chiefly its component methods)  # TODO write some tests for the winning_board_search method using components
     """
 
-    # noinspection PyTypeChecker
     @pytest.fixture(scope="function")
-    def empty_game(self, test_rows, test_cols, test_win_length):
-        return NoughtsAndCrosses(
-            game_rows_m=test_rows,
-            game_cols_n=test_cols,
-            win_length_k=test_win_length,
-            pos_player=None,
-            neg_player=None,
-            starting_player=None)
+    def empty_game_parameters(self):
+        return NoughtsAndCrossesParameters(
+            game_rows_m=4,
+            game_cols_n=3,
+            win_length_k=3)
+
+    @pytest.fixture(scope="function")
+    def empty_game(self, empty_game_parameters):
+        return NoughtsAndCrosses(parameters=empty_game_parameters)
 
     ##########
     # Checks board is not a winner
@@ -81,7 +65,6 @@ class TestNoughtsAndCrossesSearchAlgorithm:
     # Test for vertical wins
     ##########
     def test_vertical_win_bottom_left(self, empty_game):
-        empty_game.playing_grid = np.array
         empty_game.playing_grid = np.array([
             [1, -1, 1],
             [-1, -1, 1],
@@ -92,7 +75,6 @@ class TestNoughtsAndCrossesSearchAlgorithm:
         assert win
 
     def test_vertical_win_top_right(self, empty_game):
-        empty_game.playing_grid = np.array
         empty_game.playing_grid = np.array([
             [-1, 1, 1],
             [-1, 1, 1],
@@ -127,10 +109,10 @@ class TestNoughtsAndCrossesSearchAlgorithm:
         assert win
 
     ##########
-    # Tests for south east diagonal win
+    # Tests for north east diagonal win
     ##########
 
-    def test_north_west_win_leading_diag(self, empty_game):
+    def test_north_east_win_leading_diag(self, empty_game):
         empty_game.playing_grid = np.array([
             [0, 1, -1],
             [1, -1, 0],
@@ -140,7 +122,7 @@ class TestNoughtsAndCrossesSearchAlgorithm:
         win = empty_game.winning_board_search()
         assert win
 
-    def test_south_west_win_lower_triangle_diag(self, empty_game):
+    def test_north_east_win_lower_triangle_diag(self, empty_game):
         empty_game.playing_grid = np.array([
             [0, 1, 0],
             [1, 0, -1],
@@ -174,7 +156,7 @@ class TestNoughtsAndCrossesSearchAlgorithm:
                 validity += np.all(act_array == exp_array)
             assert validity
 
-    def test_south_west_diagonal_list(self, empty_game):
+    def test_north_west_diagonal_list(self, empty_game):
         """Tests whether the get_south_east_diagonal_list method is working"""
         empty_game.game_rows_m = 5
         empty_game.game_cols_n = 6
@@ -188,10 +170,9 @@ class TestNoughtsAndCrossesSearchAlgorithm:
             np.array([26, 21, 16, 11]),
             np.array([27, 22, 17])
             ]
-        actual_diagonal_arrays: list = empty_game.get_south_west_diagonal_arrays()
+        actual_diagonal_arrays: list = empty_game.get_north_east_diagonal_arrays()
         for act_array in actual_diagonal_arrays:
             validity = False
             for exp_array in expected_diagonal_arrays:
                 validity += np.all(act_array == exp_array)
             assert validity
-
