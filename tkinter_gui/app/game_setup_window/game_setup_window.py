@@ -56,7 +56,7 @@ class SetupWindow(PlayerInfoFrame, GameParametersFrame):
         """Method that extracts all of the game and player info, uploads it to a dict and then"""
         # TODO make it so that until players names are included, cannot confirm
         # Can use the trace function on the fields
-        setup_parameters = NoughtsAndCrossesEssentialParameters(
+        self.setup_parameters = NoughtsAndCrossesEssentialParameters(
             game_rows_m=self.game_rows_m.get(),
             game_cols_n=self.game_cols_n.get(),
             win_length_k=self.win_length_k.get(),
@@ -64,11 +64,13 @@ class SetupWindow(PlayerInfoFrame, GameParametersFrame):
             player_o=self.player_o_entry.get(),
             starting_player_value=self.starting_player_value.get()
         )
+        print(self.setup_parameters)
 
     def _get_confirmation_button(self) -> tk.Button:
         """Returns: the formatted confirmation button that links the setup window to the main game window"""
         confirmation_button = tk.Button(
             master=self.widget_manager.setup_window,
+            command=self._confirm_all_details_button_command,
             text="Confirm all entries"
         )
         return confirmation_button
