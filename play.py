@@ -1,3 +1,4 @@
+from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
 from tkinter_gui.app.main_game_window.main_game_window import NoughtsAndCrossesWindow
 
 ##########
@@ -5,13 +6,21 @@ from tkinter_gui.app.main_game_window.main_game_window import NoughtsAndCrossesW
 from game.constants.game_constants import BoardMarking
 from game.app.player_base_class import Player
 
-pos_player = Player(name="Ed", mark_value=BoardMarking.O)
-neg_player = Player(name="Libby", mark_value=BoardMarking.X)
+player_x = Player(name="Ed", mark_value=BoardMarking.X)
+player_o = Player(name="Libby", mark_value=BoardMarking.O)
+
+setup_parameters = NoughtsAndCrossesEssentialParameters(
+    game_rows_m=3,
+    game_cols_n=3,
+    win_length_k=3,
+    player_x=player_x,
+    player_o=player_o,
+    starting_player_value=BoardMarking.X.value,
+)
 ##########
 
 # TODO Add main_window to see who wants to go first and set this as player first attribute
 
 if __name__ == "__main__" :
-    game = NoughtsAndCrossesWindow(game_rows_m=3, game_cols_n=3, win_length_k=3,
-                                   neg_player=neg_player, pos_player=pos_player, starting_player=BoardMarking.X.value)
+    game = NoughtsAndCrossesWindow(setup_parameters=setup_parameters)
     game.launch_playing_window()

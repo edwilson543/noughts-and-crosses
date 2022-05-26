@@ -9,7 +9,7 @@ from math import floor
 
 class GameParametersFrame:
     """
-    Class that fills the game parameters (left-hand) frame on the setup menu.
+    Class that fills the game setup_parameters (left-hand) frame on the setup menu.
     The purpose of this frame is for the user to define the structure of the game they would like to play.
     """
 
@@ -24,7 +24,7 @@ class GameParametersFrame:
         self.win_length_k = win_length_k
 
     def populate_game_parameters_frame(self) -> None:
-        """Method that inserts all the labels/ scales into the game parameters frame"""
+        """Method that inserts all the labels/ scales into the game setup_parameters frame"""
         self._format_game_parameters_frame()
         self._upload_widgets_to_widget_manager()
 
@@ -36,7 +36,7 @@ class GameParametersFrame:
         self.widget_manager.win_length_label.grid(row=1, column=1, columnspan=4, sticky="nsew", padx=5, pady=5)
 
     def _format_game_parameters_frame(self):
-        """Method to format the game parameters frame"""
+        """Method to format the game setup_parameters frame"""
         self.widget_manager.game_parameters_frame = tk.Frame(
             master=self.widget_manager.setup_window,
             background=Colour.game_parameters_frame_background.value,
@@ -59,7 +59,7 @@ class GameParametersFrame:
         self.widget_manager.win_length_label = self.get_win_length_label()
 
     ##########
-    # Scale objects in the game parameters frame
+    # Scale objects in the game setup_parameters frame
     ##########
     def get_game_rows_scale(self) -> tk.Scale:
         """Method to produce the ttk scale object used by the user to select the number of rows to play with."""

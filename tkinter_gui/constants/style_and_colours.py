@@ -38,7 +38,7 @@ class Colour(Enum):
     game_continuation_exit_buttons_font = "white"
 
     # Game setup main window
-    # Game parameters frame
+    # Game setup_parameters frame
     setup_window_background = "black"
     game_parameters_frame_background = "black"
     col_scale_background = "#8e9aad"
@@ -88,7 +88,7 @@ class Relief(Enum):
     ##########
     # Game setup main_window
     ##########
-    # Game parameters frame
+    # Game setup_parameters frame
     game_parameters_frame = tk.RIDGE
     row_col_win_labels = tk.RIDGE
 

@@ -1,6 +1,6 @@
-"""Module containing the playing grid and active game info (which containts the master conirmation button)"""
+"""Module containing the playing grid and active game info frame (which contains the master confirmation buttons)"""
 
-from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesParameters
+from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
 from game.app.player_base_class import Player
 from game.constants.game_constants import BoardMarking
 from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindowWidgetManager
@@ -19,15 +19,15 @@ import logging
 
 class ActiveGameFrames(NoughtsAndCrosses):
     def __init__(self,
-                 parameters: NoughtsAndCrossesParameters,
+                 setup_parameters: NoughtsAndCrossesEssentialParameters,
                  draw_count: int = 0,
                  active_unconfirmed_cell: (int, int) = None,
                  widget_manager=MainWindowWidgetManager()):
-        super().__init__(parameters, draw_count)
+        super().__init__(setup_parameters, draw_count)
         self.active_unconfirmed_cell = active_unconfirmed_cell
         self.widget_manager = widget_manager
-        self.min_cell_height = floor(MainWindowDimensions.game_frame.height / parameters.game_rows_m)
-        self.min_cell_width = floor(MainWindowDimensions.game_frame.width / parameters.game_cols_n)
+        self.min_cell_height = floor(MainWindowDimensions.game_frame.height / setup_parameters.game_rows_m)
+        self.min_cell_width = floor(MainWindowDimensions.game_frame.width / setup_parameters.game_cols_n)
 
     ##########
     # Methods populating and formatting the two active frames with the relevant widgets
@@ -45,7 +45,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         player_turn_label = self._get_player_turn_label()
         player_turn_label.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
 
-        # Dynamic widgets are therefore in the widget manager
+        # Dynamic widgets already added to the widget manager
         self.widget_manager.player_x_label.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
         self.widget_manager.player_o_label.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
 
@@ -54,7 +54,10 @@ class ActiveGameFrames(NoughtsAndCrosses):
         self.initialise_confirmation_buttons()
 
     def _format_game_info_frame(self) -> None:
-        """Method to format the game info frame (top-right) of the main playing window"""
+        """
+        Method to format the game info frame (top-right) of the main playing window,
+        and upload it to the widget manager.
+        """
         self.widget_manager.game_info_frame = tk.Frame(
             master=self.widget_manager.background_frame, background=Colour.game_buttons_background.value,
             borderwidth=5, relief=tk.SUNKEN)
@@ -65,8 +68,8 @@ class ActiveGameFrames(NoughtsAndCrosses):
 
     def _upload_game_info_widgets_to_widget_manager(self) -> None:
         """Method that links all of the dynamic widgets in the game info frame into the widget manager"""
-        self.widget_manager.player_x_label = self._get_player_label(player=self.parameters.player_x)
-        self.widget_manager.player_o_label = self._get_player_label(player=self.parameters.player_o)
+        self.widget_manager.player_x_label = self._get_player_label(player=self.player_x)
+        self.widget_manager.player_o_label = self._get_player_label(player=self.player_o)
 
         self.widget_manager.player_x_confirmation_button = self._get_confirm_cell_choice_button()
         self.widget_manager.player_o_confirmation_button = self._get_confirm_cell_choice_button()
@@ -80,24 +83,27 @@ class ActiveGameFrames(NoughtsAndCrosses):
         """
         self._format_playing_grid_frame()
         self.widget_manager.playing_grid = np.empty(
-            shape=(self.parameters.game_rows_m, self.parameters.game_cols_n), dtype=object)
-        for row_index in range(0, self.parameters.game_rows_m):
-            for col_index in range(0, self.parameters.game_cols_n):
+            shape=(self.game_rows_m, self.game_cols_n), dtype=object)
+        for row_index in range(0, self.game_rows_m):
+            for col_index in range(0, self.game_cols_n):
                 available_cell_button = self._get_available_cell_button(row_index=row_index, col_index=col_index)
                 available_cell_button.grid(row=row_index, column=col_index, sticky="nsew", padx=1, pady=1)
                 self.widget_manager.playing_grid[row_index, col_index] = available_cell_button
 
     def _format_playing_grid_frame(self) -> None:
-        """Method to format the playing grid that will be filled with cell buttons and markings"""
+        """
+        Method to format the playing grid that will be filled with cell buttons and markings, and upload it to the
+        widget manager.
+        """
         self.widget_manager.playing_grid_frame = tk.Frame(
             master=self.widget_manager.background_frame, background=Colour.game_background.value,
             borderwidth=5, relief=Relief.playing_grid_frame.value)
         self.widget_manager.playing_grid_frame.rowconfigure(
-            index=list(range(0, self.parameters.game_rows_m)),
+            index=list(range(0, self.game_rows_m)),
             minsize=self.min_cell_height,
             weight=1)
         self.widget_manager.playing_grid_frame.columnconfigure(
-            index=list(range(0, self.parameters.game_cols_n)),
+            index=list(range(0, self.game_cols_n)),
             minsize=self.min_cell_width,
             weight=1)
 
@@ -169,14 +175,14 @@ class ActiveGameFrames(NoughtsAndCrosses):
             self._clear_playing_grid()  # frontend
             self.initialise_confirmation_buttons()
 
-            if winning_player == self.parameters.player_x:
-                self.parameters.player_x.award_point()
+            if winning_player == self.player_x:
+                self.player_x.award_point()
                 self.widget_manager.player_x_win_count_label.configure(
-                    text=self.parameters.player_x.win_count_label_text())
-            elif winning_player == self.parameters.player_o:
-                self.parameters.player_o.award_point()
+                    text=self.player_x.win_count_label_text())
+            elif winning_player == self.player_o:
+                self.player_o.award_point()
                 self.widget_manager.player_o_win_count_label.configure(
-                    text=self.parameters.player_o.win_count_label_text())
+                    text=self.player_o.win_count_label_text())
             else:
                 raise ValueError(
                     "winning_player is not None in end_of_game check but neither player is equal to the"
@@ -197,8 +203,8 @@ class ActiveGameFrames(NoughtsAndCrosses):
         Method to clear the playing grid at the end of a game and fill it with a new one. (GUI grid only)
         All buttons and labels are removed, and a grid is populated with only available buttons.
         """
-        for row_index in range(0, self.parameters.game_rows_m):
-            for col_index in range(0, self.parameters.game_cols_n):
+        for row_index in range(0, self.game_rows_m):
+            for col_index in range(0, self.game_cols_n):
                 self.widget_manager.playing_grid[row_index, col_index].destroy()
                 available_cell_button = self._get_available_cell_button(
                     row_index=row_index, col_index=col_index)
@@ -364,13 +370,15 @@ class ActiveGameFrames(NoughtsAndCrosses):
         game.
         """
         self.widget_manager.player_x_confirmation_button.configure(
-            background=self._get_player_confirmation_button_colour(player=self.parameters.player_x))
+            background=self._get_player_confirmation_button_colour(player=self.player_x))
         self.widget_manager.player_o_confirmation_button.configure(
-            background=self._get_player_confirmation_button_colour(player=self.parameters.player_o))
-        if self.parameters.starting_player_value == BoardMarking.X.value:
+            background=self._get_player_confirmation_button_colour(player=self.player_o))
+        if self.starting_player_value == BoardMarking.X.value:
             self.widget_manager.active_confirmation_button = self.widget_manager.player_x_confirmation_button
-        else:
+        elif self.starting_player_value == BoardMarking.O.value:
             self.widget_manager.active_confirmation_button = self.widget_manager.player_o_confirmation_button
+        else:
+            raise ValueError(f"Invalid starting_player_value identified in initialise_confirmation_buttons")
 
     #  Lower level methods used for formatting updates during the game
     def _get_player_turn_marking(self) -> str:
@@ -389,11 +397,11 @@ class ActiveGameFrames(NoughtsAndCrosses):
     def _switch_highlighted_confirmation_button(self):
         """Method to flick between who's cell is highlighted depending on who's go it is"""
         self.widget_manager.player_x_confirmation_button.configure(
-            background=self._get_player_confirmation_button_colour(player=self.parameters.player_x),
-            relief=self._get_player_confirmation_button_relief(player=self.parameters.player_x))
+            background=self._get_player_confirmation_button_colour(player=self.player_x),
+            relief=self._get_player_confirmation_button_relief(player=self.player_x))
         self.widget_manager.player_o_confirmation_button.configure(
-            background=self._get_player_confirmation_button_colour(player=self.parameters.player_o),
-            relief=self._get_player_confirmation_button_relief(player=self.parameters.player_o))
+            background=self._get_player_confirmation_button_colour(player=self.player_o),
+            relief=self._get_player_confirmation_button_relief(player=self.player_o))
 
     # Lowest level methods used in _switch_highlighted_confirmation_button
     def _get_player_confirmation_button_colour(self, player: Player) -> str:

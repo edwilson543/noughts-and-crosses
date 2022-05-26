@@ -5,9 +5,6 @@ from typing import Optional, Union
 from dataclasses import dataclass
 
 
-#  TODO use a data class to carry the attributes for this and all subclasses
-
-
 @dataclass(frozen=False)
 class NoughtsAndCrossesEssentialParameters:
     """

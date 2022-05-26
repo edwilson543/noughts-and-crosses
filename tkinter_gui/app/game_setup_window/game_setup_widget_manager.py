@@ -8,7 +8,7 @@ class GameSetupWidgets:
     setup_window: tk.Tk = None
     confirm_details_button: tk.Tk = None
 
-    # Game parameters
+    # Game setup_parameters
     game_parameters_frame: tk.Frame = None
     game_rows_scale: tk.Scale = None
     game_rows_label: tk.Label = None
