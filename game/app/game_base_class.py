@@ -10,13 +10,18 @@ from dataclasses import dataclass
 
 @dataclass(frozen=False)
 class NoughtsAndCrossesParameters:
-    """Dataclass storing all the non-default parameters for the Noughts and Crosses game."""
+    """
+    Dataclass storing all the non-default parameters for the Noughts and Crosses game.
+    These are the parameters that re necessary to fully define a game.
+
+    starting_player_value is stored as a BoardMarking value (either 1 or -1)
+    """
     game_rows_m: int = None
     game_cols_n: int = None
     win_length_k: int = None
     player_x: Player = None
     player_o: Player = None
-    starting_player: BoardMarking = None
+    starting_player_value: BoardMarking = None
 
 
 class NoughtsAndCrosses:
@@ -38,11 +43,11 @@ class NoughtsAndCrosses:
         Note that the starting player is carried as either 1 or -1 (which corresponds with the BoardMarking Enum)
         """
         if random:
-            self.parameters.starting_player = np.random.choice([BoardMarking.X.value, BoardMarking.O.value])
+            self.parameters.starting_player_value = np.random.choice([BoardMarking.X.value, BoardMarking.O.value])
         elif player_marking == BoardMarking.X.name:
-            self.parameters.starting_player = BoardMarking.X.value  # equal to 1
+            self.parameters.starting_player_value = BoardMarking.X.value  # equal to 1
         elif player_marking == BoardMarking.O.name:
-            self.parameters.starting_player = BoardMarking.O.value  # equal -1
+            self.parameters.starting_player_value = BoardMarking.O.value  # equal -1
         else:
             raise ValueError("Attempted to call choose_starting_player method non-randomly but with a player_name"
                              "that did not match either of the players.")
@@ -61,7 +66,7 @@ class NoughtsAndCrosses:
             player_turn = -board_status
             return - board_status
         else:
-            return self.parameters.starting_player
+            return self.parameters.starting_player_value
 
     def mark_board(self, row_index: int, col_index: int) -> None:
         """

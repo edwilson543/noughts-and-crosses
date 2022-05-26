@@ -25,7 +25,7 @@ class GameParametersFrame:
 
     def populate_game_parameters_frame(self) -> None:
         """Method that inserts all the labels/ scales into the game parameters frame"""
-        self._configure_game_parameters_frame()
+        self._format_game_parameters_frame()
         self._upload_widgets_to_widget_manager()
 
         self.widget_manager.game_rows_scale.grid(row=1, column=0, rowspan=3, sticky="ns", padx=5, pady=5)
@@ -35,7 +35,7 @@ class GameParametersFrame:
         self.widget_manager.game_cols_label.grid(row=3, column=1, columnspan=4, sticky="nsew", padx=5, pady=5)
         self.widget_manager.win_length_label.grid(row=1, column=1, columnspan=4, sticky="nsew", padx=5, pady=5)
 
-    def _configure_game_parameters_frame(self):
+    def _format_game_parameters_frame(self):
         """Method to format the game parameters frame"""
         self.widget_manager.game_parameters_frame = tk.Frame(
             master=self.widget_manager.setup_window,

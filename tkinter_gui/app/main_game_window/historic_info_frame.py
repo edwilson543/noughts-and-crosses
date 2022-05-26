@@ -30,11 +30,11 @@ class HistoricInfoFrame:
         game_win_count_label = self.get_game_win_count_label()
         game_win_count_label.grid(row=0, column=0, columnspan=3, sticky="nsew", padx=5, pady=5)
 
-        self.widget_manager.pos_player_win_count_label = self.get_player_win_count_label(player=self.pos_player)
-        self.widget_manager.pos_player_win_count_label.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
+        self.widget_manager.player_x_win_count_label = self.get_player_win_count_label(player=self.pos_player)
+        self.widget_manager.player_x_win_count_label.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
 
-        self.widget_manager.neg_player_win_count_label = self.get_player_win_count_label(player=self.neg_player)
-        self.widget_manager.neg_player_win_count_label.grid(row=1, column=2, sticky="nsew", padx=5, pady=5)
+        self.widget_manager.player_o_win_count_label = self.get_player_win_count_label(player=self.neg_player)
+        self.widget_manager.player_o_win_count_label.grid(row=1, column=2, sticky="nsew", padx=5, pady=5)
 
         self.widget_manager.draw_count_label = self.get_draw_count_label()
         self.widget_manager.draw_count_label.grid(row=1, column=1, sticky="nsew", padx=5, pady=5)

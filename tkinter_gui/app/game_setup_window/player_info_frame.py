@@ -21,26 +21,30 @@ class PlayerInfoFrame:
 
     def populate_player_info_frame(self):
         """Method to add all components of the player info frame to the grid"""
-        self._configure_player_info_frame()
+        self._format_player_info_frame()
         self._upload_entry_widgets_to_widget_manager()
         self._upload_radio_buttons_to_widget_manager()
 
-        # Player naming
-        player_x_label = self.get_player_label(player_x=True)
-        player_o_label = self.get_player_label(player_x=False)
+        # Player naming - static widgets so not in the widget manager
+        player_x_label = self._get_player_label(player_x=True)
+        player_o_label = self._get_player_label(player_x=False)
         player_x_label.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
         player_o_label.grid(row=0, column=2, columnspan=2, sticky="nsew", padx=5, pady=5)
 
+        # Player naming - dynamic widgets in the widget manager
         self.widget_manager.player_x_entry.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
         self.widget_manager.player_o_entry.grid(row=1, column=2, columnspan=2, sticky="nsew", padx=5, pady=5)
 
-        starting_player_label = self.get_starting_player_label()
+        # Selection of who goes first - static widget (label)
+        starting_player_label = self._get_starting_player_label()
         starting_player_label.grid(row=2, column=1, columnspan=2, sticky="nsew", padx=5, pady=1)
+
+        # Selection of who goes first - dynamic widgets (radio buttons)
         self.widget_manager.random_player_starts_radio.grid(row=3, column=1, columnspan=2, sticky="ew", padx=5, pady=1)
         self.widget_manager.player_x_starts_radio.grid(row=4, column=1, columnspan=2, sticky="ew", padx=5, pady=1)
         self.widget_manager.player_o_starts_radio.grid(row=5, column=1, columnspan=2, sticky="ew", padx=5, pady=1)
 
-    def _configure_player_info_frame(self):
+    def _format_player_info_frame(self):
         self.widget_manager.player_info_frame = tk.Frame(
             master=self.widget_manager.setup_window,
             background=Colour.player_info_frame_background.value,
@@ -53,13 +57,13 @@ class PlayerInfoFrame:
 
     def _upload_entry_widgets_to_widget_manager(self):
         """Method that adds all relevant widgets in the player info frame to the widget manager"""
-        self.widget_manager.player_x_entry = self.get_player_entry_field(player_x=True)
-        self.widget_manager.player_o_entry = self.get_player_entry_field(player_x=False)
+        self.widget_manager.player_x_entry = self._get_player_entry_field(player_x=True)
+        self.widget_manager.player_o_entry = self._get_player_entry_field(player_x=False)
 
     ##########
     # Player labels and entry
     ##########
-    def get_player_label(self, player_x: bool) -> tk.Label:
+    def _get_player_label(self, player_x: bool) -> tk.Label:
         """
         Method returning the label showing player one / player two.
         Note these are just static labels so don't need to go in the widget manager
@@ -78,16 +82,16 @@ class PlayerInfoFrame:
         )
         return player_label
 
-    def get_player_entry_field(self, player_x: bool) -> tk.Entry:
+    def _get_player_entry_field(self, player_x: bool) -> tk.Entry:
         """Method returning an entry field where players can write their names."""
         if player_x:
             self.player_x_entry = tk.StringVar()
             entry_text = self.player_x_entry
-            entry_text.trace_add(mode="write", callback=self.character_limit)
+            entry_text.trace_add(mode="write", callback=self._character_limit)
         else:
             self.player_o_entry = tk.StringVar()
             entry_text = self.player_o_entry
-            entry_text.trace_add(mode="write", callback=self.character_limit)
+            entry_text.trace_add(mode="write", callback=self._character_limit)
         player_name_entry = tk.Entry(
             master=self.widget_manager.player_info_frame,
             textvariable=entry_text,
@@ -98,7 +102,7 @@ class PlayerInfoFrame:
         )
         return player_name_entry
 
-    def character_limit(self, var, index, mode) -> None:
+    def _character_limit(self, var, index, mode) -> None:
         """
         Trace function that gets added to the entry fields' variables, so that players cannot enter a name with length
         greater than the max player length
@@ -117,7 +121,7 @@ class PlayerInfoFrame:
     ##########
     # Starting player radio buttons
     ##########
-    def get_starting_player_label(self) -> tk.Label:
+    def _get_starting_player_label(self) -> tk.Label:
         """Method that returns the label saying "choose starting player" above the radio buttons"""
         starting_player_label = tk.Label(
             master=self.widget_manager.player_info_frame,

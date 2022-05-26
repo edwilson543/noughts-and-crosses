@@ -5,8 +5,8 @@ from tkinter_gui.app.main_game_window.main_game_window import NoughtsAndCrossesW
 from game.constants.game_constants import BoardMarking
 from game.app.player_base_class import Player
 
-pos_player = Player(name="Ed", active_symbol=BoardMarking.O)
-neg_player = Player(name="Libby", active_symbol=BoardMarking.X)
+pos_player = Player(name="Ed", mark_value=BoardMarking.O)
+neg_player = Player(name="Libby", mark_value=BoardMarking.X)
 ##########
 
 # TODO Add main_window to see who wants to go first and set this as player first attribute

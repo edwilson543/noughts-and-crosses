@@ -62,7 +62,11 @@ class Font(Enum):
 
 
 class Relief(Enum):
+    ##########
+    # Main game window
+    ##########
     # Playing grid
+    playing_grid_frame = tk.SUNKEN
     available_cell = tk.RAISED
     unconfirmed_cell = tk.RAISED
     occupied_cell = tk.SUNKEN
@@ -81,7 +85,9 @@ class Relief(Enum):
     game_outcome_label = tk.SUNKEN
     game_continuation_exit_buttons = tk.RAISED
 
+    ##########
     # Game setup main_window
+    ##########
     # Game parameters frame
     game_parameters_frame = tk.RIDGE
     row_col_win_labels = tk.RIDGE
