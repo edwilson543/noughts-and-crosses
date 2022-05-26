@@ -8,23 +8,17 @@ from tkinter_gui.constants.style_and_colours import Colour
 import tkinter as tk
 
 
-class SetupWindow(PlayerInfoFrame, GameParametersFrame):
+class SetupWindow:
     def __init__(self,
                  widget_manager: GameSetupWidgets = GameSetupWidgets(),
-                 player_x_entry: tk.StringVar = None,
-                 player_o_entry: tk.StringVar = None,
-                 starting_player_value: tk.IntVar = None,
-                 game_rows_m: tk.IntVar = None,
-                 game_cols_n: tk.IntVar = None,
-                 win_length_k: tk.IntVar = None,
                  setup_parameters: NoughtsAndCrossesEssentialParameters = None):
-        super().__init__(widget_manager, player_x_entry, player_o_entry, starting_player_value)
-        self.game_rows_m = game_rows_m
-        self.game_cols_n = game_cols_n
-        self.win_length_k = win_length_k
+        self.widget_manager = widget_manager
         self.setup_parameters = setup_parameters
+        self.game_parameters_frame = GameParametersFrame(widget_manager=self.widget_manager)
+        self.player_info_frame = PlayerInfoFrame(widget_manager=self.widget_manager)
 
     def launch_setup_window(self) -> None:
+        """Method that is called to launch the game setup window"""
         self._create_and_format_setup_window()
         self._add_frames_to_setup_window()
         self._add_confirmation_button_to_setup_window()
@@ -41,8 +35,8 @@ class SetupWindow(PlayerInfoFrame, GameParametersFrame):
 
     def _add_frames_to_setup_window(self) -> None:
         """Method that fills the frame up with all their component widgets, and then adds them to the setup window."""
-        super().populate_game_parameters_frame()
-        super().populate_player_info_frame()
+        self.game_parameters_frame.populate_game_parameters_frame()
+        self.player_info_frame.populate_player_info_frame()
 
         self.widget_manager.game_parameters_frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
         self.widget_manager.player_info_frame.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
@@ -57,12 +51,12 @@ class SetupWindow(PlayerInfoFrame, GameParametersFrame):
         # TODO make it so that until players names are included, cannot confirm
         # Can use the trace function on the fields
         self.setup_parameters = NoughtsAndCrossesEssentialParameters(
-            game_rows_m=self.game_rows_m.get(),
-            game_cols_n=self.game_cols_n.get(),
-            win_length_k=self.win_length_k.get(),
-            player_x=self.player_x_entry.get(),
-            player_o=self.player_o_entry.get(),
-            starting_player_value=self.starting_player_value.get()
+            game_rows_m=self.game_parameters_frame.game_rows_m.get(),
+            game_cols_n=self.game_parameters_frame.game_cols_n.get(),
+            win_length_k=self.game_parameters_frame.win_length_k.get(),
+            player_x=self.player_info_frame.player_x_entry.get(),
+            player_o=self.player_info_frame.player_o_entry.get(),
+            starting_player_value=self.player_info_frame.starting_player_value.get()
         )
         print(self.setup_parameters)
 
