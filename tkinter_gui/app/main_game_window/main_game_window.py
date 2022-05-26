@@ -7,7 +7,7 @@ from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindow
 import tkinter as tk
 
 
-class NoughtsAndCrossesWindow(ActiveGameFrames, HistoricInfoFrame):
+class PlayingWindow(ActiveGameFrames, HistoricInfoFrame):
     def __init__(self,
                  setup_parameters: NoughtsAndCrossesEssentialParameters,
                  draw_count: int = 0,
@@ -26,10 +26,10 @@ class NoughtsAndCrossesWindow(ActiveGameFrames, HistoricInfoFrame):
         game_window.rowconfigure(index=0, weight=1)
         game_window.columnconfigure(index=0, weight=1)
         self.widget_manager.main_window = game_window
-        self._populate_all_frames_in_main_window()
+        self._add_frames_to_main_window()
         game_window.mainloop()
 
-    def _populate_all_frames_in_main_window(self):
+    def _add_frames_to_main_window(self):
         """Method to create all the frames used in the main game main_window and fill the with their components"""
         self._format_background_frame()
 

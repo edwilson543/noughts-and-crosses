@@ -20,7 +20,7 @@ class HistoricInfoFrame:
 
     def populate_historic_info_frame(self) -> None:
         """Method to populate the historic info grid with the relevant labels"""
-        self._format_historic_info_frame()
+        self._create_and_format_historic_info_frame()
         self._upload_historic_info_frame_widgets_to_widget_manager()
 
         # Static widget that isn't in the widget manager
@@ -32,7 +32,7 @@ class HistoricInfoFrame:
         self.widget_manager.player_o_win_count_label.grid(row=1, column=2, sticky="nsew", padx=5, pady=5)
         self.widget_manager.draw_count_label.grid(row=1, column=1, sticky="nsew", padx=5, pady=5)
 
-    def _format_historic_info_frame(self) -> None:
+    def _create_and_format_historic_info_frame(self) -> None:
         """Method that formats the historic info frame and uploads it to the widget manager."""
         self.widget_manager.historic_info_frame = tk.Frame(
             master=self.widget_manager.background_frame, background=Colour.game_status_background.value,

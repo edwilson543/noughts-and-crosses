@@ -1,5 +1,5 @@
 from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
-from tkinter_gui.app.main_game_window.main_game_window import NoughtsAndCrossesWindow
+from tkinter_gui.app.main_game_window.main_game_window import PlayingWindow
 
 ##########
 # To be deleted
@@ -22,5 +22,5 @@ setup_parameters = NoughtsAndCrossesEssentialParameters(
 # TODO Add main_window to see who wants to go first and set this as player first attribute
 
 if __name__ == "__main__" :
-    game = NoughtsAndCrossesWindow(setup_parameters=setup_parameters)
+    game = PlayingWindow(setup_parameters=setup_parameters)
     game.launch_playing_window()

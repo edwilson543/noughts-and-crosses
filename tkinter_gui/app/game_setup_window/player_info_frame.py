@@ -13,16 +13,16 @@ class PlayerInfoFrame:
                  widget_manager: GameSetupWidgets,
                  player_x_entry: tk.StringVar = None,
                  player_o_entry: tk.StringVar = None,
-                 starting_player: tk.IntVar = None):
+                 starting_player_value: tk.IntVar = None):
         self.widget_manager = widget_manager
         self.player_x_entry = player_x_entry
         self.player_o_entry = player_o_entry
-        self.starting_player = starting_player
+        self.starting_player_value = starting_player_value
 
     def populate_player_info_frame(self):
         """Method to add all components of the player info frame to the grid"""
-        self._format_player_info_frame()
-        self._upload_entry_widgets_to_widget_manager()
+        self._create_and_format_player_info_frame()
+        self._upload_player_entry_widgets_to_widget_manager()
         self._upload_radio_buttons_to_widget_manager()
 
         # Player naming - static widgets so not in the widget manager
@@ -44,7 +44,7 @@ class PlayerInfoFrame:
         self.widget_manager.player_x_starts_radio.grid(row=4, column=1, columnspan=2, sticky="ew", padx=5, pady=1)
         self.widget_manager.player_o_starts_radio.grid(row=5, column=1, columnspan=2, sticky="ew", padx=5, pady=1)
 
-    def _format_player_info_frame(self):
+    def _create_and_format_player_info_frame(self):
         self.widget_manager.player_info_frame = tk.Frame(
             master=self.widget_manager.setup_window,
             background=Colour.player_info_frame_background.value,
@@ -55,7 +55,7 @@ class PlayerInfoFrame:
         self.widget_manager.player_info_frame.columnconfigure(
             index=[0, 1], minsize=floor(SetupWindowDimensions.player_info_frame.width / 2), weight=1)
 
-    def _upload_entry_widgets_to_widget_manager(self):
+    def _upload_player_entry_widgets_to_widget_manager(self):
         """Method that adds all relevant widgets in the player info frame to the widget manager"""
         self.widget_manager.player_x_entry = self._get_player_entry_field(player_x=True)
         self.widget_manager.player_o_entry = self._get_player_entry_field(player_x=False)
@@ -132,10 +132,10 @@ class PlayerInfoFrame:
         return starting_player_label
 
     def _upload_radio_buttons_to_widget_manager(self) -> None:
-        self.starting_player = tk.IntVar(value=StartingPlayer.RANDOM.value)
+        self.starting_player_value = tk.IntVar(value=StartingPlayer.RANDOM.value)
         player_x_starts = tk.Radiobutton(
             master=self.widget_manager.player_info_frame,
-            text="Player X", variable=self.starting_player,
+            text="Player X", variable=self.starting_player_value,
             value=StartingPlayer.PLAYER_X.value,
             background=Colour.starting_player_radio.value,
             relief=Relief.starting_player_radio.value,
@@ -143,7 +143,7 @@ class PlayerInfoFrame:
         self.widget_manager.player_x_starts_radio = player_x_starts
         player_o_starts = tk.Radiobutton(
             master=self.widget_manager.player_info_frame,
-            text="Player O", variable=self.starting_player,
+            text="Player O", variable=self.starting_player_value,
             value=StartingPlayer.PLAYER_O.value,
             background=Colour.starting_player_radio.value,
             relief=Relief.starting_player_radio.value,
@@ -151,7 +151,7 @@ class PlayerInfoFrame:
         self.widget_manager.player_o_starts_radio = player_o_starts
         random_player_starts = tk.Radiobutton(
             master=self.widget_manager.player_info_frame,
-            text="Random", variable=self.starting_player,
+            text="Random", variable=self.starting_player_value,
             value=StartingPlayer.RANDOM.value,
             background=Colour.starting_player_radio.value,
             relief=Relief.starting_player_radio.value,

@@ -38,7 +38,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         Method that populates the game info grid with a confirmation button, and labels that indicate who's turn it is.
         The confirmation button is the master button that processes the game.
         """
-        self._format_game_info_frame()
+        self._create_and_format_game_info_frame()
         self._upload_game_info_widgets_to_widget_manager()
 
         # Static widget that therefore isn't in the widget manager
@@ -53,7 +53,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         self.widget_manager.player_o_confirmation_button.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
         self._initialise_confirmation_buttons()
 
-    def _format_game_info_frame(self) -> None:
+    def _create_and_format_game_info_frame(self) -> None:
         """
         Method to format the game info frame (top-right) of the main playing window,
         and upload it to the widget manager.
@@ -81,7 +81,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         Note that this is only called once at the start of the game, so all cells are empty - updates are made by
         clicking the buttons.
         """
-        self._format_playing_grid_frame()
+        self._create_and_format_playing_grid_frame()
         self.widget_manager.playing_grid = np.empty(
             shape=(self.game_rows_m, self.game_cols_n), dtype=object)
         for row_index in range(0, self.game_rows_m):
@@ -90,7 +90,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
                 available_cell_button.grid(row=row_index, column=col_index, sticky="nsew", padx=1, pady=1)
                 self.widget_manager.playing_grid[row_index, col_index] = available_cell_button
 
-    def _format_playing_grid_frame(self) -> None:
+    def _create_and_format_playing_grid_frame(self) -> None:
         """
         Method to format the playing grid that will be filled with cell buttons and markings, and upload it to the
         widget manager.
