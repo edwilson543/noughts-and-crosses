@@ -7,13 +7,16 @@ from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindow
 import tkinter as tk
 
 
-class PlayingWindow(ActiveGameFrames, HistoricInfoFrame):
+class PlayingWindow:
     def __init__(self,
                  setup_parameters: NoughtsAndCrossesEssentialParameters,
-                 draw_count: int = 0,
-                 active_unconfirmed_cell: (int, int) = None,
                  widget_manager=MainWindowWidgetManager()):
-        super().__init__(setup_parameters, draw_count, active_unconfirmed_cell, widget_manager)
+        self.setup_parameters = setup_parameters
+        self.widget_manager = widget_manager
+        self.active_game_frames = ActiveGameFrames(
+            widget_manager=self.widget_manager, setup_parameters=self.setup_parameters)
+        self.historic_info_frame = HistoricInfoFrame(
+            widget_manager=self.widget_manager, setup_parameters=self.setup_parameters)
 
 # TODO same for pop up
 
@@ -34,15 +37,15 @@ class PlayingWindow(ActiveGameFrames, HistoricInfoFrame):
         self._format_background_frame()
 
         # Frame that contains the playing grid (entire left)
-        super().populate_empty_playing_grid_frame()
+        self.active_game_frames.populate_empty_playing_grid_frame()
         self.widget_manager.playing_grid_frame.grid(row=0, column=0, rowspan=2, sticky="nsew", padx=10, pady=10)
 
         # Frame for the buttons that control the gameplay (top-right)
-        super().populate_game_info_frame()
+        self.active_game_frames.populate_game_info_frame()
         self.widget_manager.game_info_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
 
         # Frame for the labels that says the status across multiple games (bottom-right)
-        super().populate_historic_info_frame()
+        self.historic_info_frame.populate_historic_info_frame()
         self.widget_manager.historic_info_frame.grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
 
     def _format_background_frame(self) -> None:
