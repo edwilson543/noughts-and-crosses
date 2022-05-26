@@ -51,7 +51,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
 
         self.widget_manager.player_x_confirmation_button.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
         self.widget_manager.player_o_confirmation_button.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
-        self.initialise_confirmation_buttons()
+        self._initialise_confirmation_buttons()
 
     def _format_game_info_frame(self) -> None:
         """
@@ -170,16 +170,17 @@ class ActiveGameFrames(NoughtsAndCrosses):
         if winning_player is not None:
             # TODO could make the winning streak flash and dance - would need to update the order though so the popup
             # is first, and the search algorithm actually returns the position of the win
-            self.starting_player = self.get_player_turn()  # TODO could give user option to let winner/random go first
+            # TODO could give user option to let winner/random go first
             self.reset_game_board()  # backend
             self._clear_playing_grid()  # frontend
-            self.initialise_confirmation_buttons()
 
             if winning_player == self.player_x:
+                self.starting_player_value = BoardMarking.O.value  # Loser starts next game
                 self.player_x.award_point()
                 self.widget_manager.player_x_win_count_label.configure(
                     text=self.player_x.win_count_label_text())
             elif winning_player == self.player_o:
+                self.starting_player_value = BoardMarking.X.value
                 self.player_o.award_point()
                 self.widget_manager.player_o_win_count_label.configure(
                     text=self.player_o.win_count_label_text())
@@ -187,6 +188,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
                 raise ValueError(
                     "winning_player is not None in end_of_game check but neither player is equal to the"
                     "winning player.")
+            self._initialise_confirmation_buttons()
             pop_up = GameContinuationPopUp(text=f"{winning_player.name} wins!", widget_manager=self.widget_manager)
             pop_up.launch_continuation_pop_up()
 
@@ -194,7 +196,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
             self.reset_game_board()  # backend
             self._clear_playing_grid()  # frontend
             self.widget_manager.draw_count_label.configure(text=f"Draws:\n{self.draw_count}")
-            self.initialise_confirmation_buttons()
+            self._initialise_confirmation_buttons()
             pop_up = GameContinuationPopUp(text="Game ended in a draw", widget_manager=self.widget_manager)
             pop_up.launch_continuation_pop_up()
 
@@ -210,6 +212,22 @@ class ActiveGameFrames(NoughtsAndCrosses):
                     row_index=row_index, col_index=col_index)
                 available_cell_button.grid(row=row_index, column=col_index, sticky="nsew", padx=1, pady=1)
                 self.widget_manager.playing_grid[row_index, col_index] = available_cell_button
+
+    def _initialise_confirmation_buttons(self) -> None:
+        """
+        Method that decides which confirmation button should be the active confirmation button at the start of a new
+        game.
+        """
+        self.widget_manager.player_x_confirmation_button.configure(
+            background=self._get_player_confirmation_button_colour(player=self.player_x))
+        self.widget_manager.player_o_confirmation_button.configure(
+            background=self._get_player_confirmation_button_colour(player=self.player_o))
+        if self.starting_player_value == BoardMarking.X.value:
+            self.widget_manager.active_confirmation_button = self.widget_manager.player_x_confirmation_button
+        elif self.starting_player_value == BoardMarking.O.value:
+            self.widget_manager.active_confirmation_button = self.widget_manager.player_o_confirmation_button
+        else:
+            raise ValueError(f"Invalid starting_player_value identified in initialise_confirmation_buttons")
 
     ##########
     # Playing grid button commands
@@ -362,23 +380,6 @@ class ActiveGameFrames(NoughtsAndCrosses):
                                 font=(Font.default_font.value, floor(MainWindowDimensions.game_info_frame.height / 10)),
                                 relief=Relief.player_labels.value)
         return player_label
-
-    # Lower level methods used for game processing
-    def initialise_confirmation_buttons(self) -> None:
-        """
-        Method that decides which confirmation button should be the active confirmation button at the start of the
-        game.
-        """
-        self.widget_manager.player_x_confirmation_button.configure(
-            background=self._get_player_confirmation_button_colour(player=self.player_x))
-        self.widget_manager.player_o_confirmation_button.configure(
-            background=self._get_player_confirmation_button_colour(player=self.player_o))
-        if self.starting_player_value == BoardMarking.X.value:
-            self.widget_manager.active_confirmation_button = self.widget_manager.player_x_confirmation_button
-        elif self.starting_player_value == BoardMarking.O.value:
-            self.widget_manager.active_confirmation_button = self.widget_manager.player_o_confirmation_button
-        else:
-            raise ValueError(f"Invalid starting_player_value identified in initialise_confirmation_buttons")
 
     #  Lower level methods used for formatting updates during the game
     def _get_player_turn_marking(self) -> str:

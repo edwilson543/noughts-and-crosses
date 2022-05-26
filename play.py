@@ -15,7 +15,7 @@ setup_parameters = NoughtsAndCrossesEssentialParameters(
     win_length_k=3,
     player_x=player_x,
     player_o=player_o,
-    starting_player_value=BoardMarking.X.value,
+    starting_player_value=BoardMarking.O.value,
 )
 ##########
 
