@@ -9,10 +9,10 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=False)
-class NoughtsAndCrossesParameters:
+class NoughtsAndCrossesEssentialParameters:
     """
-    Dataclass storing all the non-default parameters for the Noughts and Crosses game.
-    These are the parameters that re necessary to fully define a game.
+    Dataclass storing all the non-default setup_parameters for the Noughts and Crosses game.
+    These are the setup_parameters that re necessary to fully define a game.
 
     starting_player_value is stored as a BoardMarking value (either 1 or -1)
     """
@@ -28,11 +28,16 @@ class NoughtsAndCrosses:
     """Base class to reflect the game play of a noughts and crosses game."""
 
     def __init__(self,
-                 parameters: NoughtsAndCrossesParameters,
+                 setup_parameters: NoughtsAndCrossesEssentialParameters,
                  draw_count: int = 0):
-        self.parameters = parameters
+        self.game_rows_m = setup_parameters.game_rows_m
+        self.game_cols_n = setup_parameters.game_cols_n
+        self.win_length_k = setup_parameters.win_length_k
+        self.player_x = setup_parameters.player_x
+        self.player_o = setup_parameters.player_o
+        self.starting_player_value = setup_parameters.starting_player_value
         self.draw_count = draw_count
-        self.playing_grid = np.zeros(shape=(self.parameters.game_rows_m, self.parameters.game_cols_n))
+        self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n))
 
     ##########
     # Methods that are a part of the core game play flow
@@ -43,11 +48,11 @@ class NoughtsAndCrosses:
         Note that the starting player is carried as either 1 or -1 (which corresponds with the BoardMarking Enum)
         """
         if random:
-            self.parameters.starting_player_value = np.random.choice([BoardMarking.X.value, BoardMarking.O.value])
+            self.starting_player_value = np.random.choice([BoardMarking.X.value, BoardMarking.O.value])
         elif player_marking == BoardMarking.X.name:
-            self.parameters.starting_player_value = BoardMarking.X.value  # equal to 1
+            self.starting_player_value = BoardMarking.X.value  # equal to 1
         elif player_marking == BoardMarking.O.name:
-            self.parameters.starting_player_value = BoardMarking.O.value  # equal -1
+            self.starting_player_value = BoardMarking.O.value  # equal -1
         else:
             raise ValueError("Attempted to call choose_starting_player method non-randomly but with a player_name"
                              "that did not match either of the players.")
@@ -66,7 +71,7 @@ class NoughtsAndCrosses:
             player_turn = -board_status
             return - board_status
         else:
-            return self.parameters.starting_player_value
+            return self.starting_player_value
 
     def mark_board(self, row_index: int, col_index: int) -> None:
         """
@@ -95,9 +100,9 @@ class NoughtsAndCrosses:
         else:
             previous_mark_made_by = - self.get_player_turn()
             if previous_mark_made_by == BoardMarking.X.value:
-                return self.parameters.player_x
+                return self.player_x
             else:
-                return self.parameters.player_o
+                return self.player_o
 
     def check_for_draw(self) -> bool:
         """
@@ -113,7 +118,7 @@ class NoughtsAndCrosses:
 
     def reset_game_board(self) -> None:
         """Method to reset the game board - replaces all entries in the playing_grid with a zero"""
-        self.playing_grid = np.zeros(shape=(self.parameters.game_rows_m, self.parameters.game_cols_n))
+        self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n))
 
     # Lower level methods that are needed for the core game flow
     ##########
@@ -147,21 +152,21 @@ class NoughtsAndCrosses:
         The algorithm then checks if the sum of any sections is at least the required winning streak length.
         """
         for array in array_list:
-            convoluted_array = np.convolve(array, np.ones(self.parameters.win_length_k, dtype=int), mode="valid")
+            convoluted_array = np.convolve(array, np.ones(self.win_length_k, dtype=int), mode="valid")
             # "valid" kwarg means only where the np.ones array fully overlaps with the row gets calculated
             max_consecutive = max(abs(convoluted_array))
-            if max_consecutive == self.parameters.win_length_k:
+            if max_consecutive == self.win_length_k:
                 return True  # Diagonals contains a winning array
         return False  # The algorithm has looped over all south-east diagonals and not found any winning boards
 
     def _get_row_arrays(self) -> list[np.array]:
         """Returns: a list of the row arrays on the playing grid"""
-        row_array_list = [self.playing_grid[row_index] for row_index in range(0, self.parameters.game_rows_m)]
+        row_array_list = [self.playing_grid[row_index] for row_index in range(0, self.game_rows_m)]
         return row_array_list
 
     def _get_col_arrays(self) -> list[np.array]:
         """Returns: a list of the column arrays on the playing grid"""
-        col_array_list = [self.playing_grid[:, col_index] for col_index in range(0, self.parameters.game_cols_n)]
+        col_array_list = [self.playing_grid[:, col_index] for col_index in range(0, self.game_cols_n)]
         return col_array_list
 
     def _get_south_east_diagonal_arrays(self, playing_grid: np.array) -> list[np.array]:
@@ -180,8 +185,8 @@ class NoughtsAndCrosses:
         i.e. south east diagonal arrays too short to contain a winning streak are intentionally excluded, to avoid
         being searched unnecessarily.
         """
-        diagonal_offset_list = list(range(-(self.parameters.game_rows_m - self.parameters.win_length_k), 0)) + list(
-            range(0, self.parameters.game_cols_n - self.parameters.win_length_k + 1))
+        diagonal_offset_list = list(range(-(self.game_rows_m - self.win_length_k), 0)) + list(
+            range(0, self.game_cols_n - self.win_length_k + 1))
         diagonal_array_list = [np.diagonal(playing_grid, offset) for offset in diagonal_offset_list]
         return diagonal_array_list
 
