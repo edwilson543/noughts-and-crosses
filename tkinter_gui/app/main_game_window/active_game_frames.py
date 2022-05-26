@@ -295,8 +295,8 @@ class ActiveGameFrames(NoughtsAndCrosses):
     ##########
     def _get_occupied_cell_label(self) -> tk.Label:
         """
-        Label widget that shows that a cell is already occupied and displays the relevant mark_value.
-        Returns: A label which represents a mark_value on the board (an X or an O), and also of a different colour.
+        Label widget that shows that a cell is already occupied and displays the relevant marking.
+        Returns: A label which represents a marking on the board (an X or an O), and also of a different colour.
         """
         text = self._get_player_turn_marking()  # X or O
         colour = self._get_occupied_cell_colour(marking=text)
@@ -371,9 +371,9 @@ class ActiveGameFrames(NoughtsAndCrosses):
         Method to create the player label's and show who's turn it is to take a turn at marking the board
         Parameters: player - indicates which player we are creating the label for, player_x or player_o
         """
-        x_or_o = BoardMarking(player.mark_value).name
+        x_or_o = BoardMarking(player.marking).name
         text = f"{player.name}:\n{x_or_o}"
-        colour = self._get_occupied_cell_colour(marking=player.mark_value.name)
+        colour = self._get_occupied_cell_colour(marking=player.marking.name)
         player_label = tk.Label(master=self.widget_manager.game_info_frame,
                                 text=text,
                                 background=colour,
@@ -407,14 +407,14 @@ class ActiveGameFrames(NoughtsAndCrosses):
     # Lowest level methods used in _switch_highlighted_confirmation_button
     def _get_player_confirmation_button_colour(self, player: Player) -> str:
         """Highlights the player's label if it's their go, otherwise their label is not highlighted."""
-        if self.get_player_turn() == player.mark_value.value:
+        if self.get_player_turn() == player.marking.value:
             return Colour.unconfirmed_cell.value
         else:
-            return self._get_occupied_cell_colour(marking=BoardMarking(player.mark_value).name)
+            return self._get_occupied_cell_colour(marking=BoardMarking(player.marking).name)
 
     def _get_player_confirmation_button_relief(self, player: Player):
         """Raises the player's label if it's there go, otherwise their label is sunken."""
-        if self.get_player_turn() == player.mark_value.value:
+        if self.get_player_turn() == player.marking.value:
             return Relief.active_player_confirmation_button.value
         else:
             return Relief.inactive_player_confirmation_button.value

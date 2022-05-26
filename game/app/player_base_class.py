@@ -13,10 +13,10 @@ class Player:
 
     def __init__(self,
                  name: str,
-                 mark_value: BoardMarking,
+                 marking: BoardMarking,
                  active_game_win_count: int = 0):
         self.name = name
-        self.mark_value = mark_value
+        self.marking = marking
         self.active_game_win_count = active_game_win_count
 
     def award_point(self):
@@ -24,9 +24,9 @@ class Player:
         self.active_game_win_count += 1
 
     def __eq__(self, other) -> bool:
-        """Method to check the equivalence of two players (by mark_value)"""
+        """Method to check the equivalence of two players (by marking)"""
         if isinstance(other, Player):
-            if other.mark_value == self.mark_value:
+            if other.marking == self.marking:
                 return True
             else:
                 return False

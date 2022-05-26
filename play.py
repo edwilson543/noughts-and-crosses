@@ -6,8 +6,8 @@ from tkinter_gui.app.main_game_window.main_game_window import PlayingWindow
 from game.constants.game_constants import BoardMarking
 from game.app.player_base_class import Player
 
-player_x = Player(name="Ed", mark_value=BoardMarking.X)
-player_o = Player(name="Libby", mark_value=BoardMarking.O)
+player_x = Player(name="Ed", marking=BoardMarking.X)
+player_o = Player(name="Libby", marking=BoardMarking.O)
 
 setup_parameters = NoughtsAndCrossesEssentialParameters(
     game_rows_m=3,
