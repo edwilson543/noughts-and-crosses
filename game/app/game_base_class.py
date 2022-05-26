@@ -1,5 +1,5 @@
 from game.app.player_base_class import Player
-from game.constants.game_constants import GameValue
+from game.constants.game_constants import BoardMarking
 import numpy as np
 from typing import Optional, Union
 from dataclasses import dataclass
@@ -16,7 +16,7 @@ class NoughtsAndCrossesParameters:
     win_length_k: int = None
     player_x: Player = None
     player_o: Player = None
-    starting_player: GameValue = None
+    starting_player: BoardMarking = None
 
 
 class NoughtsAndCrosses:
@@ -32,29 +32,29 @@ class NoughtsAndCrosses:
     ##########
     # Methods that are a part of the core game play flow
     ##########
-    def set_starting_player(self, player_marking: Optional[GameValue], random: bool = True) -> None:
+    def set_starting_player(self, player_marking: Optional[BoardMarking], random: bool = True) -> None:
         """
         Method to allow choice of who goes first, or to be randomly selected.
-        Note that the starting player is carried as either 1 or -1 (which corresponds with the GameValue Enum)
+        Note that the starting player is carried as either 1 or -1 (which corresponds with the BoardMarking Enum)
         """
         if random:
-            self.parameters.starting_player = np.random.choice([GameValue.X.value, GameValue.O.value])
-        elif player_marking == GameValue.X.name:
-            self.parameters.starting_player = GameValue.X.value  # equal to 1
-        elif player_marking == GameValue.O.name:
-            self.parameters.starting_player = GameValue.O.value  # equal -1
+            self.parameters.starting_player = np.random.choice([BoardMarking.X.value, BoardMarking.O.value])
+        elif player_marking == BoardMarking.X.name:
+            self.parameters.starting_player = BoardMarking.X.value  # equal to 1
+        elif player_marking == BoardMarking.O.name:
+            self.parameters.starting_player = BoardMarking.O.value  # equal -1
         else:
             raise ValueError("Attempted to call choose_starting_player method non-randomly but with a player_name"
                              "that did not match either of the players.")
 
-    def get_player_turn(self) -> GameValue:
+    def get_player_turn(self) -> BoardMarking:
         """
         Method to determine who's turn it is to mark the board, using sum of the board 1s/-1s.
         If the sum is zero then both player's have had an equal number of turns, and therefore it's the starting
         player's turn. Otherwise, the starting player has had an extra go, so it's the other player's turn.
 
         Returns:
-        GameValue value (1 or -1) - the piece that will get placed following the next turn.
+        BoardMarking value (1 or -1) - the piece that will get placed following the next turn.
         """
         board_status = self.playing_grid.sum().sum()
         if board_status != 0:  # The starting player has had one more turn than the other player
@@ -89,7 +89,7 @@ class NoughtsAndCrosses:
             return None
         else:
             previous_mark_made_by = - self.get_player_turn()
-            if previous_mark_made_by == GameValue.X.value:
+            if previous_mark_made_by == BoardMarking.X.value:
                 return self.parameters.player_x
             else:
                 return self.parameters.player_o
@@ -124,10 +124,10 @@ class NoughtsAndCrosses:
         -------
         bool: True if a player has won, else false
         """
-        row_arrays: list = self.get_row_arrays()
-        col_arrays: list = self.get_col_arrays()
-        south_east_arrays: list = self.get_south_east_diagonal_arrays(playing_grid=self.playing_grid)
-        north_east_arrays: list = self.get_north_east_diagonal_arrays()
+        row_arrays: list = self._get_row_arrays()
+        col_arrays: list = self._get_col_arrays()
+        south_east_arrays: list = self._get_south_east_diagonal_arrays(playing_grid=self.playing_grid)
+        north_east_arrays: list = self._get_north_east_diagonal_arrays()
         all_arrays: list = row_arrays + col_arrays + south_east_arrays + north_east_arrays
         any_win: bool = self.search_array_list_for_win(array_list=all_arrays)
         return any_win
@@ -149,17 +149,17 @@ class NoughtsAndCrosses:
                 return True  # Diagonals contains a winning array
         return False  # The algorithm has looped over all south-east diagonals and not found any winning boards
 
-    def get_row_arrays(self) -> list[np.array]:
+    def _get_row_arrays(self) -> list[np.array]:
         """Returns: a list of the row arrays on the playing grid"""
         row_array_list = [self.playing_grid[row_index] for row_index in range(0, self.parameters.game_rows_m)]
         return row_array_list
 
-    def get_col_arrays(self) -> list[np.array]:
+    def _get_col_arrays(self) -> list[np.array]:
         """Returns: a list of the column arrays on the playing grid"""
         col_array_list = [self.playing_grid[:, col_index] for col_index in range(0, self.parameters.game_cols_n)]
         return col_array_list
 
-    def get_south_east_diagonal_arrays(self, playing_grid: np.array) -> list[np.array]:
+    def _get_south_east_diagonal_arrays(self, playing_grid: np.array) -> list[np.array]:
         """
         Method to extract the south_east diagonals of sufficient length from the playing grid
         The first element in the diagonal_offset_list is the diagonals in the lower triangle and leading diagonal (of
@@ -175,21 +175,17 @@ class NoughtsAndCrosses:
         i.e. south east diagonal arrays too short to contain a winning streak are intentionally excluded, to avoid
         being searched unnecessarily.
         """
-        diagonal_offset_list = list(range(-(self.parameters.game_rows_m - self.parameters.win_length_k), 0)) + \
-                               list(range(0, self.parameters.game_cols_n - self.parameters.win_length_k + 1))
+        diagonal_offset_list = list(range(-(self.parameters.game_rows_m - self.parameters.win_length_k), 0)) + list(
+            range(0, self.parameters.game_cols_n - self.parameters.win_length_k + 1))
         diagonal_array_list = [np.diagonal(playing_grid, offset) for offset in diagonal_offset_list]
         return diagonal_array_list
 
-    def get_north_east_diagonal_arrays(self) -> list[np.array]:
+    def _get_north_east_diagonal_arrays(self) -> list[np.array]:
         """
         Method to extract the north_east diagonals of sufficient length from the playing grid
 
         Takes the south-east diagonals of the board flipped upside down - does reverse the order of the arrays
         in that the bottom row becomes the top, but otherwise does not affect the length of a win.
-
-        Parameters:
-        __________
-        playing_grid - so that this method can use the check for south east diagonals without having to re-write code.
 
         Returns:
         __________
@@ -197,4 +193,4 @@ class NoughtsAndCrosses:
         Note they are north east because the board has been flipped upside down, so reading along a 1D array generated
         by this method would represent travelling north east on the playing grid.
         """
-        return self.get_south_east_diagonal_arrays(playing_grid=np.flipud(self.playing_grid))
+        return self._get_south_east_diagonal_arrays(playing_grid=np.flipud(self.playing_grid))

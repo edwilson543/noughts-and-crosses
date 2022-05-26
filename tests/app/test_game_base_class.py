@@ -149,7 +149,7 @@ class TestNoughtsAndCrossesSearchAlgorithm:
             np.array([6, 13, 20, 27]),
             np.array([12, 19, 26])
             ]
-        actual_diagonal_arrays: list = empty_game.get_south_east_diagonal_arrays(playing_grid=empty_game.playing_grid)
+        actual_diagonal_arrays: list = empty_game._get_south_east_diagonal_arrays(playing_grid=empty_game.playing_grid)
         for act_array in actual_diagonal_arrays:
             validity = False
             for exp_array in expected_diagonal_arrays:
@@ -170,7 +170,7 @@ class TestNoughtsAndCrossesSearchAlgorithm:
             np.array([26, 21, 16, 11]),
             np.array([27, 22, 17])
             ]
-        actual_diagonal_arrays: list = empty_game.get_north_east_diagonal_arrays()
+        actual_diagonal_arrays: list = empty_game._get_north_east_diagonal_arrays()
         for act_array in actual_diagonal_arrays:
             validity = False
             for exp_array in expected_diagonal_arrays:

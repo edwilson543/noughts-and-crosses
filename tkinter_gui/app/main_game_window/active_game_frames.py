@@ -2,7 +2,7 @@
 
 from game.app.game_base_class import NoughtsAndCrosses
 from game.app.player_base_class import Player
-from game.constants.game_constants import GameValue
+from game.constants.game_constants import BoardMarking
 from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindowWidgetManager
 from tkinter_gui.app.game_continuation_window.game_continuation_window import GameContinuationPopUp
 from tkinter_gui.constants.dimensions import MainWindowDimensions
@@ -21,7 +21,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
                  win_length_k: int,
                  pos_player: Player,
                  neg_player: Player,
-                 starting_player: GameValue = GameValue.X,
+                 starting_player: BoardMarking = BoardMarking.X,
                  draw_count: int = 0,
                  active_unconfirmed_cell: (int, int) = None,
                  widget_manager=MainWindowWidgetManager()):
@@ -322,7 +322,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
             player = self.pos_player
         else:
             player = self.neg_player
-        x_or_o = GameValue(player.active_symbol).name
+        x_or_o = BoardMarking(player.active_symbol).name
         text = f"{player.name}:\n{x_or_o}"
         colour = self.get_occupied_cell_colour(marking=player.active_symbol.name)
         player_label = tk.Label(master=self.widget_manager.game_info_frame,
@@ -352,7 +352,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
     def get_player_turn_marking(self) -> str:
         """Method to extract the player turn from the game baseclass as a 1/-1 and return it as an X or O."""
         turn_int = self.get_player_turn()
-        return GameValue(turn_int).name
+        return BoardMarking(turn_int).name
 
     @staticmethod
     def get_occupied_cell_colour(marking: str) -> str:
@@ -376,7 +376,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         if self.get_player_turn() == player.active_symbol.value:
             return Colour.unconfirmed_cell.value
         else:
-            return self.get_occupied_cell_colour(marking=GameValue(player.active_symbol).name)
+            return self.get_occupied_cell_colour(marking=BoardMarking(player.active_symbol).name)
 
     def get_player_confirmation_button_relief(self, player: Player):
         """Raises the player's label if it's there go, otherwise their label is sunken."""

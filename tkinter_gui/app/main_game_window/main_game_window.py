@@ -1,5 +1,5 @@
 from game.app.player_base_class import Player
-from game.constants.game_constants import GameValue
+from game.constants.game_constants import BoardMarking
 from tkinter_gui.constants.dimensions import MainWindowDimensions
 from tkinter_gui.constants.style_and_colours import Colour
 from tkinter_gui.app.main_game_window.active_game_frames import ActiveGameFrames
@@ -15,7 +15,7 @@ class NoughtsAndCrossesWindow(ActiveGameFrames, HistoricInfoFrame):
                  win_length_k: int,
                  pos_player: Player,
                  neg_player: Player,
-                 starting_player: GameValue,
+                 starting_player: BoardMarking,
                  draw_count: int = 0,
                  active_unconfirmed_cell: (int, int) = None,
                  widget_manager=MainWindowWidgetManager()):

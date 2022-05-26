@@ -1,4 +1,4 @@
-from game.constants.game_constants import GameValue, StartingPlayer
+from game.constants.game_constants import BoardMarking, StartingPlayer
 from tkinter_gui.app.game_setup_window.game_setup_widget_manager import GameSetupWidgets
 from tkinter_gui.constants.style_and_colours import Colour, Font, Relief
 from tkinter_gui.constants.dimensions import SetupWindowDimensions
@@ -65,9 +65,9 @@ class PlayerInfoFrame:
         Note these are just static labels so don't need to go in the widget manager
         """
         if player_x:
-            marking = GameValue(1).name
+            marking = BoardMarking(1).name
         else:
-            marking = GameValue(-1).name
+            marking = BoardMarking(-1).name
         player_label = tk.Label(
             master=self.widget_manager.player_info_frame,
             text="Player: " + f"{marking}",

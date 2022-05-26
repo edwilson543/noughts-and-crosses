@@ -1,4 +1,4 @@
-from game.constants.game_constants import GameValue
+from game.constants.game_constants import BoardMarking
 
 
 class Player:
@@ -6,7 +6,7 @@ class Player:
 
     def __init__(self,
                  name: str,
-                 active_symbol: GameValue,
+                 active_symbol: BoardMarking,
                  active_game_win_count: int = 0):
         self.name = name
         self.active_symbol = active_symbol
