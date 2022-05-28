@@ -5,8 +5,9 @@ from game.constants.game_constants import BoardMarking
 from tkinter_gui.app.game_setup_window.player_info_frame import PlayerInfoFrame
 from tkinter_gui.app.game_setup_window.game_parameters_frame import GameParametersFrame
 from tkinter_gui.app.game_setup_window.game_setup_widget_manager import GameSetupWidgets
-from tkinter_gui.constants.style_and_colours import Colour
-
+from tkinter_gui.constants.style_and_colours import Colour, Font, Relief
+from tkinter_gui.constants.dimensions import SetupWindowDimensions
+from math import floor
 import tkinter as tk
 
 
@@ -68,6 +69,9 @@ class SetupWindow:
         confirmation_button = tk.Button(
             master=self.widget_manager.setup_window,
             command=self._confirm_all_details_button_command,
-            text="Confirm all entries"
+            text="Confirm all entries",
+            background=Colour.confirmation_button.value,
+            font=(Font.default_font.value, floor(SetupWindowDimensions.game_parameters_frame_cells.height/4)),
+            relief=Relief.confirmation_button.value
         )
         return confirmation_button

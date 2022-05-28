@@ -35,7 +35,6 @@ class MainWindowDimensions:
 ##########
 # Dimensions for the setup main_window
 ##########
-
 game_parameters_frame = Dimension(width=300, height=300)
 game_parameters_frame_cells = Dimension(width=int(game_parameters_frame.width/5),
                                         height=int(game_parameters_frame.height/5))
