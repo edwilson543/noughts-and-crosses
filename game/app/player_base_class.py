@@ -1,15 +1,22 @@
-from game.constants.game_constants import GameValue
+from game.constants.game_constants import BoardMarking
 
 
 class Player:
-    """Class for the players of the noughts and crosses game."""
+    """
+    Class for the players of the noughts and crosses game.
+
+    Parameters:
+    Name - evidently the player's name
+    Mark_value - whether they are carrying 1 or -1 as their board marking
+    Active_game_win_count - accumulates the player's wins in an active game.
+    """
 
     def __init__(self,
                  name: str,
-                 active_symbol: GameValue,
+                 marking: BoardMarking,
                  active_game_win_count: int = 0):
         self.name = name
-        self.active_symbol = active_symbol
+        self.marking = marking
         self.active_game_win_count = active_game_win_count
 
     def award_point(self):
@@ -17,9 +24,9 @@ class Player:
         self.active_game_win_count += 1
 
     def __eq__(self, other) -> bool:
-        """Method to check the equivalence of two players (by active_symbol)"""
+        """Method to check the equivalence of two players (by marking)"""
         if isinstance(other, Player):
-            if other.active_symbol == self.active_symbol:
+            if other.marking == self.marking:
                 return True
             else:
                 return False

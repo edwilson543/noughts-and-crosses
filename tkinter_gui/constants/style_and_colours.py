@@ -3,7 +3,9 @@ import tkinter as tk
 
 
 class Colour(Enum):
+    ##########
     # Main main_window
+    ##########
     main_window = "black"
     main_frame_background = "black"
 
@@ -37,8 +39,12 @@ class Colour(Enum):
     game_continuation_exit_buttons = "black"
     game_continuation_exit_buttons_font = "white"
 
+    ##########
     # Game setup main window
-    # Game parameters frame
+    confirmation_button = "#b3bdbc"
+    ##########
+
+    # Game setup_parameters frame
     setup_window_background = "black"
     game_parameters_frame_background = "black"
     col_scale_background = "#8e9aad"
@@ -62,7 +68,11 @@ class Font(Enum):
 
 
 class Relief(Enum):
+    ##########
+    # Main game window
+    ##########
     # Playing grid
+    playing_grid_frame = tk.SUNKEN
     available_cell = tk.RAISED
     unconfirmed_cell = tk.RAISED
     occupied_cell = tk.SUNKEN
@@ -81,8 +91,11 @@ class Relief(Enum):
     game_outcome_label = tk.SUNKEN
     game_continuation_exit_buttons = tk.RAISED
 
+    ##########
     # Game setup main_window
-    # Game parameters frame
+    ##########
+    confirmation_button = tk.RAISED
+    # Game setup_parameters frame
     game_parameters_frame = tk.RIDGE
     row_col_win_labels = tk.RIDGE
 

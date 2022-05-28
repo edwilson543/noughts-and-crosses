@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import tkinter as tk
 import numpy as np
 
+
 @dataclass(frozen=False)
 class MainWindowWidgetManager:
     """
@@ -11,21 +12,22 @@ class MainWindowWidgetManager:
     """
     # Main main_window
     main_window: tk.Tk = None
+    background_frame: tk.Frame = None
 
     # Playing grid
     playing_grid_frame: tk.Frame = None
     playing_grid: np.array = None
     active_confirmation_button: tk.Button = None
-    pos_player_confirmation_button: tk.Button = None
-    neg_player_confirmation_button: tk.Button = None
+    player_x_confirmation_button: tk.Button = None
+    player_o_confirmation_button: tk.Button = None
 
     # Active game info grid
     game_info_frame: tk.Frame = None
-    pos_player_label: tk.Label = None
-    neg_player_label: tk.Label = None
+    player_x_label: tk.Label = None
+    player_o_label: tk.Label = None
 
     # Historic game info grid
     historic_info_frame: tk.Frame = None
-    pos_player_win_count_label: tk.Label = None
-    neg_player_win_count_label: tk.Label = None
+    player_x_win_count_label: tk.Label = None
+    player_o_win_count_label: tk.Label = None
     draw_count_label: tk.Label = None
