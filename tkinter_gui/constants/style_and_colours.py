@@ -41,7 +41,7 @@ class Colour(Enum):
 
     ##########
     # Game setup main window
-    confirmation_button = "#b5f7f2"
+    confirmation_button = "#b3bdbc"
     ##########
 
     # Game setup_parameters frame

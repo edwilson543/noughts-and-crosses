@@ -2,13 +2,14 @@ from game.constants.game_constants import BoardMarking, StartingPlayer
 from tkinter_gui.app.game_setup_window.game_setup_widget_manager import GameSetupWidgets
 from tkinter_gui.constants.style_and_colours import Colour, Font, Relief
 from tkinter_gui.constants.dimensions import SetupWindowDimensions
-from tkinter_gui.constants.game_parameter_constraints import GameParameterConstraint
+from tkinter_gui.constants.game_parameter_constraints import PlayerNameConstraint
 import tkinter as tk
 from math import floor
 
 
 class PlayerInfoFrame:
     """Class for the frame that allows users to enter their names and say who should go first."""
+
     def __init__(self,
                  widget_manager: GameSetupWidgets,
                  player_x_entry: tk.StringVar = None,
@@ -77,7 +78,7 @@ class PlayerInfoFrame:
             text="Player: " + f"{marking}",
             background=Colour.player_info_labels.value,
             relief=Relief.player_info_labels.value,
-            font=(Font.default_font.value, floor(SetupWindowDimensions.player_info_frame.height/12)),
+            font=(Font.default_font.value, floor(SetupWindowDimensions.player_info_frame.height / 12)),
             justify=tk.CENTER
         )
         return player_label
@@ -87,11 +88,13 @@ class PlayerInfoFrame:
         if player_x:
             self.player_x_entry = tk.StringVar()
             entry_text = self.player_x_entry
-            entry_text.trace_add(mode="write", callback=self._character_limit)
+            self.player_x_entry.trace_add(mode="write", callback=self._character_limit)
+            self.player_x_entry.trace_add(mode="read", callback=self._min_characters)
         else:
             self.player_o_entry = tk.StringVar()
             entry_text = self.player_o_entry
-            entry_text.trace_add(mode="write", callback=self._character_limit)
+            self.player_o_entry.trace_add(mode="write", callback=self._character_limit)
+            self.player_o_entry.trace_add(mode="read", callback=self._min_characters)
         player_name_entry = tk.Entry(
             master=self.widget_manager.player_info_frame,
             textvariable=entry_text,
@@ -104,8 +107,8 @@ class PlayerInfoFrame:
 
     def _character_limit(self, var, index, mode) -> None:
         """
-        Trace function that gets added to the entry fields' variables, so that players cannot enter a name with length
-        greater than the max player length
+        Trace callback that gets added to the entry fields' variables, so that players cannot enter a name with length
+        greater than the max player length.
         Parameters:
         var - name of the tkinter variable the trace will be added to
         index - index of the tkinter variable in case it's an array
@@ -113,10 +116,30 @@ class PlayerInfoFrame:
         These are really just placeholders for the automatic positional args that get added by trace_add - could just
         use an *args but this makes it clearer what is going on.
         """
-        if len(self.player_x_entry.get()) > GameParameterConstraint.max_player_length.value:
-            self.player_x_entry.set(self.player_x_entry.get()[:GameParameterConstraint.max_player_length.value])
-        elif len(self.player_o_entry.get()) > GameParameterConstraint.max_player_length.value:
-            self.player_o_entry.set(self.player_o_entry.get()[:GameParameterConstraint.max_player_length.value])
+        if len(self.player_x_entry.get()) > PlayerNameConstraint.max_name_length.value:
+            self.player_x_entry.set(self.player_x_entry.get()[:PlayerNameConstraint.max_name_length.value])
+        if len(self.player_o_entry.get()) > PlayerNameConstraint.max_name_length.value:
+            self.player_o_entry.set(self.player_o_entry.get()[:PlayerNameConstraint.max_name_length.value])
+
+    def _min_characters(self, var, index, mode) -> None:
+        """
+        Trace callback that gets added to the entry fields' variables, to disable the confirmation button
+        until they enter a name of sufficient end.
+
+        Parameters:
+        var - name of the tkinter variable the trace will be added to
+        index - index of the tkinter variable in case it's an array
+        mode - mode to trace the variable in i.e. read, write, etc.
+        These are really just placeholders for the automatic positional args that get added by trace_add - could just
+        use an *args but this makes it clearer what is going on.
+        """
+        if self.widget_manager.confirmation_button is not None:
+            if (len(self.player_x_entry.get()) < PlayerNameConstraint.min_name_length.value) or \
+                    (len(self.player_o_entry.get()) < PlayerNameConstraint.min_name_length.value):
+                self.widget_manager.confirmation_button["state"] = tk.DISABLED
+            if (len(self.player_x_entry.get()) >= PlayerNameConstraint.min_name_length.value) and \
+                    (len(self.player_o_entry.get()) >= PlayerNameConstraint.min_name_length.value):
+                self.widget_manager.confirmation_button["state"] = tk.NORMAL
 
     ##########
     # Starting player radio buttons
@@ -139,7 +162,7 @@ class PlayerInfoFrame:
             value=StartingPlayer.PLAYER_X.value,
             background=Colour.starting_player_radio.value,
             relief=Relief.starting_player_radio.value,
-            font=(Font.default_font.value, floor(SetupWindowDimensions.player_info_frame.height/20)))
+            font=(Font.default_font.value, floor(SetupWindowDimensions.player_info_frame.height / 20)))
         self.widget_manager.player_x_starts_radio = player_x_starts
         player_o_starts = tk.Radiobutton(
             master=self.widget_manager.player_info_frame,
@@ -147,7 +170,7 @@ class PlayerInfoFrame:
             value=StartingPlayer.PLAYER_O.value,
             background=Colour.starting_player_radio.value,
             relief=Relief.starting_player_radio.value,
-            font=(Font.default_font.value, floor(SetupWindowDimensions.player_info_frame.height/20)))
+            font=(Font.default_font.value, floor(SetupWindowDimensions.player_info_frame.height / 20)))
         self.widget_manager.player_o_starts_radio = player_o_starts
         random_player_starts = tk.Radiobutton(
             master=self.widget_manager.player_info_frame,
@@ -155,5 +178,5 @@ class PlayerInfoFrame:
             value=StartingPlayer.RANDOM.value,
             background=Colour.starting_player_radio.value,
             relief=Relief.starting_player_radio.value,
-            font=(Font.default_font.value, floor(SetupWindowDimensions.player_info_frame.height/20)))
+            font=(Font.default_font.value, floor(SetupWindowDimensions.player_info_frame.height / 20)))
         self.widget_manager.random_player_starts_radio = random_player_starts

@@ -71,6 +71,7 @@ class SetupWindow:
             command=self._confirm_all_details_button_command,
             text="Confirm all entries",
             background=Colour.confirmation_button.value,
+            state=tk.DISABLED,
             font=(Font.default_font.value, floor(SetupWindowDimensions.game_parameters_frame_cells.height/4)),
             relief=Relief.confirmation_button.value
         )
