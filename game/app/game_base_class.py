@@ -1,7 +1,7 @@
 from game.app.player_base_class import Player
-from game.constants.game_constants import BoardMarking
+from game.constants.game_constants import BoardMarking, StartingPlayer
 import numpy as np
-from typing import Optional, Union
+from typing import Union
 from dataclasses import dataclass
 
 
@@ -18,7 +18,7 @@ class NoughtsAndCrossesEssentialParameters:
     win_length_k: int = None
     player_x: Player = None
     player_o: Player = None
-    starting_player_value: BoardMarking = None
+    starting_player_value: StartingPlayer = None
 
 
 class NoughtsAndCrosses:
@@ -32,24 +32,26 @@ class NoughtsAndCrosses:
         self.win_length_k = setup_parameters.win_length_k
         self.player_x = setup_parameters.player_x
         self.player_o = setup_parameters.player_o
-        self.starting_player_value = setup_parameters.starting_player_value
+        self.starting_player_value = self.get_starting_player(
+            starting_player_value=setup_parameters.starting_player_value)
         self.draw_count = draw_count
         self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n))
 
     ##########
     # Methods that are a part of the core game play flow
     ##########
-    def set_starting_player(self, player_marking: Optional[BoardMarking], random: bool = True) -> None:
+    @staticmethod
+    def get_starting_player(starting_player_value: StartingPlayer) -> BoardMarking:
         """
         Method to allow choice of who goes first, or to be randomly selected.
         Note that the starting player is carried as either 1 or -1 (which corresponds with the BoardMarking Enum)
         """
-        if random:
-            self.starting_player_value = np.random.choice([BoardMarking.X.value, BoardMarking.O.value])
-        elif player_marking == BoardMarking.X.name:
-            self.starting_player_value = BoardMarking.X.value  # equal to 1
-        elif player_marking == BoardMarking.O.name:
-            self.starting_player_value = BoardMarking.O.value  # equal -1
+        if starting_player_value == StartingPlayer.RANDOM.value:
+            return np.random.choice([BoardMarking.X.value, BoardMarking.O.value])
+        elif starting_player_value == StartingPlayer.PLAYER_X.value:
+            return BoardMarking.X.value
+        elif starting_player_value == StartingPlayer.PLAYER_O.value:
+            return BoardMarking.O.value
         else:
             raise ValueError("Attempted to call choose_starting_player method non-randomly but with a player_name"
                              "that did not match either of the players.")
