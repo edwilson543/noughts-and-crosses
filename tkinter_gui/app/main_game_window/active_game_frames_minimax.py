@@ -9,7 +9,7 @@ from tkinter_gui.constants.game_flow_timing import PauseDuration
 from time import sleep
 
 
-class ActiveGameFramesMinimax(ActiveGameFrames):
+class ActiveGameFramesMinimax(ActiveGameFrames, NoughtsAndCrossesMinimax):
     def __init__(self,
                  setup_parameters: NoughtsAndCrossesEssentialParameters,
                  draw_count: int = 0,
@@ -28,10 +28,8 @@ class ActiveGameFramesMinimax(ActiveGameFrames):
         algorithm. Either one or neither of the players can be the minimax algorithm.
         """
         super().__init__(setup_parameters, draw_count, active_unconfirmed_cell, widget_manager)
-        self.minimax_board = NoughtsAndCrossesMinimax(setup_parameters=setup_parameters)
         self.player_x_is_minimax = player_x_is_minimax
         self.player_o_is_minimax = player_o_is_minimax
-        self._check_if_ai_goes_first()
 
     def _confirmation_buttons_command(self) -> None:
         """
@@ -47,11 +45,13 @@ class ActiveGameFramesMinimax(ActiveGameFrames):
                 self.player_x_is_minimax:
             self.ai_player_makes_next_move()
 
-    def _check_if_ai_goes_first(self):
+    def check_if_ai_goes_first(self):
         """Method to check whether the ai player goes first - otherwise we'll be stuck with nothing happening"""
         if (self.starting_player_value == self.player_o.marking.value) and self.player_o_is_minimax:
+            super()._initialise_confirmation_buttons()
             self.ai_player_makes_next_move()
         elif (self.starting_player_value == self.player_x.marking.value) and self.player_x_is_minimax:
+            super()._initialise_confirmation_buttons()
             self.ai_player_makes_next_move()
 
     def ai_player_makes_next_move(self):
@@ -65,7 +65,7 @@ class ActiveGameFramesMinimax(ActiveGameFrames):
         _________
         AI makes the next move and all relevant updates are made.
         """
-        _, move = self.minimax_board.get_minimax_move()
-        sleep(secs=PauseDuration.computer_turn.value)
+        sleep(PauseDuration.computer_turn.value)
+        _, move = super().get_minimax_move()
         super()._available_cell_button_command(row_index=move[0], col_index=move[1])  # simulate cell selection
         super()._confirmation_buttons_command()  # Confirm ai player's choice on the game board
