@@ -1,4 +1,5 @@
 from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
+from game.constants.game_constants import StartingPlayer
 import pytest
 import numpy as np
 
@@ -14,14 +15,15 @@ class TestNoughtsAndCrossesSearchAlgorithm:
         return NoughtsAndCrossesEssentialParameters(
             game_rows_m=4,
             game_cols_n=3,
-            win_length_k=3)
+            win_length_k=3,
+            starting_player_value=StartingPlayer.PLAYER_X.value)
 
     @pytest.fixture(scope="function")
     def empty_game(self, empty_game_parameters):
         return NoughtsAndCrosses(setup_parameters=empty_game_parameters)
 
     ##########
-    # Checks board is not a winner
+    # Checks playing_grid is not a winner
     ##########
     def test_no_win_full_board(self, empty_game):
         empty_game.playing_grid = np.array([
