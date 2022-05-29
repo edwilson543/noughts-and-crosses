@@ -35,7 +35,6 @@ class TestMinimaxThreeThreeThree:
     def new_game_with_minimax_player(self, new_game_parameters):
         return NoughtsAndCrossesMinimax(
             setup_parameters=new_game_parameters,
-            maximising_player=new_game_parameters.player_o
         )
 
     def test_minimax_gets_winning_move_bottom_right_row(self, new_game_with_minimax_player):

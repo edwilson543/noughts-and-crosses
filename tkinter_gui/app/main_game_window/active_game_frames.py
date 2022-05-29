@@ -22,7 +22,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
                  setup_parameters: NoughtsAndCrossesEssentialParameters,
                  draw_count: int = 0,
                  active_unconfirmed_cell: (int, int) = None,
-                 widget_manager=MainWindowWidgetManager()):  # TODO make this a non default argument
+                 widget_manager=MainWindowWidgetManager()):
         super().__init__(setup_parameters, draw_count)
         self.active_unconfirmed_cell = active_unconfirmed_cell
         self.widget_manager = widget_manager

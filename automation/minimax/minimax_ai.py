@@ -1,7 +1,6 @@
 """"Subclass of the noughts and crosses game that implements the minimax algorithm"""
 
 from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
-from game.app.player_base_class import Player
 from automation.minimax.terminal_board_scores import TerminalScore
 import numpy as np
 from typing import Tuple, List
@@ -11,12 +10,10 @@ import math
 
 class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
     def __init__(self,
-                 maximising_player: Player,
                  setup_parameters: NoughtsAndCrossesEssentialParameters,
                  draw_count: int = 0):
         """Note that the maximising_player is the player that the minimax ai will play as"""
         super().__init__(setup_parameters, draw_count)
-        self.maximising_player = maximising_player
 
     def get_minimax_move(self, playing_grid: np.array = None, search_depth: int = 0, maximisers_move: bool = True,
                          alpha: int = -math.inf, beta: int = math.inf) -> (int, Tuple[int, int]):
@@ -44,6 +41,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
 
         Tuple[int, int] when the board has not reached maximum depth - it returns the move leading to the optimal score,
         assuming the maximiser always maximises and the minimiser always minimises the static evaluation function.
+        This is the best move for whichever player's turn is next.
         """
         if playing_grid is None:
             playing_grid = self.playing_grid
@@ -97,7 +95,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         """
         winning_player = self.get_winning_player(playing_grid=playing_grid)
         if winning_player is not None:
-            if winning_player == self.maximising_player:
+            if winning_player.marking.value == self.get_player_turn(playing_grid=self.playing_grid):
                 return TerminalScore.MAX_WIN.value - search_depth
             else:
                 return TerminalScore.MAX_LOSS.value + search_depth
