@@ -59,7 +59,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                 potential_new_max, _ = self.get_minimax_move(  # call minimax recursively until we hit end-state boards
                     playing_grid=playing_grid_copy, search_depth=search_depth + 1, maximisers_move=not maximisers_move,
                     alpha=alpha, beta=beta)
-                # 'not maximisers_move' is to indicate that when minimax is next called, it's a different player's go
+                # 'not maximisers_move' is to indicate that when minimax is next called, it's the other player's go
                 if potential_new_max > max_score:
                     max_score = potential_new_max
                     best_move = move_option
