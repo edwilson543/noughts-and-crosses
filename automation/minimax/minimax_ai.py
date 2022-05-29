@@ -7,6 +7,9 @@ from typing import Tuple, List
 from random import shuffle
 import math
 
+# todo test effectiveness when a max search depth is introduced -
+# currently pretty slow for big games and early on in the game
+
 
 class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
     def __init__(self,
