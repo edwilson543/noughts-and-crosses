@@ -10,7 +10,7 @@ class TestNoughtsAndCrossesSearchAlgorithm:
     (Chiefly its component methods)  # TODO write some tests for the winning_board_search method using components
     """
 
-    @pytest.fixture(scope="function")
+    @pytest.fixture(scope="class")
     def empty_game_parameters(self):
         return NoughtsAndCrossesEssentialParameters(
             game_rows_m=4,

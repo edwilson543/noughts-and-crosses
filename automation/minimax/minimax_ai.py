@@ -2,9 +2,9 @@
 
 from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
 from game.app.player_base_class import Player
-from terminal_board_scores import TerminalScore
+from automation.minimax.terminal_board_scores import TerminalScore
 import numpy as np
-from typing import Tuple, List, Union
+from typing import Tuple, List
 from random import shuffle
 import math
 
@@ -14,11 +14,12 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                  maximising_player: Player,
                  setup_parameters: NoughtsAndCrossesEssentialParameters,
                  draw_count: int = 0):
+        """Note that the maximising_player is the player that the minimax ai will play as"""
         super().__init__(setup_parameters, draw_count)
         self.maximising_player = maximising_player
 
-    def minimax(self, playing_grid: np.array, search_depth: int, maximisers_move: bool, alpha: int = -math.inf,
-                beta: int = math.inf) -> Union[int, Tuple[int, int]]:
+    def get_minimax_move(self, playing_grid: np.array = None, search_depth: int = 0, maximisers_move: bool = True,
+                         alpha: int = -math.inf, beta: int = math.inf) -> (int, Tuple[int, int]):
         """
         Parameters:
         ----------
@@ -44,8 +45,10 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         Tuple[int, int] when the board has not reached maximum depth - it returns the move leading to the optimal score,
         assuming the maximiser always maximises and the minimiser always minimises the static evaluation function.
         """
+        if playing_grid is None:
+            playing_grid = self.playing_grid
         if self.is_terminal(playing_grid=playing_grid):  # Will be called once the recursion reaches a terminal state
-            return self.evaluate_board_to_maximising_player(playing_grid=playing_grid, search_depth=search_depth)
+            return self.evaluate_board_to_maximising_player(playing_grid=playing_grid, search_depth=search_depth), None
 
         elif maximisers_move:
             max_score = -math.inf  # Initialise as -inf so that the score can only be improved upon
@@ -53,17 +56,17 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
             for move_option in self.get_available_cell_indices(playing_grid=playing_grid):
                 playing_grid_copy = playing_grid.copy()
                 self.mark_board(row_index=move_option[0], col_index=move_option[1], playing_grid=playing_grid_copy)
-                potential_new_max = self.minimax(  # call minimax recursively until we hit end-state boards
+                potential_new_max, _ = self.get_minimax_move(  # call minimax recursively until we hit end-state boards
                     playing_grid=playing_grid_copy, search_depth=search_depth + 1, maximisers_move=not maximisers_move,
                     alpha=alpha, beta=beta)
-                # not maximisers_move is to indicate that when minimax is next called, it's a different player's go
+                # 'not maximisers_move' is to indicate that when minimax is next called, it's a different player's go
                 if potential_new_max > max_score:
                     max_score = potential_new_max
                     best_move = move_option
                 alpha = max(alpha, potential_new_max)
                 if beta <= alpha:
                     break  # No need to consider this game branch any further, as minimiser will avoid it
-            return best_move
+            return max_score, best_move
 
         else:  # minimisers move - they want to pick the game tree that minimises the score to the maximiser
             min_score = math.inf  # Initialise as +inf so that score can only be improved upon
@@ -71,7 +74,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
             for move_option in self.get_available_cell_indices(playing_grid=playing_grid):
                 playing_grid_copy = playing_grid.copy()
                 self.mark_board(row_index=move_option[0], col_index=move_option[1], playing_grid=playing_grid_copy)
-                potential_new_min = self.minimax(
+                potential_new_min, _ = self.get_minimax_move(
                     playing_grid=playing_grid_copy, search_depth=search_depth + 1, maximisers_move=not maximisers_move,
                     alpha=alpha, beta=beta)
                 if potential_new_min < min_score:
@@ -80,7 +83,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                 beta = min(beta, potential_new_min)
                 if beta <= alpha:
                     break  # No need to consider game branch any further, maximiser will just avoid it
-            return best_move
+            return min_score, best_move
 
     def evaluate_board_to_maximising_player(self, playing_grid: np.array, search_depth: int) -> int:
         """
@@ -92,13 +95,13 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         as a parameter so that winning boards deep in the search tree can be penalised, and losing boards high up
         in the search tree can be favoured, to minimise search depth.
         """
-        winning_player = self.get_winning_player()
+        winning_player = self.get_winning_player(playing_grid=playing_grid)
         if winning_player is not None:
             if winning_player == self.maximising_player:
                 return TerminalScore.MAX_WIN.value - search_depth
             else:
                 return TerminalScore.MAX_LOSS.value + search_depth
-        elif self.check_for_draw():
+        elif self.check_for_draw(playing_grid=playing_grid):
             return TerminalScore.DRAW.value  # Could also see the impact of penalising slow draws
         else:
             raise ValueError("Attempted to evaluate a playing_grid scenario that was not terminal.")
