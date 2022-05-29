@@ -56,7 +56,7 @@ class NoughtsAndCrosses:
             raise ValueError("Attempted to call choose_starting_player method non-randomly but with a player_name"
                              " that did not match either of the players.")
 
-    def get_player_turn(self) -> BoardMarking:
+    def get_player_turn(self, playing_grid: np.array = None) -> BoardMarking:
         """
         Method to determine who's turn it is to mark the playing_grid, using sum of the playing_grid 1s/-1s.
         If the sum is zero then both player's have had an equal number of turns, and therefore it's the starting
@@ -65,14 +65,16 @@ class NoughtsAndCrosses:
         Returns:
         BoardMarking value (1 or -1) - the piece that will get placed following the next turn.
         """
-        board_status = self.playing_grid.sum().sum()
+        if playing_grid is None:
+            playing_grid = self.playing_grid
+        board_status = playing_grid.sum().sum()
         if board_status != 0:  # The starting player has had one more turn than the other player
             player_turn = -board_status
             return - board_status
         else:
             return self.starting_player_value
 
-    def mark_board(self, row_index: int, col_index: int) -> None:
+    def mark_board(self, row_index: int, col_index: int, playing_grid: np.array = None) -> None:
         """
         Method to make a new entry on the game playing_grid. Note that there is no opportunity to mark out of turn,
         because the get_player_turn method is called within this method.
@@ -83,21 +85,25 @@ class NoughtsAndCrosses:
         Outcomes:
         If the cell is empty, a mark is made, else a value error is raised
         """
-        if self.playing_grid[row_index, col_index] == 0:
-            marking = self.get_player_turn()
-            self.playing_grid[row_index, col_index] = marking
+        if playing_grid is None:
+            playing_grid = self.playing_grid
+        if playing_grid[row_index, col_index] == 0:
+            marking = self.get_player_turn(playing_grid=playing_grid)
+            playing_grid[row_index, col_index] = marking
         else:
             raise ValueError(f"mark_board attempted to mark non-empty cell at {row_index, col_index}.")
 
-    def get_winning_player(self) -> Union[None, Player]:
+    def get_winning_player(self, playing_grid: np.array = None) -> Union[None, Player]:
         """
         Method to perform the winning playing_grid search, and return None or the winning player,
         depending on if there's a winning player.
         """
-        if not self.winning_board_search():
+        if playing_grid is None:
+            playing_grid = self.playing_grid
+        if not self.winning_board_search(playing_grid=playing_grid):
             return None
         else:
-            previous_mark_made_by = - self.get_player_turn()
+            previous_mark_made_by = - self.get_player_turn(playing_grid=playing_grid)
             if previous_mark_made_by == BoardMarking.X.value:
                 return self.player_x
             else:
