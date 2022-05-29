@@ -73,11 +73,11 @@ class TestMinimaxThreeThreeThree:
 
     def test_minimax_makes_blocking_move_south_east_diagonal(self, new_game_with_minimax_player):
         """Test that minimax can win in one move when presented opportunity"""
-        new_game_with_minimax_player.starting_player_value = StartingPlayer.PLAYER_X.value
+        new_game_with_minimax_player.starting_player_value = StartingPlayer.PLAYER_O.value
         new_game_with_minimax_player.playing_grid = np.array([
-            [BoardMarking.X.value, 0, BoardMarking.X.value],
-            [0, 0, BoardMarking.O.value],
-            [BoardMarking.X.value, BoardMarking.O.value, 0]
+            [BoardMarking.X.value, 0, 0],
+            [0, BoardMarking.X.value, BoardMarking.O.value],
+            [0, BoardMarking.O.value, 0]
         ])
         _, minimax_move = new_game_with_minimax_player.get_minimax_move()
-        assert minimax_move == tuple((1, 0))
+        assert minimax_move == tuple((2, 2))
