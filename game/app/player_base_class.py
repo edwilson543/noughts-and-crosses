@@ -7,7 +7,7 @@ class Player:
 
     Parameters:
     Name - evidently the player's name
-    Mark_value - whether they are carrying 1 or -1 as their board marking
+    Mark_value - whether they are carrying 1 or -1 as their playing_grid marking
     Active_game_win_count - accumulates the player's wins in an active game.
     """
 

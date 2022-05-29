@@ -13,8 +13,8 @@ from functools import partial
 import numpy as np
 import logging
 
-# TODO how can the popup be launched in end_of_game_check and still show the board status?? i.e. before clearing board
-# Just putting it before clearing the board means the board doesn't get cleared for some reason
+# TODO how can the popup be launched in end_of_game_check and still show the playing_grid status?? i.e. before clearing playing_grid
+# Just putting it before clearing the playing_grid means the playing_grid doesn't get cleared for some reason
 
 
 class ActiveGameFrames(NoughtsAndCrosses):
@@ -133,7 +133,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         """
         Method to switch which player's confirmation button is active - to the player who's turn it is.
         This will disable the player's button who has just gone, and then set the active confirmation button in the
-        widget manager to be that of the next player. A click on the board in an available cell then activates the
+        widget manager to be that of the next player. A click on the playing_grid in an available cell then activates the
         confirmation button corresponding to who's turn it is,
         """
         if self.get_player_turn() == BoardMarking.X.value:
@@ -147,8 +147,8 @@ class ActiveGameFrames(NoughtsAndCrosses):
         """
         Method to:
         1) Destroy the in-place unconfirmed cell button
-        2) Permanently marks the board as shown in the active unconfirmed cell.
-        3) Updates the backend board (the -1s, 0s and 1s) and checks whether a player has won
+        2) Permanently marks the playing_grid as shown in the active unconfirmed cell.
+        3) Updates the backend playing_grid (the -1s, 0s and 1s) and checks whether a player has won
         4) Sets active_unconfirmed_cell to None
         """
         self.widget_manager.playing_grid[self.active_unconfirmed_cell].destroy()
@@ -161,7 +161,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
     def _end_of_game_check(self) -> None:
         """
         Method called each time the confirm button is clicked, to:
-        0) Reset the game board to a starting state, with the loser going first
+        0) Reset the game playing_grid to a starting state, with the loser going first
         1) Determine whether the game has been won, and award the winner a point if so.
         2) Check if the game has reached stalemate (a draw)
         3) Produce a pop up asking the user to continue or exit depending if either of these is the case
@@ -296,7 +296,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
     def _get_occupied_cell_label(self) -> tk.Label:
         """
         Label widget that shows that a cell is already occupied and displays the relevant marking.
-        Returns: A label which represents a marking on the board (an X or an O), and also of a different colour.
+        Returns: A label which represents a marking on the playing_grid (an X or an O), and also of a different colour.
         """
         text = self._get_player_turn_marking()  # X or O
         colour = self._get_occupied_cell_colour(marking=text)
@@ -368,7 +368,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
 
     def _get_player_label(self, player: Player) -> tk.Label:
         """
-        Method to create the player label's and show who's turn it is to take a turn at marking the board
+        Method to create the player label's and show who's turn it is to take a turn at marking the playing_grid
         Parameters: player - indicates which player we are creating the label for, player_x or player_o
         """
         x_or_o = BoardMarking(player.marking).name

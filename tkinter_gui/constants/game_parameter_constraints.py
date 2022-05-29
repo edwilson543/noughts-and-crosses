@@ -3,7 +3,7 @@ from enum import Enum
 
 class GameParameterConstraint(Enum):
     """
-    Enum for the min/max length of each parameter of the game board.
+    Enum for the min/max length of each parameter of the game playing_grid.
     This is to avoid the UI looking stupid.
     """
     # Game structural setup_parameters
