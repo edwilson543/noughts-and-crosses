@@ -105,6 +105,10 @@ class PlayerInfoFrame:
         )
         return player_name_entry
 
+    def get_player_is_minimax_label(self) -> tk.Checkbutton:
+        #  TODO next
+        pass
+
     def _character_limit(self, var, index, mode) -> None:
         """
         Trace callback that gets added to the entry fields' variables, so that players cannot enter a name with length
