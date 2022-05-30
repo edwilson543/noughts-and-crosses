@@ -19,6 +19,8 @@ class SetupWindow:
         self.widget_manager = widget_manager
         self.game_parameters_frame = GameParametersFrame(widget_manager=self.widget_manager)
         self.player_info_frame = PlayerInfoFrame(widget_manager=self.widget_manager)
+        self.player_x_is_minimax = False
+        self.player_o_is_minimax = False
 
     def launch_setup_window(self) -> None:
         """Method that is called to launch the game setup window"""
@@ -66,6 +68,8 @@ class SetupWindow:
             player_o=Player(name=self.player_info_frame.player_o_entry.get(), marking=BoardMarking.O),
             starting_player_value=self.player_info_frame.starting_player_value.get()
         )
+        self.player_x_is_minimax = self.player_info_frame.player_x_is_minimax.get()
+        self.player_o_is_minimax = self.player_info_frame.player_o_is_minimax.get()
         self.widget_manager.setup_window.destroy()
 
     def _get_confirmation_button(self) -> tk.Button:
