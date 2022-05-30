@@ -21,6 +21,8 @@ class GameSetupWidgets:
     player_info_frame: tk.Frame = None
     player_x_entry: tk.Entry = None
     player_o_entry: tk.Entry = None
+    player_x_computer_checkbtn: tk.Checkbutton = None
+    player_o_computer_checkbtn: tk.Checkbutton = None
     player_x_starts_radio: tk.Radiobutton = None
     player_o_starts_radio: tk.Radiobutton = None
     random_player_starts_radio: tk.Radiobutton = None

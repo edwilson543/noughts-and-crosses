@@ -23,7 +23,7 @@ class PlayerInfoFrame:
     def populate_player_info_frame(self):
         """Method to add all components of the player info frame to the grid"""
         self._create_and_format_player_info_frame()
-        self._upload_player_entry_widgets_to_widget_manager()
+        self._upload_active_player_widgets_to_widget_manager()
         self._upload_radio_buttons_to_widget_manager()
 
         # Player naming - static widgets so not in the widget manager
@@ -32,9 +32,12 @@ class PlayerInfoFrame:
         player_x_label.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
         player_o_label.grid(row=0, column=2, columnspan=2, sticky="nsew", padx=5, pady=5)
 
-        # Player naming - dynamic widgets in the widget manager
+        # Player naming - dynamic name entry widgets in the widget manager
         self.widget_manager.player_x_entry.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
         self.widget_manager.player_o_entry.grid(row=1, column=2, columnspan=2, sticky="nsew", padx=5, pady=5)
+
+        # Selection as to whether player is played by computer
+        # TODO
 
         # Selection of who goes first - static widget (label)
         starting_player_label = self._get_starting_player_label()
@@ -56,13 +59,18 @@ class PlayerInfoFrame:
         self.widget_manager.player_info_frame.columnconfigure(
             index=[0, 1, 2, 3], minsize=floor(SetupWindowDimensions.player_info_frame.width / 4), weight=1)
 
-    def _upload_player_entry_widgets_to_widget_manager(self):
-        """Method that adds all relevant widgets in the player info frame to the widget manager"""
+    def _upload_active_player_widgets_to_widget_manager(self):
+        """
+        Method that adds all 'active' widgets in the player info frame to the widget manager
+        'active' here means that they contain information that must be extracted somewhere else in the window.
+        """
         self.widget_manager.player_x_entry = self._get_player_entry_field(player_x=True)
         self.widget_manager.player_o_entry = self._get_player_entry_field(player_x=False)
+        self.widget_manager.player_x_computer_checkbtn = self._get_player_computer_checkbutton()
+        self.widget_manager.player_o_computer_checkbtn = self._get_player_computer_checkbutton()
 
     ##########
-    # Player labels and entry
+    # Player labels, entry and computer check buttons
     ##########
     def _get_player_label(self, player_x: bool) -> tk.Label:
         """
@@ -105,9 +113,18 @@ class PlayerInfoFrame:
         )
         return player_name_entry
 
-    def get_player_is_minimax_label(self) -> tk.Checkbutton:
-        #  TODO next
-        pass
+    def _get_player_computer_checkbutton(self) -> tk.Checkbutton:
+        """
+        Returns: a checkbutton that the user can select in order to indicate that the relevant player should be
+        automated by the computer. Both players are given a check-button, which are identical.
+        """
+        computer_checkbutton = tk.Checkbutton(
+            master=self.widget_manager.player_info_frame,
+            text="Played by computer",
+            offvalue=False, onvalue=True
+        )
+        #  TODO next. Could even make a command to set the player name to be computer "X"
+        return computer_checkbutton
 
     def _character_limit(self, var, index, mode) -> None:
         """
