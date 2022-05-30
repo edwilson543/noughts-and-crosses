@@ -58,6 +58,7 @@ class Colour(Enum):
     player_info_frame_background = "black"
     player_info_labels = "#9ec4e6"
     player_name_entry = "white"
+    player_is_computer_checkbuttons = "#c2ffc8"
     starting_player_label = "#acad76"
     starting_player_radio = "#fcffa1"
 

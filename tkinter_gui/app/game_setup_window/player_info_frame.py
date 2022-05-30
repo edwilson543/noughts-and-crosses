@@ -5,6 +5,7 @@ from tkinter_gui.constants.dimensions import SetupWindowDimensions
 from tkinter_gui.constants.game_parameter_constraints import PlayerNameConstraint
 import tkinter as tk
 from math import floor
+import functools
 
 
 class PlayerInfoFrame:
@@ -119,28 +120,6 @@ class PlayerInfoFrame:
         )
         return player_name_entry
 
-    def _get_player_computer_checkbutton(self, player_x: bool) -> tk.Checkbutton:
-        """
-        Parameters: player_x - True if this is player_x's checkbutton, False if it's player_o's
-
-        Returns: a checkbutton that the user can select in order to indicate that the relevant player should be
-        automated by the computer. Both players are given a check-button, which are identical.
-        """
-        if player_x:
-            self.player_x_is_minimax = tk.BooleanVar()
-            check_button_variable = self.player_x_is_minimax
-        else:
-            self.player_o_is_minimax = tk.BooleanVar()
-            check_button_variable = self.player_o_is_minimax
-        computer_checkbutton = tk.Checkbutton(
-            master=self.widget_manager.player_info_frame,
-            text="Played by computer",
-            variable=check_button_variable,
-            offvalue=False, onvalue=True
-        )
-        #  TODO next. Could even make a command to set the player name to be computer "X"
-        return computer_checkbutton
-
     def _character_limit(self, var, index, mode) -> None:
         """
         Trace callback that gets added to the entry fields' variables, so that players cannot enter a name with length
@@ -176,6 +155,49 @@ class PlayerInfoFrame:
             if (len(self.player_x_entry.get()) >= PlayerNameConstraint.min_name_length.value) and \
                     (len(self.player_o_entry.get()) >= PlayerNameConstraint.min_name_length.value):
                 self.widget_manager.confirmation_button["state"] = tk.NORMAL
+
+    def _get_player_computer_checkbutton(self, player_x: bool) -> tk.Checkbutton:
+        """
+        Parameters: player_x - True if this is player_x's checkbutton, False if it's player_o's
+
+        Returns: a checkbutton that the user can select in order to indicate that the relevant player should be
+        automated by the computer. Both players are given a check-button, which are identical.
+        """
+        if player_x:
+            self.player_x_is_minimax = tk.BooleanVar()
+            check_button_variable = self.player_x_is_minimax
+            command = functools.partial(self._player_computer_checkbutton_command, True)
+        else:
+            self.player_o_is_minimax = tk.BooleanVar()
+            check_button_variable = self.player_o_is_minimax
+            command = functools.partial(self._player_computer_checkbutton_command, False)
+        computer_checkbutton = tk.Checkbutton(
+            master=self.widget_manager.player_info_frame,
+            text="Played by computer",
+            variable=check_button_variable,
+            offvalue=False, onvalue=True,
+            command=command,
+            background=Colour.player_is_computer_checkbuttons.value,
+            font=(Font.default_font.value, floor(SetupWindowDimensions.player_info_frame.height / 25))
+        )
+        #  TODO next. Could even make a command to set the player name to be computer "X" - via entry field trace
+        return computer_checkbutton
+
+    def _player_computer_checkbutton_command(self, player_x: bool) -> None:
+        """
+        Callback that gets added to the checkbutton for whether a certain player is played by the computer
+        The effect is to label that player as the computer (which the user can still change if they want)
+        """
+        if player_x:
+            if self.player_x_entry.get() == "" and self.player_x_is_minimax.get():
+                self.player_x_entry.set("Comp X")
+            elif self.player_x_entry.get() == "Comp X" and not self.player_x_is_minimax.get():
+                self.player_x_entry.set("")
+        else:
+            if self.player_o_entry.get() == "" and self.player_o_is_minimax.get():
+                self.player_o_entry.set("Comp O")
+            elif self.player_o_entry.get() == "Comp O" and not self.player_o_is_minimax.get():
+                self.player_o_entry.set("")
 
     ##########
     # Starting player radio buttons
