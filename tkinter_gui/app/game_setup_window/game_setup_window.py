@@ -25,6 +25,10 @@ class SetupWindow:
         self._create_and_format_setup_window()
         self._add_frames_to_setup_window()
         self._add_confirmation_button_to_setup_window()
+        self.widget_manager.setup_window.update()  # Updates geometry attached window so can use winfo_width/height
+        self.widget_manager.setup_window.minsize(
+            width=self.widget_manager.setup_window.winfo_width(),
+            height=self.widget_manager.setup_window.winfo_height())
         self.widget_manager.setup_window.mainloop()
 
     def _create_and_format_setup_window(self) -> None:

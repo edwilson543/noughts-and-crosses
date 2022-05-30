@@ -33,6 +33,10 @@ class PlayingWindow:
         game_window.columnconfigure(index=0, weight=1)
         self.widget_manager.main_window = game_window
         self._add_frames_to_main_window()
+        self.widget_manager.main_window.update()  # Updates geometry attached window so can use winfo_width/height
+        self.widget_manager.main_window.minsize(
+            width=self.widget_manager.main_window.winfo_width(),
+            height=self.widget_manager.main_window.winfo_height())
         self.active_game_frames.check_if_ai_goes_first()
         game_window.mainloop()
 

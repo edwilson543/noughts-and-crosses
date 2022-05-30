@@ -54,7 +54,7 @@ class PlayerInfoFrame:
         self.widget_manager.player_info_frame.rowconfigure(
             index=[0, 1], minsize=floor(SetupWindowDimensions.player_info_frame.height / 5), weight=1)
         self.widget_manager.player_info_frame.columnconfigure(
-            index=[0, 1], minsize=floor(SetupWindowDimensions.player_info_frame.width / 2), weight=1)
+            index=[0, 1, 2, 3], minsize=floor(SetupWindowDimensions.player_info_frame.width / 4), weight=1)
 
     def _upload_player_entry_widgets_to_widget_manager(self):
         """Method that adds all relevant widgets in the player info frame to the widget manager"""

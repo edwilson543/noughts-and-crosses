@@ -7,7 +7,7 @@ class NoughtsAndCrossesApp(SetupWindow):
         super().__init__(setup_parameters)
 
     def launch_game(self):
-        super().launch_setup_window()
+        self.launch_setup_window()
         playing_window = PlayingWindow(setup_parameters=self.setup_parameters)
         playing_window.launch_playing_window()
 
