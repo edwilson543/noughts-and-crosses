@@ -168,6 +168,7 @@ class NoughtsAndCrosses:
         return (win_orientation is not None), win_orientation
 
     def win_location_search(self, playing_grid: np.array, row_index: int, col_index: int) -> List[Tuple[int, int]]:
+        ### Balint please ignore this it's a work in progress
         """
         Method to determine the LOCATION of a win given that we know there is a win.
         The method leverages the fact that we only need to search the intersection of the last move with the board.
