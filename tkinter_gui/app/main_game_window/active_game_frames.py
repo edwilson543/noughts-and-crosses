@@ -13,8 +13,10 @@ from functools import partial
 import numpy as np
 import logging
 
+
 # TODO how can the popup be launched in end_of_game_check and still show the playing_grid status?? i.e. before clearing playing_grid
 # Just putting it before clearing the playing_grid means the playing_grid doesn't get cleared for some reason
+# One way is to have the popup window defined within this module, so that it can have an active game frames attribute
 
 
 class ActiveGameFrames(NoughtsAndCrosses):
@@ -22,7 +24,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
                  setup_parameters: NoughtsAndCrossesEssentialParameters,
                  draw_count: int = 0,
                  active_unconfirmed_cell: (int, int) = None,
-                 widget_manager=MainWindowWidgetManager()):  # TODO make this a non default argument
+                 widget_manager=MainWindowWidgetManager()):
         super().__init__(setup_parameters, draw_count)
         self.active_unconfirmed_cell = active_unconfirmed_cell
         self.widget_manager = widget_manager
@@ -127,14 +129,14 @@ class ActiveGameFrames(NoughtsAndCrosses):
         self._confirmation_button_switch()
         self._confirm_cell_selection()
         self._switch_highlighted_confirmation_button()
-        self._end_of_game_check()  # TODO re-order 1234 as above
+        self._end_of_game_check_pop_up()  # TODO re-order 1234 as above
 
     def _confirmation_button_switch(self):
         """
         Method to switch which player's confirmation button is active - to the player who's turn it is.
         This will disable the player's button who has just gone, and then set the active confirmation button in the
         widget manager to be that of the next player. A click on the playing_grid in an available cell then activates the
-        confirmation button corresponding to who's turn it is,
+        confirmation button corresponding to who's turn it is.
         """
         if self.get_player_turn() == BoardMarking.X.value:
             self.widget_manager.active_confirmation_button["state"] = tk.DISABLED
@@ -157,8 +159,9 @@ class ActiveGameFrames(NoughtsAndCrosses):
                                  sticky="nsew")
         self.mark_board(row_index=self.active_unconfirmed_cell[0], col_index=self.active_unconfirmed_cell[1])
         self.active_unconfirmed_cell = None
+        self.widget_manager.main_window.update()  # So that the cell updates straight away
 
-    def _end_of_game_check(self) -> None:
+    def _end_of_game_check_pop_up(self) -> None:
         """
         Method called each time the confirm button is clicked, to:
         0) Reset the game playing_grid to a starting state, with the loser going first

@@ -5,6 +5,7 @@ from tkinter_gui.constants.dimensions import SetupWindowDimensions
 from tkinter_gui.constants.game_parameter_constraints import PlayerNameConstraint
 import tkinter as tk
 from math import floor
+import functools
 
 
 class PlayerInfoFrame:
@@ -14,16 +15,20 @@ class PlayerInfoFrame:
                  widget_manager: GameSetupWidgets,
                  player_x_entry: tk.StringVar = None,
                  player_o_entry: tk.StringVar = None,
+                 player_x_is_minimax: tk.BooleanVar = None,
+                 player_o_is_minimax: tk.BooleanVar = None,
                  starting_player_value: tk.IntVar = None):
         self.widget_manager = widget_manager
         self.player_x_entry = player_x_entry
         self.player_o_entry = player_o_entry
+        self.player_x_is_minimax = player_x_is_minimax
+        self.player_o_is_minimax = player_o_is_minimax
         self.starting_player_value = starting_player_value
 
     def populate_player_info_frame(self):
         """Method to add all components of the player info frame to the grid"""
         self._create_and_format_player_info_frame()
-        self._upload_player_entry_widgets_to_widget_manager()
+        self._upload_active_player_widgets_to_widget_manager()
         self._upload_radio_buttons_to_widget_manager()
 
         # Player naming - static widgets so not in the widget manager
@@ -32,37 +37,47 @@ class PlayerInfoFrame:
         player_x_label.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
         player_o_label.grid(row=0, column=2, columnspan=2, sticky="nsew", padx=5, pady=5)
 
-        # Player naming - dynamic widgets in the widget manager
+        # Player naming - dynamic name entry widgets in the widget manager
         self.widget_manager.player_x_entry.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
         self.widget_manager.player_o_entry.grid(row=1, column=2, columnspan=2, sticky="nsew", padx=5, pady=5)
 
+        # Selection as to whether player is played by computer
+        self.widget_manager.player_x_computer_checkbtn.grid(row=2, column=0, columnspan=2,
+                                                            sticky="nsew", padx=3, pady=3)
+        self.widget_manager.player_o_computer_checkbtn.grid(row=2, column=2, columnspan=2,
+                                                            sticky="nsew", padx=3, pady=3)
+
         # Selection of who goes first - static widget (label)
         starting_player_label = self._get_starting_player_label()
-        starting_player_label.grid(row=2, column=1, columnspan=2, sticky="nsew", padx=5, pady=1)
+        starting_player_label.grid(row=3, column=1, columnspan=2, sticky="nsew", padx=5, pady=1)
 
         # Selection of who goes first - dynamic widgets (radio buttons)
-        self.widget_manager.random_player_starts_radio.grid(row=3, column=1, columnspan=2, sticky="ew", padx=5, pady=1)
-        self.widget_manager.player_x_starts_radio.grid(row=4, column=1, columnspan=2, sticky="ew", padx=5, pady=1)
-        self.widget_manager.player_o_starts_radio.grid(row=5, column=1, columnspan=2, sticky="ew", padx=5, pady=1)
+        self.widget_manager.random_player_starts_radio.grid(row=4, column=1, columnspan=2, sticky="ew", padx=5, pady=1)
+        self.widget_manager.player_x_starts_radio.grid(row=5, column=1, columnspan=2, sticky="ew", padx=5, pady=1)
+        self.widget_manager.player_o_starts_radio.grid(row=6, column=1, columnspan=2, sticky="ew", padx=5, pady=1)
 
     def _create_and_format_player_info_frame(self):
         self.widget_manager.player_info_frame = tk.Frame(
             master=self.widget_manager.setup_window,
             background=Colour.player_info_frame_background.value,
-            borderwidth=3, relief=Relief.player_info_frame.value,
-        )
+            borderwidth=3, relief=Relief.player_info_frame.value)
         self.widget_manager.player_info_frame.rowconfigure(
             index=[0, 1], minsize=floor(SetupWindowDimensions.player_info_frame.height / 5), weight=1)
         self.widget_manager.player_info_frame.columnconfigure(
-            index=[0, 1], minsize=floor(SetupWindowDimensions.player_info_frame.width / 2), weight=1)
+            index=[0, 1, 2, 3], minsize=floor(SetupWindowDimensions.player_info_frame.width / 4), weight=1)
 
-    def _upload_player_entry_widgets_to_widget_manager(self):
-        """Method that adds all relevant widgets in the player info frame to the widget manager"""
+    def _upload_active_player_widgets_to_widget_manager(self):
+        """
+        Method that adds all 'active' widgets in the player info frame to the widget manager
+        'active' here means that they contain information that must be extracted somewhere else in the window.
+        """
         self.widget_manager.player_x_entry = self._get_player_entry_field(player_x=True)
         self.widget_manager.player_o_entry = self._get_player_entry_field(player_x=False)
+        self.widget_manager.player_x_computer_checkbtn = self._get_player_computer_checkbutton(player_x=True)
+        self.widget_manager.player_o_computer_checkbtn = self._get_player_computer_checkbutton(player_x=False)
 
     ##########
-    # Player labels and entry
+    # Player labels, entry and computer check buttons
     ##########
     def _get_player_label(self, player_x: bool) -> tk.Label:
         """
@@ -140,6 +155,48 @@ class PlayerInfoFrame:
             if (len(self.player_x_entry.get()) >= PlayerNameConstraint.min_name_length.value) and \
                     (len(self.player_o_entry.get()) >= PlayerNameConstraint.min_name_length.value):
                 self.widget_manager.confirmation_button["state"] = tk.NORMAL
+
+    def _get_player_computer_checkbutton(self, player_x: bool) -> tk.Checkbutton:
+        """
+        Parameters: player_x - True if this is player_x's checkbutton, False if it's player_o's
+
+        Returns: a checkbutton that the user can select in order to indicate that the relevant player should be
+        automated by the computer. Both players are given a check-button, which are identical.
+        """
+        if player_x:
+            self.player_x_is_minimax = tk.BooleanVar()
+            check_button_variable = self.player_x_is_minimax
+            command = functools.partial(self._player_computer_checkbutton_command, True)
+        else:
+            self.player_o_is_minimax = tk.BooleanVar()
+            check_button_variable = self.player_o_is_minimax
+            command = functools.partial(self._player_computer_checkbutton_command, False)
+        computer_checkbutton = tk.Checkbutton(
+            master=self.widget_manager.player_info_frame,
+            text="Played by computer",
+            variable=check_button_variable,
+            offvalue=False, onvalue=True,
+            command=command,
+            background=Colour.player_is_computer_checkbuttons.value,
+            font=(Font.default_font.value, floor(SetupWindowDimensions.player_info_frame.height / 25))
+        )
+        return computer_checkbutton
+
+    def _player_computer_checkbutton_command(self, player_x: bool) -> None:
+        """
+        Callback that gets added to the checkbutton for whether a certain player is played by the computer
+        The effect is to label that player as the computer (which the user can still change if they want)
+        """
+        if player_x:
+            if self.player_x_entry.get() == "" and self.player_x_is_minimax.get():
+                self.player_x_entry.set("Comp X")
+            elif self.player_x_entry.get() == "Comp X" and not self.player_x_is_minimax.get():
+                self.player_x_entry.set("")
+        else:
+            if self.player_o_entry.get() == "" and self.player_o_is_minimax.get():
+                self.player_o_entry.set("Comp O")
+            elif self.player_o_entry.get() == "Comp O" and not self.player_o_is_minimax.get():
+                self.player_o_entry.set("")
 
     ##########
     # Starting player radio buttons

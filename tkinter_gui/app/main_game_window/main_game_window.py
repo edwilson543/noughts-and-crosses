@@ -1,7 +1,7 @@
 from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
 from tkinter_gui.constants.dimensions import MainWindowDimensions
 from tkinter_gui.constants.style_and_colours import Colour
-from tkinter_gui.app.main_game_window.active_game_frames import ActiveGameFrames
+from tkinter_gui.app.main_game_window.active_game_frames_minimax import ActiveGameFramesMinimax
 from tkinter_gui.app.main_game_window.historic_info_frame import HistoricInfoFrame
 from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindowWidgetManager
 import tkinter as tk
@@ -10,11 +10,14 @@ import tkinter as tk
 class PlayingWindow:
     def __init__(self,
                  setup_parameters: NoughtsAndCrossesEssentialParameters,
-                 widget_manager=MainWindowWidgetManager()):
+                 widget_manager=MainWindowWidgetManager(),
+                 player_x_is_minimax: bool = False,
+                 player_o_is_minimax: bool = False):
         self.setup_parameters = setup_parameters
         self.widget_manager = widget_manager
-        self.active_game_frames = ActiveGameFrames(
-            widget_manager=self.widget_manager, setup_parameters=self.setup_parameters)
+        self.active_game_frames = ActiveGameFramesMinimax(
+            widget_manager=self.widget_manager, setup_parameters=self.setup_parameters,
+            player_x_is_minimax=player_x_is_minimax, player_o_is_minimax=player_o_is_minimax)
         self.historic_info_frame = HistoricInfoFrame(
             widget_manager=self.widget_manager, setup_parameters=self.setup_parameters)
 
@@ -30,6 +33,11 @@ class PlayingWindow:
         game_window.columnconfigure(index=0, weight=1)
         self.widget_manager.main_window = game_window
         self._add_frames_to_main_window()
+        self.widget_manager.main_window.update()  # Updates geometry attached window so can use winfo_width/height
+        self.widget_manager.main_window.minsize(
+            width=self.widget_manager.main_window.winfo_width(),
+            height=self.widget_manager.main_window.winfo_height())
+        self.active_game_frames.check_if_ai_goes_first()
         game_window.mainloop()
 
     def _add_frames_to_main_window(self):

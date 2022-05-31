@@ -19,12 +19,18 @@ class SetupWindow:
         self.widget_manager = widget_manager
         self.game_parameters_frame = GameParametersFrame(widget_manager=self.widget_manager)
         self.player_info_frame = PlayerInfoFrame(widget_manager=self.widget_manager)
+        self.player_x_is_minimax = False
+        self.player_o_is_minimax = False
 
     def launch_setup_window(self) -> None:
         """Method that is called to launch the game setup window"""
         self._create_and_format_setup_window()
         self._add_frames_to_setup_window()
         self._add_confirmation_button_to_setup_window()
+        self.widget_manager.setup_window.update()  # Updates geometry attached window so can use winfo_width/height
+        self.widget_manager.setup_window.minsize(
+            width=self.widget_manager.setup_window.winfo_width(),
+            height=self.widget_manager.setup_window.winfo_height())
         self.widget_manager.setup_window.mainloop()
 
     def _create_and_format_setup_window(self) -> None:
@@ -52,8 +58,6 @@ class SetupWindow:
 
     def _confirm_all_details_button_command(self) -> None:
         """Method that extracts all of the game and player info, uploads it to a dict and then"""
-        # TODO make it so that until players names are included, cannot confirm
-        # Can use the trace function on the fields
         self.setup_parameters = NoughtsAndCrossesEssentialParameters(
             game_rows_m=self.game_parameters_frame.game_rows_m.get(),
             game_cols_n=self.game_parameters_frame.game_cols_n.get(),
@@ -62,6 +66,8 @@ class SetupWindow:
             player_o=Player(name=self.player_info_frame.player_o_entry.get(), marking=BoardMarking.O),
             starting_player_value=self.player_info_frame.starting_player_value.get()
         )
+        self.player_x_is_minimax = self.player_info_frame.player_x_is_minimax.get()
+        self.player_o_is_minimax = self.player_info_frame.player_o_is_minimax.get()
         self.widget_manager.setup_window.destroy()
 
     def _get_confirmation_button(self) -> tk.Button:
