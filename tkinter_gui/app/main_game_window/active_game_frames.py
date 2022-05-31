@@ -134,7 +134,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         Method to switch which player's confirmation button is active - to the player who's turn it is.
         This will disable the player's button who has just gone, and then set the active confirmation button in the
         widget manager to be that of the next player. A click on the playing_grid in an available cell then activates the
-        confirmation button corresponding to who's turn it is,
+        confirmation button corresponding to who's turn it is.
         """
         if self.get_player_turn() == BoardMarking.X.value:
             self.widget_manager.active_confirmation_button["state"] = tk.DISABLED
@@ -157,6 +157,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
                                  sticky="nsew")
         self.mark_board(row_index=self.active_unconfirmed_cell[0], col_index=self.active_unconfirmed_cell[1])
         self.active_unconfirmed_cell = None
+        self.widget_manager.main_window.update()  # So that the cell updates straight away
 
     def _end_of_game_check(self) -> None:
         """

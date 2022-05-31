@@ -40,11 +40,9 @@ class ActiveGameFramesMinimax(ActiveGameFrames, NoughtsAndCrossesMinimax):
         super()._confirmation_buttons_command()  # First do everything the super class version does
         if (self.get_player_turn(playing_grid=self.playing_grid) == BoardMarking.O.value) and \
                 self.player_o_is_minimax:
-            sleep(PauseDuration.computer_turn.value)
             self.ai_player_makes_next_move()
         elif (self.get_player_turn(playing_grid=self.playing_grid) == BoardMarking.X.value) and \
                 self.player_x_is_minimax:
-            sleep(PauseDuration.computer_turn.value)
             self.ai_player_makes_next_move()
 
     def check_if_ai_goes_first(self):
@@ -68,5 +66,6 @@ class ActiveGameFramesMinimax(ActiveGameFrames, NoughtsAndCrossesMinimax):
         AI makes the next move and all relevant updates are made.
         """
         _, move = super().get_minimax_move()
+        sleep(PauseDuration.computer_turn.value)
         super()._available_cell_button_command(row_index=move[0], col_index=move[1])  # simulate cell selection
         self._confirmation_buttons_command()  # Confirm ai player's choice on the game board

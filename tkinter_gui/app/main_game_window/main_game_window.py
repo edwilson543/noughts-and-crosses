@@ -72,21 +72,3 @@ class PlayingWindow:
             index=0, minsize=MainWindowDimensions.game_frame.width, weight=1)
         self.widget_manager.background_frame.columnconfigure(
             index=1, minsize=MainWindowDimensions.game_info_frame.width, weight=0)
-
-
-# from game.app.player_base_class import Player
-# from game.constants.game_constants import BoardMarking
-#
-# setup_parameters = NoughtsAndCrossesEssentialParameters(
-#     game_rows_m=3,
-#     game_cols_n=3,
-#     win_length_k=3,
-#     player_x=Player(name="human", marking=BoardMarking.X),
-#     player_o=Player(name="comp", marking=BoardMarking.O),
-#     starting_player_value=BoardMarking.O.value
-# )
-#
-# window = PlayingWindow(setup_parameters=setup_parameters,
-#                        player_x_is_minimax=False, player_o_is_minimax=True)
-#
-# window.launch_playing_window()
