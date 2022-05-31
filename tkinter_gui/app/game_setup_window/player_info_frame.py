@@ -180,7 +180,6 @@ class PlayerInfoFrame:
             background=Colour.player_is_computer_checkbuttons.value,
             font=(Font.default_font.value, floor(SetupWindowDimensions.player_info_frame.height / 25))
         )
-        #  TODO next. Could even make a command to set the player name to be computer "X" - via entry field trace
         return computer_checkbutton
 
     def _player_computer_checkbutton_command(self, player_x: bool) -> None:
