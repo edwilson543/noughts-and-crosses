@@ -10,7 +10,10 @@ import tkinter as tk
 
 
 class GameContinuationPopUp:
-    def __init__(self, text: str, widget_manager: MainWindowWidgetManager, pop_up_window: tk.Toplevel = None):
+    def __init__(self,
+                 text: str,
+                 widget_manager: MainWindowWidgetManager,
+                 pop_up_window: tk.Toplevel = None):
         self.text = text
         self.widget_manager = widget_manager
         self.pop_up_window = pop_up_window

@@ -13,8 +13,10 @@ from functools import partial
 import numpy as np
 import logging
 
+
 # TODO how can the popup be launched in end_of_game_check and still show the playing_grid status?? i.e. before clearing playing_grid
 # Just putting it before clearing the playing_grid means the playing_grid doesn't get cleared for some reason
+# One way is to have the popup window defined within this module, so that it can have an active game frames attribute
 
 
 class ActiveGameFrames(NoughtsAndCrosses):
@@ -127,7 +129,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         self._confirmation_button_switch()
         self._confirm_cell_selection()
         self._switch_highlighted_confirmation_button()
-        self._end_of_game_check()  # TODO re-order 1234 as above
+        self._end_of_game_check_pop_up()  # TODO re-order 1234 as above
 
     def _confirmation_button_switch(self):
         """
@@ -159,7 +161,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         self.active_unconfirmed_cell = None
         self.widget_manager.main_window.update()  # So that the cell updates straight away
 
-    def _end_of_game_check(self) -> None:
+    def _end_of_game_check_pop_up(self) -> None:
         """
         Method called each time the confirm button is clicked, to:
         0) Reset the game playing_grid to a starting state, with the loser going first
