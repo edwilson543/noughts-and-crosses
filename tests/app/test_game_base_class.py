@@ -1,7 +1,22 @@
 from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
-from game.constants.game_constants import StartingPlayer
+from game.constants.game_constants import StartingPlayer, WinOrientation
 import pytest
 import numpy as np
+from typing import Tuple, List
+
+
+@pytest.fixture(scope="module")
+def empty_game_parameters():
+    return NoughtsAndCrossesEssentialParameters(
+        game_rows_m=4,
+        game_cols_n=3,
+        win_length_k=3,
+        starting_player_value=StartingPlayer.PLAYER_X.value)
+
+
+@pytest.fixture(scope="function")
+def empty_game(empty_game_parameters):
+    return NoughtsAndCrosses(setup_parameters=empty_game_parameters)
 
 
 class TestNoughtsAndCrossesSearchAlgorithm:
@@ -9,19 +24,6 @@ class TestNoughtsAndCrossesSearchAlgorithm:
     Test class purely for testing the search algorithm of the NoughtsAndCrosses class
     (Chiefly its component methods)  # TODO write some tests for the winning_board_search method using components
     """
-
-    @pytest.fixture(scope="class")
-    def empty_game_parameters(self):
-        return NoughtsAndCrossesEssentialParameters(
-            game_rows_m=4,
-            game_cols_n=3,
-            win_length_k=3,
-            starting_player_value=StartingPlayer.PLAYER_X.value)
-
-    @pytest.fixture(scope="function")
-    def empty_game(self, empty_game_parameters):
-        return NoughtsAndCrosses(setup_parameters=empty_game_parameters)
-
     ##########
     # Checks playing_grid is not a winner
     ##########
@@ -178,3 +180,116 @@ class TestNoughtsAndCrossesSearchAlgorithm:
             for exp_array in expected_diagonal_arrays:
                 validity += np.all(act_array == exp_array)
             assert validity
+
+
+class TestNoughtsAndCrossesSearchLocationAlgorithm:
+    """
+    Test class purely for testing the search location algorithm of the NoughtsAndCrosses class
+    This is the method that, once we know there is a win, locates exactly where it is
+    """
+    ##########
+    # Tests for the search location algorithm
+    ##########
+    def test_horizontal_win_top_location(self, empty_game):
+        empty_game.playing_grid = np.array([
+            [1, 1, 1],
+            [-1, 0, -1],
+            [0, -1, 0],
+            [0, 0, 0]
+        ])
+        win_location: List[Tuple[int, int]] = empty_game.win_location_search(
+            row_index=0, col_index=2, win_orientation=WinOrientation.HORIZONTAL)
+        expected_win_location = [(0, 0), (0, 1), (0, 2)]
+        assert set(win_location) == set(expected_win_location)
+
+    def test_horizontal_win_middle_location(self, empty_game):
+        empty_game.playing_grid = np.array([
+            [1, 0, 0],
+            [1, 0, 1],
+            [-1, -1, -1],
+            [0, 0, 0]
+        ])
+        win_location: List[Tuple[int, int]] = empty_game.win_location_search(
+            row_index=2, col_index=1, win_orientation=WinOrientation.HORIZONTAL)
+        expected_win_location = [(2, 0), (2, 1), (2, 2)]
+        assert set(win_location) == set(expected_win_location)
+
+    ##########
+    # Test for vertical wins
+    ##########
+    def test_vertical_win_bottom_left(self, empty_game):
+        empty_game.playing_grid = np.array([
+            [1, -1, 1],
+            [-1, -1, 1],
+            [-1, 1, -1],
+            [-1, 1, -1]
+        ])
+        win_location: List[Tuple[int, int]] = empty_game.win_location_search(
+            row_index=2, col_index=0, win_orientation=WinOrientation.VERTICAL)
+        expected_win_location = [(1, 0), (2, 0), (3, 0)]
+        assert set(win_location) == set(expected_win_location)
+
+    def test_vertical_win_top_right(self, empty_game):
+        empty_game.playing_grid = np.array([
+            [-1, 1, 1],
+            [-1, 1, 1],
+            [-1, -1, 1],
+            [1, -1, -1]
+        ])
+        win_location: List[Tuple[int, int]] = empty_game.win_location_search(
+            row_index=0, col_index=2, win_orientation=WinOrientation.VERTICAL)
+        expected_win_location = [(0, 2), (1, 2), (2, 2)]
+        assert set(win_location) == set(expected_win_location)
+
+    ##########
+    # Tests for south east diagonal win
+    ##########
+
+    def test_south_east_win_leading_diag(self, empty_game):
+        empty_game.playing_grid = np.array([
+            [-1, 1, 0],
+            [0, -1, 1],
+            [-1, 0, -1],
+            [1, -1, 0]
+        ])
+        win_location: List[Tuple[int, int]] = empty_game.win_location_search(
+            row_index=2, col_index=2, win_orientation=WinOrientation.SOUTH_EAST)
+        expected_win_location = [(0, 0), (1, 1), (2, 2)]
+        assert set(win_location) == set(expected_win_location)
+
+    def test_south_east_win_lower_triangle_diag(self, empty_game):
+        empty_game.playing_grid = np.array([
+            [0, 1, 1],
+            [-1, 0, 1],
+            [-1, -1, 0],
+            [0, -1, -1]
+        ])
+        win_location: List[Tuple[int, int]] = empty_game.win_location_search(
+            row_index=2, col_index=1, win_orientation=WinOrientation.SOUTH_EAST)
+        expected_win_location = [(1, 0), (2, 1), (3, 2)]
+        assert set(win_location) == set(expected_win_location)
+
+    ##########
+    # Tests for north east diagonal win
+    ##########
+    def test_north_east_win_leading_diag(self, empty_game):
+        empty_game.playing_grid = np.array([
+            [0, 1, -1],
+            [1, -1, 0],
+            [-1, 0, -1],
+            [0, -1, 0]
+        ])
+        win_location: List[Tuple[int, int]] = empty_game.win_location_search(
+            row_index=2, col_index=0, win_orientation=WinOrientation.NORTH_EAST)
+        expected_win_location = [(2, 0), (1, 1), (0, 2)]
+        assert set(win_location) == set(expected_win_location)
+
+    def test_north_east_win_lower_triangle_diag(self, empty_game):
+        empty_game.playing_grid = np.array([
+            [0, 1, 0],
+            [1, 0, -1],
+            [0, -1, -1],
+            [-1, -1, 0]
+        ])
+        win, win_orientation = empty_game._winning_board_search()
+        assert win

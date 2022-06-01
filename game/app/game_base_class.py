@@ -167,13 +167,15 @@ class NoughtsAndCrosses:
             win_orientation = WinOrientation.NORTH_EAST
         return (win_orientation is not None), win_orientation
 
-    def win_location_search(self, playing_grid: np.array, row_index: int, col_index: int) -> List[Tuple[int, int]]:
+    def win_location_search(self, row_index: int, col_index: int, win_orientation: WinOrientation,
+                            playing_grid: np.array = None) -> List[Tuple[int, int]]:
         ### Balint please ignore this it's a work in progress
         """
         Method to determine the LOCATION of a win given that we know there is a win.
         The method leverages the fact that we only need to search the intersection of the last move with the board.
-        Note this is not used to check for wins, only to determine where they are once we know there is one.
-        # TODO could go in GUI
+        Note this is not used to check for wins, only to determine where they are once we know there is one - hence
+        the reason for currently having a separate method.
+        # TODO an independent search algorithm could be built like this - that just searches based on last move
 
         Parameters:
         ----------
@@ -186,13 +188,35 @@ class NoughtsAndCrosses:
         """
         if playing_grid is None:
             playing_grid = self.playing_grid
-        _, win_orientation = self._winning_board_search(playing_grid=playing_grid)
         if win_orientation == WinOrientation.HORIZONTAL:
             row_streaks = np.convolve(playing_grid[row_index], np.ones(self.win_length_k, dtype=int), mode="valid")
-            win_streak_end_col = int(np.where(abs(row_streaks) == self.win_length_k)[1])
-            return [(row_index, win_streak_end_col - k) for k in range(0, self.win_length_k)]
+            win_streak_start_col = int(np.where(abs(row_streaks) == self.win_length_k)[0])
+            return [(row_index, win_streak_start_col + k) for k in range(0, self.win_length_k)]
         elif win_orientation == WinOrientation.VERTICAL:
-            pass  # TODO decide whether this is a good idea or note
+            col_streaks = np.convolve(playing_grid[:, col_index], np.ones(self.win_length_k, dtype=int), mode="valid")
+            win_streak_start_row = int(np.where(abs(col_streaks) == self.win_length_k)[0])
+            return [(win_streak_start_row + k, col_index) for k in range(0, self.win_length_k)]
+        elif win_orientation == WinOrientation.SOUTH_EAST:
+            diagonal_offset = col_index - row_index
+            diagonal_offset_index = (max(-diagonal_offset, 0), max(diagonal_offset, 0))
+            diagonal_array = np.diagonal(playing_grid, offset=diagonal_offset)
+            diag_streaks = np.convolve(diagonal_array, np.ones(self.win_length_k, dtype=int), mode="valid")
+            win_streak_start_pos = int(np.where(abs(diag_streaks) == self.win_length_k)[0])
+            return [(diagonal_offset_index[0] + k, diagonal_offset_index[1] + k) for k in range(0, self.win_length_k)]
+        elif win_orientation == WinOrientation.NORTH_EAST:
+            playing_grid_ud = np.flipud(playing_grid)
+            diagonal_offset = col_index - row_index
+            diagonal_offset_index = (playing_grid_)
+            diagonal_array = np.diagonal(playing_grid, offset=diagonal_offset)
+            diag_streaks = np.convolve(diagonal_array, np.ones(self.win_length_k, dtype=int), mode="valid")
+            win_streak_start_pos = int(np.where(abs(diag_streaks) == self.win_length_k)[0])
+
+
+            diagonal_offset_index = (max(-diagonal_offset, 0), max(diagonal_offset, 0))
+            return [(playing_grid_ud.shape[0] - diagonal_offset_index[0] + k, diagonal_offset_index[1] + k) for k in
+                    range(0, self.win_length_k)]
+        else:
+            raise ValueError("Invalid win_orientation was passed to win_location_search")
 
     #  Methods called in winning_board_search and quick_search
     def _search_array_list_for_win(self, array_list: list[np.array]) -> bool:
