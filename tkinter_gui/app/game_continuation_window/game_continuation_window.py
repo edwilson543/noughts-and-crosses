@@ -5,26 +5,29 @@ from tkinter_gui.constants.dimensions import MainWindowDimensions
 from tkinter_gui.constants.style_and_colours import Colour, Relief, Font
 from math import floor
 import tkinter as tk
+import sys
 
 # TODO could add in check buttons for who then goes first - loser, winner, random
 
 
 class GameContinuationPopUp:
     def __init__(self,
-                 text: str,
-                 widget_manager: MainWindowWidgetManager,
+                 winner_text: str = None,
+                 widget_manager: MainWindowWidgetManager = None,
+                 keep_playing: bool = True,
                  pop_up_window: tk.Toplevel = None):
-        self.text = text
+        self.winner_text = winner_text
         self.widget_manager = widget_manager
+        self.keep_playing = keep_playing
         self.pop_up_window = pop_up_window
 
     def launch_continuation_pop_up(self):
         """Method to launch the pop up main_window"""
-        pop_up = tk.Toplevel(self.widget_manager.main_window, background=Colour.pop_up_window_background.value)
-        pop_up.resizable(width=False, height=False)
-        self.pop_up_window = pop_up
+        self.pop_up_window = tk.Toplevel(
+            self.widget_manager.main_window, background=Colour.pop_up_window_background.value)
+        self.pop_up_window.resizable(width=False, height=False)
         self._populate_pop_up_window()
-        pop_up.mainloop()
+        self.pop_up_window.mainloop()
 
     def _populate_pop_up_window(self):
         """Method to fill up the pop_up main_window with all the relevant components"""
@@ -45,7 +48,7 @@ class GameContinuationPopUp:
         """Method to display the outcome of the game"""
         game_outcome_label = tk.Label(
             master=self.pop_up_window,
-            text=self.text,
+            text=self.winner_text,
             background=Colour.game_outcome_label.value,
             foreground=Colour.game_outcome_label_font.value,
             font=(Font.default_font.value, floor(MainWindowDimensions.pop_up_window.height / 6)),
@@ -82,8 +85,11 @@ class GameContinuationPopUp:
     # Button commands
     def _continue_game_button_command(self):
         """Method that just shuts the pop_up_window main_window"""
+        self.keep_playing = True
         self.pop_up_window.destroy()
+        self.widget_manager.main_window.destroy()
 
     def _exit_game_button_command(self):
         """Method that ends the game by shutting the main main_window"""
-        self.widget_manager.main_window.destroy()
+        self.keep_playing = False
+        sys.exit()

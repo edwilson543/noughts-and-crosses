@@ -34,6 +34,6 @@ class Player:
             raise TypeError(f"{other} is not of type Player but was compared with {self.name} for equality")
 
     def win_count_label_text(self):  # TODO this should go somewhere else, in GUI
-        """Method giving the text for the player's win count label"""
+        """Method giving the winner_text for the player's win count label"""
         text = f"{self.name}:\n{self.active_game_win_count}"
         return text

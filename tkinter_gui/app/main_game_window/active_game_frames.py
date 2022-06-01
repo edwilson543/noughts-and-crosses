@@ -24,12 +24,14 @@ class ActiveGameFrames(NoughtsAndCrosses):
                  setup_parameters: NoughtsAndCrossesEssentialParameters,
                  draw_count: int = 0,
                  active_unconfirmed_cell: (int, int) = None,
-                 widget_manager=MainWindowWidgetManager()):
+                 widget_manager=MainWindowWidgetManager(),
+                 winner_text: str = None):
         super().__init__(setup_parameters, draw_count)
         self.active_unconfirmed_cell = active_unconfirmed_cell
         self.widget_manager = widget_manager
         self.min_cell_height = floor(MainWindowDimensions.game_frame.height / setup_parameters.game_rows_m)
         self.min_cell_width = floor(MainWindowDimensions.game_frame.width / setup_parameters.game_cols_n)
+        self.winner_text = winner_text
 
     ##########
     # Methods populating and formatting the two active frames with the relevant widgets
@@ -170,12 +172,13 @@ class ActiveGameFrames(NoughtsAndCrosses):
         3) Produce a pop up asking the user to continue or exit depending if either of these is the case
         """
         winning_player = self.get_winning_player()
+        # TODO refactor along the lines of:
+        # New method for reset game board, initialise conf buttons, pop up
+        # And then do if winning player = self.player_x rather than the nested if statements
+        # And within each call the new method
+
         if winning_player is not None:
-            # TODO could make the winning streak flash and dance - would need to update the order though so the popup
-            # is first, and the search algorithm actually returns the position of the win
-            # TODO could give user option to let winner/random go first
-            self.reset_game_board()  # backend
-            self._clear_playing_grid()  # frontend
+
 
             if winning_player == self.player_x:
                 self.starting_player_value = BoardMarking.O.value  # Loser starts next game
@@ -191,30 +194,20 @@ class ActiveGameFrames(NoughtsAndCrosses):
                 raise ValueError(
                     "winning_player is not None in end_of_game check but neither player is equal to the"
                     "winning player.")
+
+            # TODO this code block as new method - note that it#s repeated in the draw too
+            self.reset_game_board()  # backend board
             self._initialise_confirmation_buttons()
-            pop_up = GameContinuationPopUp(text=f"{winning_player.name} wins!", widget_manager=self.widget_manager)
+            pop_up = GameContinuationPopUp(winner_text="xxx", widget_manager=self.widget_manager)
             pop_up.launch_continuation_pop_up()
 
         elif self.check_for_draw():
-            self.reset_game_board()  # backend
-            self._clear_playing_grid()  # frontend
-            self.widget_manager.draw_count_label.configure(text=f"Draws:\n{self.draw_count}")
+            self.reset_game_board()  # backend board
             self._initialise_confirmation_buttons()
-            pop_up = GameContinuationPopUp(text="Game ended in a draw", widget_manager=self.widget_manager)
+            self.widget_manager.draw_count_label.configure(
+                text=f"Draws: {self.draw_count}")
+            pop_up = GameContinuationPopUp(winner_text="Game ended in a draw", widget_manager=self.widget_manager)
             pop_up.launch_continuation_pop_up()
-
-    def _clear_playing_grid(self) -> None:
-        """
-        Method to clear the playing grid at the end of a game and fill it with a new one. (GUI grid only)
-        All buttons and labels are removed, and a grid is populated with only available buttons.
-        """
-        for row_index in range(0, self.game_rows_m):
-            for col_index in range(0, self.game_cols_n):
-                self.widget_manager.playing_grid[row_index, col_index].destroy()
-                available_cell_button = self._get_available_cell_button(
-                    row_index=row_index, col_index=col_index)
-                available_cell_button.grid(row=row_index, column=col_index, sticky="nsew", padx=1, pady=1)
-                self.widget_manager.playing_grid[row_index, col_index] = available_cell_button
 
     def _initialise_confirmation_buttons(self) -> None:
         """
