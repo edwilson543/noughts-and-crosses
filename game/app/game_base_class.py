@@ -169,7 +169,6 @@ class NoughtsAndCrosses:
 
     def win_location_search(self, row_index: int, col_index: int, win_orientation: WinOrientation,
                             playing_grid: np.array = None) -> List[Tuple[int, int]]:
-        ### Balint please ignore this it's a work in progress
         """
         Method to determine the LOCATION of a win given that we know there is a win.
         The method leverages the fact that we only need to search the intersection of the last move with the board.
@@ -184,7 +183,7 @@ class NoughtsAndCrosses:
 
         Returns:
         ----------
-        A list of the indexes corresponding to the winning line
+        A list of the indexes corresponding to the winning streak
         """
         if playing_grid is None:
             playing_grid = self.playing_grid
@@ -202,19 +201,18 @@ class NoughtsAndCrosses:
             diagonal_array = np.diagonal(playing_grid, offset=diagonal_offset)
             diag_streaks = np.convolve(diagonal_array, np.ones(self.win_length_k, dtype=int), mode="valid")
             win_streak_start_pos = int(np.where(abs(diag_streaks) == self.win_length_k)[0])
-            return [(diagonal_offset_index[0] + k, diagonal_offset_index[1] + k) for k in range(0, self.win_length_k)]
+            return [(win_streak_start_pos + diagonal_offset_index[0] + k,
+                     win_streak_start_pos + diagonal_offset_index[1] + k)
+                    for k in range(0, self.win_length_k)]
         elif win_orientation == WinOrientation.NORTH_EAST:
-            playing_grid_ud = np.flipud(playing_grid)
-            diagonal_offset = col_index - row_index
-            diagonal_offset_index = (playing_grid_)
-            diagonal_array = np.diagonal(playing_grid, offset=diagonal_offset)
+            diagonal_offset = (playing_grid.shape[1] - col_index - 1) - row_index
+            diagonal_offset_index = (max(-diagonal_offset, 0), (playing_grid.shape[1] - 1 - max(diagonal_offset, 0)))
+            diagonal_array = np.fliplr(playing_grid).diagonal(offset=diagonal_offset)
             diag_streaks = np.convolve(diagonal_array, np.ones(self.win_length_k, dtype=int), mode="valid")
             win_streak_start_pos = int(np.where(abs(diag_streaks) == self.win_length_k)[0])
-
-
-            diagonal_offset_index = (max(-diagonal_offset, 0), max(diagonal_offset, 0))
-            return [(playing_grid_ud.shape[0] - diagonal_offset_index[0] + k, diagonal_offset_index[1] + k) for k in
-                    range(0, self.win_length_k)]
+            return[(win_streak_start_pos + diagonal_offset_index[0] + k,
+                    win_streak_start_pos + diagonal_offset_index[1] - k)
+                   for k in range(0, self.win_length_k)]
         else:
             raise ValueError("Invalid win_orientation was passed to win_location_search")
 
