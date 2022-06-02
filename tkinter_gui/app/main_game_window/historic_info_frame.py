@@ -13,7 +13,9 @@ class HistoricInfoFrame:
     """
     def __init__(self,
                  setup_parameters: NoughtsAndCrossesEssentialParameters,
+                 draw_count: int = 0,
                  widget_manager=MainWindowWidgetManager()):
+        self.draw_count = draw_count
         self.player_x = setup_parameters.player_x
         self.player_o = setup_parameters.player_o
         self.widget_manager = widget_manager
@@ -82,7 +84,7 @@ class HistoricInfoFrame:
         """Returns: The label that will display how many draws have been reached in the current game"""
         player_win_count_label = tk.Label(
             master=self.widget_manager.historic_info_frame,
-            text="Draws:\n0",
+            text=f"Draws:\n{self.draw_count}",
             font=(Font.default_font.value, floor(MainWindowDimensions.historic_info_frame.height / 12)),
             background=Colour.game_win_count_label.value,
             foreground=Colour.game_win_count_font.value,

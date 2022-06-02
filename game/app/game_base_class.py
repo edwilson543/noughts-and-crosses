@@ -46,6 +46,8 @@ class NoughtsAndCrosses:
         Method to allow choice of who goes first, or to be randomly selected.
         Note that the starting player is carried as either 1 or -1 (which corresponds with the BoardMarking Enum)
         """
+        if starting_player_value is None:
+            pass
         if starting_player_value == StartingPlayer.RANDOM.value:
             return np.random.choice([BoardMarking.X.value, BoardMarking.O.value])
         elif starting_player_value == StartingPlayer.PLAYER_X.value:
@@ -53,8 +55,8 @@ class NoughtsAndCrosses:
         elif starting_player_value == StartingPlayer.PLAYER_O.value:
             return BoardMarking.O.value
         else:
-            raise ValueError("Attempted to call choose_starting_player method non-randomly but with a player_name"
-                             " that did not match either of the players.")
+            raise ValueError("Attempted to call choose_starting_player method but with a starting_player_value"
+                             " that is not in the StartingPlayer Enum.")
 
     def get_player_turn(self, playing_grid: np.array = None) -> BoardMarking:
         """

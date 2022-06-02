@@ -8,8 +8,9 @@ import tkinter as tk
 
 
 class PlayingWindow:
+    """Class bringing together the frames of the main playing window"""
     def __init__(self,
-                 setup_parameters: NoughtsAndCrossesEssentialParameters,
+                 setup_parameters=NoughtsAndCrossesEssentialParameters(),
                  widget_manager=MainWindowWidgetManager(),
                  player_x_is_minimax: bool = False,
                  player_o_is_minimax: bool = False):
@@ -20,8 +21,6 @@ class PlayingWindow:
             player_x_is_minimax=player_x_is_minimax, player_o_is_minimax=player_o_is_minimax)
         self.historic_info_frame = HistoricInfoFrame(
             widget_manager=self.widget_manager, setup_parameters=self.setup_parameters)
-
-# TODO same for pop up
 
     def launch_playing_window(self):
         """Method for launching the main noughts and crosses game play main_window and controlling the game flow"""

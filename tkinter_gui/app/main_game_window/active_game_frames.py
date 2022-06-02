@@ -14,23 +14,20 @@ import numpy as np
 import logging
 
 
-# TODO how can the popup be launched in end_of_game_check and still show the playing_grid status?? i.e. before clearing playing_grid
-# Just putting it before clearing the playing_grid means the playing_grid doesn't get cleared for some reason
-# One way is to have the popup window defined within this module, so that it can have an active game frames attribute
-
-
 class ActiveGameFrames(NoughtsAndCrosses):
     def __init__(self,
                  setup_parameters: NoughtsAndCrossesEssentialParameters,
                  draw_count: int = 0,
                  active_unconfirmed_cell: (int, int) = None,
                  widget_manager=MainWindowWidgetManager(),
+                 game_continuation_top_level: GameContinuationPopUp = None,
                  winner_text: str = None):
         super().__init__(setup_parameters, draw_count)
         self.active_unconfirmed_cell = active_unconfirmed_cell
         self.widget_manager = widget_manager
         self.min_cell_height = floor(MainWindowDimensions.game_frame.height / setup_parameters.game_rows_m)
         self.min_cell_width = floor(MainWindowDimensions.game_frame.width / setup_parameters.game_cols_n)
+        self.game_continuation_top_level = game_continuation_top_level
         self.winner_text = winner_text
 
     ##########
@@ -122,8 +119,8 @@ class ActiveGameFrames(NoughtsAndCrosses):
         Outcomes:
         1) Disable the confirmation button that has just been pressed (as there is 1 for each player)
         2) Confirm the cell selection and carry out the necessary GUI and backend processing to mark that cell
-        3) Check if this selection has resulted in a win/ draw and carry out the necessary processing
-        4) Switch which player's label is highlighted/raised to indicate that it's their go
+        3) Switch which player's label is highlighted/raised to indicate that it's their go
+        4) Check if this selection has resulted in a win/ draw and carry out the necessary processing
 
         Parameters: None
         Returns: None
@@ -131,7 +128,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         self._confirmation_button_switch()
         self._confirm_cell_selection()
         self._switch_highlighted_confirmation_button()
-        self._end_of_game_check_pop_up()  # TODO re-order 1234 as above
+        self._end_of_game_check_pop_up()
 
     def _confirmation_button_switch(self):
         """
@@ -163,6 +160,15 @@ class ActiveGameFrames(NoughtsAndCrosses):
         self.active_unconfirmed_cell = None
         self.widget_manager.main_window.update()  # So that the cell updates straight away
 
+    def _switch_highlighted_confirmation_button(self):
+        """Method to flick between who's cell is highlighted depending on who's go it is"""
+        self.widget_manager.player_x_confirmation_button.configure(
+            background=self._get_player_confirmation_button_colour(player=self.player_x),
+            relief=self._get_player_confirmation_button_relief(player=self.player_x))
+        self.widget_manager.player_o_confirmation_button.configure(
+            background=self._get_player_confirmation_button_colour(player=self.player_o),
+            relief=self._get_player_confirmation_button_relief(player=self.player_o))
+
     def _end_of_game_check_pop_up(self) -> None:
         """
         Method called each time the confirm button is clicked, to:
@@ -172,42 +178,35 @@ class ActiveGameFrames(NoughtsAndCrosses):
         3) Produce a pop up asking the user to continue or exit depending if either of these is the case
         """
         winning_player = self.get_winning_player()
-        # TODO refactor along the lines of:
-        # New method for reset game board, initialise conf buttons, pop up
-        # And then do if winning player = self.player_x rather than the nested if statements
-        # And within each call the new method
 
-        if winning_player is not None:
-
-
-            if winning_player == self.player_x:
-                self.starting_player_value = BoardMarking.O.value  # Loser starts next game
-                self.player_x.award_point()
-                self.widget_manager.player_x_win_count_label.configure(
-                    text=self.player_x.win_count_label_text())
-            elif winning_player == self.player_o:
-                self.starting_player_value = BoardMarking.X.value
-                self.player_o.award_point()
-                self.widget_manager.player_o_win_count_label.configure(
-                    text=self.player_o.win_count_label_text())
-            else:
-                raise ValueError(
-                    "winning_player is not None in end_of_game check but neither player is equal to the"
-                    "winning player.")
-
-            # TODO this code block as new method - note that it#s repeated in the draw too
-            self.reset_game_board()  # backend board
-            self._initialise_confirmation_buttons()
-            pop_up = GameContinuationPopUp(winner_text="xxx", widget_manager=self.widget_manager)
-            pop_up.launch_continuation_pop_up()
-
+        if (winning_player is not None) and winning_player == self.player_x:
+            self.starting_player_value = BoardMarking.O.value  # TODO CURRENTLY Loser starts NEXT - remove once bettered
+            self.player_x.award_point()
+            self.widget_manager.player_x_win_count_label.configure(
+                text=self.player_x.win_count_label_text())
+            self._set_game_up_for_next_game(winner_text=f"{winning_player.name} wins!")
+        elif (winning_player is not None) and winning_player == self.player_o:
+            self.starting_player_value = BoardMarking.X.value
+            self.player_o.award_point()
+            self.widget_manager.player_o_win_count_label.configure(
+                text=self.player_o.win_count_label_text())
+            self._set_game_up_for_next_game(winner_text=f"{winning_player.name} wins!")
         elif self.check_for_draw():
-            self.reset_game_board()  # backend board
-            self._initialise_confirmation_buttons()
             self.widget_manager.draw_count_label.configure(
-                text=f"Draws: {self.draw_count}")
-            pop_up = GameContinuationPopUp(winner_text="Game ended in a draw", widget_manager=self.widget_manager)
-            pop_up.launch_continuation_pop_up()
+                text=f"Draws:\n{self.draw_count}")
+            self._set_game_up_for_next_game(winner_text="Game ended in a draw")
+
+    # Methods called during the end of game check pop up
+    def _make_winning_streak_flash(self):
+        #  TODO
+        pass
+
+    def _set_game_up_for_next_game(self, winner_text: str):
+        """Method to reset the backend game board and call the game_continuation_top_level which controls the setup for the next game"""
+        self.reset_game_board()  # backend board
+        self.game_continuation_top_level = GameContinuationPopUp(
+            winner_text=winner_text, widget_manager=self.widget_manager)
+        self.game_continuation_top_level.launch_continuation_pop_up()
 
     def _initialise_confirmation_buttons(self) -> None:
         """
@@ -390,15 +389,6 @@ class ActiveGameFrames(NoughtsAndCrosses):
             return Colour.occupied_cell_x.value
         else:
             return Colour.occupied_cell_o.value
-
-    def _switch_highlighted_confirmation_button(self):
-        """Method to flick between who's cell is highlighted depending on who's go it is"""
-        self.widget_manager.player_x_confirmation_button.configure(
-            background=self._get_player_confirmation_button_colour(player=self.player_x),
-            relief=self._get_player_confirmation_button_relief(player=self.player_x))
-        self.widget_manager.player_o_confirmation_button.configure(
-            background=self._get_player_confirmation_button_colour(player=self.player_o),
-            relief=self._get_player_confirmation_button_relief(player=self.player_o))
 
     # Lowest level methods used in _switch_highlighted_confirmation_button
     def _get_player_confirmation_button_colour(self, player: Player) -> str:

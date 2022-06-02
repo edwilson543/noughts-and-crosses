@@ -7,7 +7,7 @@ from math import floor
 import tkinter as tk
 import sys
 
-# TODO could add in check buttons for who then goes first - loser, winner, random
+# TODO add in check buttons for who then goes first - loser, winner, random
 
 
 class GameContinuationPopUp:
@@ -30,7 +30,7 @@ class GameContinuationPopUp:
         self.pop_up_window.mainloop()
 
     def _populate_pop_up_window(self):
-        """Method to fill up the pop_up main_window with all the relevant components"""
+        """Method to fill up the game_continuation_top_level main_window with all the relevant components"""
         self.pop_up_window.rowconfigure(index=[0, 1], minsize=MainWindowDimensions.pop_up_window.height / 2, weight=1)
         self.pop_up_window.columnconfigure(index=[0, 1], minsize=MainWindowDimensions.pop_up_window.width / 2, weight=1)
 
