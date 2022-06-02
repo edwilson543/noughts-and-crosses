@@ -1,5 +1,5 @@
 from game.app.player_base_class import Player
-from game.constants.game_constants import BoardMarking, StartingPlayer, WinOrientation
+from game.constants.game_constants import BoardMarking, StartingPlayer
 import numpy as np
 from typing import Union, List, Tuple
 from dataclasses import dataclass
@@ -105,7 +105,10 @@ class NoughtsAndCrosses:
         """
         if playing_grid is None:
             playing_grid = self.playing_grid
-        win, _ = self._winning_board_search(playing_grid=playing_grid)
+        win = self._winning_board_search(playing_grid=playing_grid)
+        # todo get rid of this search here - add note that this should only be called if we know there is a
+        #  winning player, and then just return the winning player
+        # Can have a win parameter here and raise a value error if False is passed
         if not win:
             return None
         else:
@@ -142,7 +145,92 @@ class NoughtsAndCrosses:
     ##########
     # Search algorithm for the whole playing_grid win search
     ##########
-    def _winning_board_search(self, playing_grid: np.array = None) -> (bool, WinOrientation):
+    def win_check_and_location_search(self, last_played_row: int, last_played_col: int,
+                                      playing_grid: np.array = None) -> (bool, List[Tuple[int, int]]):
+        """
+        Method to determine whether there has been a win, and if so the LOCATION of the win.
+
+        Parameters:
+        ----------
+        last_played_row/last_played_col - where the last move on the board was made, to restrict the search area.
+        playing_grid - the board
+
+        Returns:
+        ----------
+        bool - T/F depending on whether or not there is a win
+        A list of the indexes corresponding to the winning streak
+
+        Other information:
+        ----------
+        The method only searches the intersection of the last move with the board, making it much faster than searching
+        the entire board for a win, as done in _winning_board_search.
+        The downside speed-wise is determining the location of the win - for that reason a simplified version of this
+        search algorithm that doesn't include this is included in the minimax algorithm
+        Note there is no benefit to having an independent method that only determines the win location, as all variables
+        required to do this are those generated when checking for a win
+        """
+        if playing_grid is None:
+            playing_grid = self.playing_grid
+
+        # Get the maximum streak in each direction
+        # Last played row
+        row_streaks = np.convolve(playing_grid[last_played_row], np.ones(self.win_length_k, dtype=int), mode="valid")
+        max_row_streak = max(abs(row_streaks))
+
+        # Last played column
+        col_streaks = np.convolve(playing_grid[:, last_played_col], np.ones(self.win_length_k, dtype=int), mode="valid")
+        max_col_streak = max(abs(col_streaks))
+
+        # Last played south east diagonal
+        south_east_diagonal_offset = last_played_col - last_played_row
+        south_east_diagonal_array = np.diagonal(playing_grid, offset=south_east_diagonal_offset)
+        south_east_diagonal_streaks = np.convolve(
+            south_east_diagonal_array, np.ones(self.win_length_k, dtype=int), mode="valid")
+        max_south_east_streak = max(abs(south_east_diagonal_streaks))
+
+        # Last played south west diagonal
+        south_west_diagonal_offset = (playing_grid.shape[1] - last_played_col - 1) - last_played_row
+        south_west_diagonal_array = np.fliplr(playing_grid).diagonal(offset=south_west_diagonal_offset)
+        south_west_diagonal_streaks = np.convolve(
+            south_west_diagonal_array, np.ones(self.win_length_k, dtype=int), mode="valid")
+        max_south_west_streak = max(abs(south_west_diagonal_streaks))
+
+        # Test the max streaks of each orientation for a win, else we don't have a win
+        if max_row_streak == self.win_length_k:
+            win_streak_start_col = int(np.where(abs(row_streaks) == self.win_length_k)[0])
+            win_locations = [(last_played_row, win_streak_start_col + k) for k in range(0, self.win_length_k)]
+            return True, win_locations
+
+        elif max_col_streak == self.win_length_k:
+            win_streak_start_row = int(np.where(abs(col_streaks) == self.win_length_k)[0])
+            win_locations = [(win_streak_start_row + k, last_played_col) for k in range(0, self.win_length_k)]
+            return True, win_locations
+
+        elif max_south_east_streak == self.win_length_k:
+            south_east_diagonal_offset_index = (max(-south_east_diagonal_offset, 0), max(south_east_diagonal_offset, 0))
+            win_streak_start_pos = int(np.where(abs(south_east_diagonal_streaks) == self.win_length_k)[0])
+            win_locations = [(win_streak_start_pos + south_east_diagonal_offset_index[0] + k,
+                             win_streak_start_pos + south_east_diagonal_offset_index[1] + k)
+                             for k in range(0, self.win_length_k)]
+            return True, win_locations
+
+        elif max_south_west_streak == self.win_length_k:
+            south_west_diagonal_offset_index = (max(-south_west_diagonal_offset, 0),
+                                                (playing_grid.shape[1] - 1 - max(south_west_diagonal_offset, 0)))
+            win_streak_start_pos = int(np.where(abs(south_west_diagonal_streaks) == self.win_length_k)[0])
+            win_locations = [(win_streak_start_pos + south_west_diagonal_offset_index[0] + k,
+                             win_streak_start_pos + south_west_diagonal_offset_index[1] - k)
+                             for k in range(0, self.win_length_k)]
+            return True, win_locations
+        else:
+            return False, None
+
+    ##########
+    # ALTERNATIVE SEARCH METHOD NOT USED IN THE APP
+    # Left for comparison, # TODO move somewhere else
+    ##########
+
+    def _winning_board_search(self, playing_grid: np.array = None) -> bool:
         """
         Method to check whether or not the playing_grid has reached a winning state.
         Note that the search will stop as soon as a win is found (i.e. not check subsequent arrays in the list).
@@ -158,72 +246,18 @@ class NoughtsAndCrosses:
         if playing_grid is None:
             playing_grid = self.playing_grid
 
-        if self._search_array_list_for_win(
-                array_list=self._get_row_arrays(playing_grid=playing_grid)):
-            win_orientation = WinOrientation.HORIZONTAL
-        elif self._search_array_list_for_win(
-                array_list=self._get_col_arrays(playing_grid=playing_grid)):
-            win_orientation = WinOrientation.VERTICAL
-        elif self._search_array_list_for_win(
-                array_list=self._get_south_east_diagonal_arrays(playing_grid=playing_grid)):
-            win_orientation = WinOrientation.SOUTH_EAST
-        elif self._search_array_list_for_win(
-                array_list=self._get_north_east_diagonal_arrays(playing_grid=playing_grid)):
-            win_orientation = WinOrientation.NORTH_EAST
-        return (win_orientation is not None), win_orientation
+        row_win = self._search_array_list_for_win(
+                array_list=self._get_row_arrays(playing_grid=playing_grid))
+        col_win = self._search_array_list_for_win(
+                array_list=self._get_col_arrays(playing_grid=playing_grid))
+        south_east_win =  self._search_array_list_for_win(
+                array_list=self._get_south_east_diagonal_arrays(playing_grid=playing_grid))
+        north_east_win =  self._search_array_list_for_win(
+                array_list=self._get_north_east_diagonal_arrays(playing_grid=playing_grid))
 
-    def win_location_search(self, row_index: int, col_index: int,
-                            playing_grid: np.array = None) -> List[Tuple[int, int]]:
-        """
-        Method to determine the LOCATION of a win given that we know there is a win.
-        The method only searches the intersection of the last move with the board.
-        Note this method is not used to check for wins, only to determine where they are once we know there is one -
-        hence the reason for currently having a separate method.
-        # TODO an independent search algorithm could be built like this - that just searches based on last move
-        # This may help speed up minimax depending how much time is spent searching
+        return row_win + col_win + south_east_win + north_east_win
 
-        Parameters:
-        ----------
-        playing_grid - the board
-        row_index/col_index - where the last move on the board was made, to restrict the search area.
-
-        Returns:
-        ----------
-        A list of the indexes corresponding to the winning streak
-        """
-        _, win_orientation = self._winning_board_search(playing_grid=playing_grid)
-        if playing_grid is None:
-            playing_grid = self.playing_grid
-        if win_orientation == WinOrientation.HORIZONTAL:
-            row_streaks = np.convolve(playing_grid[row_index], np.ones(self.win_length_k, dtype=int), mode="valid")
-            win_streak_start_col = int(np.where(abs(row_streaks) == self.win_length_k)[0])
-            return [(row_index, win_streak_start_col + k) for k in range(0, self.win_length_k)]
-        elif win_orientation == WinOrientation.VERTICAL:
-            col_streaks = np.convolve(playing_grid[:, col_index], np.ones(self.win_length_k, dtype=int), mode="valid")
-            win_streak_start_row = int(np.where(abs(col_streaks) == self.win_length_k)[0])
-            return [(win_streak_start_row + k, col_index) for k in range(0, self.win_length_k)]
-        elif win_orientation == WinOrientation.SOUTH_EAST:
-            diagonal_offset = col_index - row_index
-            diagonal_offset_index = (max(-diagonal_offset, 0), max(diagonal_offset, 0))
-            diagonal_array = np.diagonal(playing_grid, offset=diagonal_offset)
-            diag_streaks = np.convolve(diagonal_array, np.ones(self.win_length_k, dtype=int), mode="valid")
-            win_streak_start_pos = int(np.where(abs(diag_streaks) == self.win_length_k)[0])
-            return [(win_streak_start_pos + diagonal_offset_index[0] + k,
-                     win_streak_start_pos + diagonal_offset_index[1] + k)
-                    for k in range(0, self.win_length_k)]
-        elif win_orientation == WinOrientation.NORTH_EAST:
-            diagonal_offset = (playing_grid.shape[1] - col_index - 1) - row_index
-            diagonal_offset_index = (max(-diagonal_offset, 0), (playing_grid.shape[1] - 1 - max(diagonal_offset, 0)))
-            diagonal_array = np.fliplr(playing_grid).diagonal(offset=diagonal_offset)
-            diag_streaks = np.convolve(diagonal_array, np.ones(self.win_length_k, dtype=int), mode="valid")
-            win_streak_start_pos = int(np.where(abs(diag_streaks) == self.win_length_k)[0])
-            return [(win_streak_start_pos + diagonal_offset_index[0] + k,
-                     win_streak_start_pos + diagonal_offset_index[1] - k)
-                    for k in range(0, self.win_length_k)]
-        else:
-            raise ValueError("Invalid win_orientation was passed to win_location_search")
-
-    #  Methods called in winning_board_search and quick_search
+    #  Methods called in _winning_board_search
     def _search_array_list_for_win(self, array_list: list[np.array]) -> bool:
         """
         Searches a list of numpy arrays for an array of consecutive markings (1s or -1s), representing a win.

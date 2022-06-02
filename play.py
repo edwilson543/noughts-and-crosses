@@ -2,5 +2,5 @@
 from tkinter_gui.app.app import NoughtsAndCrossesApp
 
 
-if __name__ == "__main__" :
+if __name__ == "__main__":
     NoughtsAndCrossesApp().main_game_loop()

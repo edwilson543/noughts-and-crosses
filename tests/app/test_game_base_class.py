@@ -1,8 +1,7 @@
 from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
-from game.constants.game_constants import StartingPlayer, WinOrientation
+from game.constants.game_constants import StartingPlayer
 import pytest
 import numpy as np
-from typing import Tuple, List
 
 
 class TestNoughtsAndCrossesSearchAlgorithm:
@@ -32,12 +31,12 @@ class TestNoughtsAndCrossesSearchAlgorithm:
             [1, 1, -1],
             [-1, 1, -1]
         ])
-        win, win_orientation = empty_game._winning_board_search()
+        win = empty_game._winning_board_search()
         assert not win
 
     def test_no_win_empty_board(self, empty_game):
         empty_game.playing_grid = np.zeros(shape=(4, 3))
-        win, win_orientation = empty_game._winning_board_search()
+        win = empty_game._winning_board_search()
         assert not win
 
     ##########
@@ -50,7 +49,7 @@ class TestNoughtsAndCrossesSearchAlgorithm:
             [0, -1, 0],
             [0, 0, 0]
         ])
-        win, win_orientation = empty_game._winning_board_search()
+        win = empty_game._winning_board_search()
         assert win
 
     def test_horizontal_win_middle(self, empty_game):
@@ -60,7 +59,7 @@ class TestNoughtsAndCrossesSearchAlgorithm:
             [-1, -1, -1],
             [0, 0, 0]
         ])
-        win, win_orientation = empty_game._winning_board_search()
+        win = empty_game._winning_board_search()
         assert win
 
     ##########
@@ -73,7 +72,7 @@ class TestNoughtsAndCrossesSearchAlgorithm:
             [-1, 1, -1],
             [-1, 1, -1]
         ])
-        win, win_orientation = empty_game._winning_board_search()
+        win = empty_game._winning_board_search()
         assert win
 
     def test_vertical_win_top_right(self, empty_game):
@@ -83,7 +82,7 @@ class TestNoughtsAndCrossesSearchAlgorithm:
             [-1, -1, 1],
             [1, -1, -1]
         ])
-        win, win_orientation = empty_game._winning_board_search()
+        win = empty_game._winning_board_search()
         assert win
 
     ##########
@@ -97,7 +96,7 @@ class TestNoughtsAndCrossesSearchAlgorithm:
             [-1, 0, -1],
             [1, -1, 0]
         ])
-        win, win_orientation = empty_game._winning_board_search()
+        win = empty_game._winning_board_search()
         assert win
 
     def test_south_east_win_lower_triangle_diag(self, empty_game):
@@ -107,7 +106,7 @@ class TestNoughtsAndCrossesSearchAlgorithm:
             [-1, -1, 0],
             [0, -1, -1]
         ])
-        win, win_orientation = empty_game._winning_board_search()
+        win = empty_game._winning_board_search()
         assert win
 
     ##########
@@ -121,7 +120,7 @@ class TestNoughtsAndCrossesSearchAlgorithm:
             [-1, 0, -1],
             [0, -1, 0]
         ])
-        win, win_orientation = empty_game._winning_board_search()
+        win = empty_game._winning_board_search()
         assert win
 
     def test_north_east_win_lower_triangle_diag(self, empty_game):
@@ -131,7 +130,7 @@ class TestNoughtsAndCrossesSearchAlgorithm:
             [0, -1, -1],
             [-1, -1, 0]
         ])
-        win, win_orientation = empty_game._winning_board_search()
+        win = empty_game._winning_board_search()
         assert win
 
     ##########
@@ -208,10 +207,10 @@ class TestNoughtsAndCrossesSearchLocationAlgorithm:
             [0, 0, 0, 1],
             [1, -1, 1, -1]
         ])
-        win_location: List[Tuple[int, int]] = empty_game.win_location_search(
-            row_index=0, col_index=2, win_orientation=WinOrientation.HORIZONTAL)
+        win, win_locations = empty_game.win_check_and_location_search(
+            last_played_row=0, last_played_col=2)
         expected_win_location = [(0, 1), (0, 2), (0, 3)]
-        assert set(win_location) == set(expected_win_location)
+        assert win and (set(win_locations) == set(expected_win_location))
 
     def test_horizontal_win_middle_left_location(self, empty_game):
         empty_game.playing_grid = np.array([
@@ -221,10 +220,10 @@ class TestNoughtsAndCrossesSearchLocationAlgorithm:
             [0, 0, 0, -1],
             [1, -1, 1, -1]
         ])
-        win_location: List[Tuple[int, int]] = empty_game.win_location_search(
-            row_index=2, col_index=1, win_orientation=WinOrientation.HORIZONTAL)
+        win, win_locations = empty_game.win_check_and_location_search(
+            last_played_row=2, last_played_col=1)
         expected_win_location = [(2, 0), (2, 1), (2, 2)]
-        assert set(win_location) == set(expected_win_location)
+        assert win and (set(win_locations) == set(expected_win_location))
 
     ##########
     # Test for vertical wins
@@ -237,10 +236,10 @@ class TestNoughtsAndCrossesSearchLocationAlgorithm:
             [-1, 1, -1, 1],
             [1, -1, 1, -1]
         ])
-        win_location: List[Tuple[int, int]] = empty_game.win_location_search(
-            row_index=2, col_index=0, win_orientation=WinOrientation.VERTICAL)
+        win, win_locations = empty_game.win_check_and_location_search(
+            last_played_row=2, last_played_col=0)
         expected_win_location = [(1, 0), (2, 0), (3, 0)]
-        assert set(win_location) == set(expected_win_location)
+        assert win and (set(win_locations) == set(expected_win_location))
 
     def test_vertical_win_middle_top_right(self, empty_game):
         empty_game.playing_grid = np.array([
@@ -250,10 +249,10 @@ class TestNoughtsAndCrossesSearchLocationAlgorithm:
             [1, -1, -1, 0],
             [0, 0, 0, 0]
         ])
-        win_location: List[Tuple[int, int]] = empty_game.win_location_search(
-            row_index=0, col_index=2, win_orientation=WinOrientation.VERTICAL)
+        win, win_locations = empty_game.win_check_and_location_search(
+            last_played_row=0, last_played_col=2)
         expected_win_location = [(0, 2), (1, 2), (2, 2)]
-        assert set(win_location) == set(expected_win_location)
+        assert win and (set(win_locations) == set(expected_win_location))
 
     ##########
     # Tests for south east diagonal win
@@ -267,10 +266,10 @@ class TestNoughtsAndCrossesSearchLocationAlgorithm:
             [-1, 0, 0, 1],
             [1, -1, 0, 0]
         ])
-        win_location: List[Tuple[int, int]] = empty_game.win_location_search(
-            row_index=3, col_index=3, win_orientation=WinOrientation.SOUTH_EAST)
+        win, win_locations = empty_game.win_check_and_location_search(
+            last_played_row=3, last_played_col=3)
         expected_win_location = [(1, 1), (2, 2), (3, 3)]
-        assert set(win_location) == set(expected_win_location)
+        assert win and (set(win_locations) == set(expected_win_location))
 
     def test_south_east_win_lower_triangle_diag(self, empty_game):
         empty_game.playing_grid = np.array([
@@ -280,15 +279,15 @@ class TestNoughtsAndCrossesSearchLocationAlgorithm:
             [-1, -1, 0, 0],
             [0, -1, -1, 0]
         ])
-        win_location: List[Tuple[int, int]] = empty_game.win_location_search(
-            row_index=3, col_index=1, win_orientation=WinOrientation.SOUTH_EAST)
+        win, win_locations = empty_game.win_check_and_location_search(
+            last_played_row=3, last_played_col=1)
         expected_win_location = [(2, 0), (3, 1), (4, 2)]
-        assert set(win_location) == set(expected_win_location)
+        assert win and (set(win_locations) == set(expected_win_location))
 
     ##########
     # Tests for north east diagonal win
     ##########
-    def test_north_east_win_lower_triangle_diag(self, empty_game):
+    def test_south_west_win_lower_triangle_diag(self, empty_game):
         empty_game.playing_grid = np.array([
             [0, 0, 0, 0],
             [0, 0, 1, -1],
@@ -296,12 +295,12 @@ class TestNoughtsAndCrossesSearchLocationAlgorithm:
             [0, -1, 0, -1],
             [0, 0, -1, 0]
         ])
-        win_location: List[Tuple[int, int]] = empty_game.win_location_search(
-            row_index=1, col_index=3, win_orientation=WinOrientation.NORTH_EAST)
+        win, win_locations = empty_game.win_check_and_location_search(
+            last_played_row=1, last_played_col=3)
         expected_win_location = [(1, 3), (2, 2), (3, 1)]
-        assert set(win_location) == set(expected_win_location)
+        assert win and (set(win_locations) == set(expected_win_location))
 
-    def test_north_east_win_upper_triangle_diag(self, empty_game):
+    def test_south_west_win_upper_triangle_diag(self, empty_game):
         empty_game.playing_grid = np.array([
             [0, 0, 1, 0],
             [0, 1, 0, -1],
@@ -309,7 +308,7 @@ class TestNoughtsAndCrossesSearchLocationAlgorithm:
             [-1, -1, 0, 0],
             [1, -1, 1, -1]
         ])
-        win_location: List[Tuple[int, int]] = empty_game.win_location_search(
-            row_index=1, col_index=1, win_orientation=WinOrientation.NORTH_EAST)
+        win, win_locations = empty_game.win_check_and_location_search(
+            last_played_row=1, last_played_col=1)
         expected_win_location = [(0, 2), (1, 1), (2, 0)]
-        assert set(win_location) == set(expected_win_location)
+        assert win and (set(win_locations) == set(expected_win_location))

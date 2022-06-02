@@ -13,7 +13,8 @@ import math
 # TODO test a search algorithm only searching relative to last move made for a win - only really relevant if after
 # profiling the algorithm, we know how much of the time is spent profiling
 # TODO implement caching
-# TODO time when the win location search is used instead
+
+# TODO write and implement a quick search which does not return the win location - within this module
 
 
 class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
@@ -57,6 +58,8 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
 
         winning_player = self.get_winning_player(playing_grid=playing_grid)
         draw = self.check_for_draw(playing_grid=playing_grid)
+        # TODO don't call the get_winning_player here, call the quick win search and then get winning player if True
+        # Can model the call to winning player off of the active game frames
         if (winning_player is not None) or draw:  # Will be called once the recursion reaches a terminal state
             return self.evaluate_board_to_maximising_player(playing_grid=playing_grid, search_depth=search_depth,
                                                             winning_player=winning_player, draw=draw), None
@@ -112,6 +115,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
 
         winning_player: None if there is a draw, or a Player if there is a winner. This and the draw parameter are
         included to avoid having to call the game search method twice.
+        # TODO won't need these anymore probably
 
         draw: whether or not the board is in a draw state
         """
@@ -127,6 +131,10 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
             # Could also see the impact of penalising slow draws, if these can be determined
         else:
             raise ValueError("Attempted to evaluate a playing_grid scenario that was not terminal.")
+
+    def quick_win_search(self):
+        #TODO
+        pass
 
     @staticmethod
     def get_available_cell_indices(playing_grid: np.array) -> List[Tuple[int, int]]:
