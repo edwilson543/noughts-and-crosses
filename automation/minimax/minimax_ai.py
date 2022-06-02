@@ -13,6 +13,7 @@ import math
 # TODO test a search algorithm only searching relative to last move made for a win - only really relevant if after
 # profiling the algorithm, we know how much of the time is spent profiling
 # TODO implement caching
+# TODO time when the win location search is used instead
 
 
 class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
@@ -116,6 +117,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         """
         if (winning_player is not None) and\
                 winning_player.marking.value == self.get_player_turn(playing_grid=self.playing_grid):
+            # Note the self.playing_grid - we want the turn of the player on the actual grid, not a copy
             return TerminalScore.MAX_WIN.value - search_depth
         elif (winning_player is not None) and\
                 winning_player.marking.value == - self.get_player_turn(playing_grid=self.playing_grid):
@@ -136,11 +138,3 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         available_cell_index_list = [tuple(index) for index in np.argwhere(playing_grid == 0)]
         shuffle(available_cell_index_list)
         return available_cell_index_list
-
-    # def is_terminal(self, playing_grid: np.array) -> bool:
-    #     """
-    #     Method that indicates whether or not a certain state of the playing_grid is terminal or not.
-    #     Parameters: playing_grid - this method is called on copies of the playing board, not just the playing board
-    #     """
-    #     return (self.get_winning_player(playing_grid=playing_grid) is not None) or \
-    #            (self.check_for_draw(playing_grid=playing_grid))

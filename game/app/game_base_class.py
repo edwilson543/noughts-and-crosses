@@ -99,6 +99,9 @@ class NoughtsAndCrosses:
         """
         Method to perform the winning playing_grid search, and return None or the winning player,
         depending on if there's a winning player.
+
+        Returns:
+        None, or the winning player
         """
         if playing_grid is None:
             playing_grid = self.playing_grid
@@ -135,7 +138,7 @@ class NoughtsAndCrosses:
         """Method to reset the game playing_grid - replaces all entries in the playing_grid with a zero"""
         self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n))
 
-    # Lower level methods that are needed for the core game flow
+    # Methods that are needed for the core game flow
     ##########
     # Search algorithm for the whole playing_grid win search
     ##########
@@ -169,24 +172,26 @@ class NoughtsAndCrosses:
             win_orientation = WinOrientation.NORTH_EAST
         return (win_orientation is not None), win_orientation
 
-    def win_location_search(self, row_index: int, col_index: int, win_orientation: WinOrientation,
+    def win_location_search(self, row_index: int, col_index: int,
                             playing_grid: np.array = None) -> List[Tuple[int, int]]:
         """
         Method to determine the LOCATION of a win given that we know there is a win.
-        The method leverages the fact that we only need to search the intersection of the last move with the board.
-        Note this is not used to check for wins, only to determine where they are once we know there is one - hence
-        the reason for currently having a separate method.
+        The method only searches the intersection of the last move with the board.
+        Note this method is not used to check for wins, only to determine where they are once we know there is one -
+        hence the reason for currently having a separate method.
         # TODO an independent search algorithm could be built like this - that just searches based on last move
+        # This may help speed up minimax depending how much time is spent searching
 
         Parameters:
         ----------
         playing_grid - the board
-        row_index.col_index - where the last move on the board was made
+        row_index/col_index - where the last move on the board was made, to restrict the search area.
 
         Returns:
         ----------
         A list of the indexes corresponding to the winning streak
         """
+        _, win_orientation = self._winning_board_search(playing_grid=playing_grid)
         if playing_grid is None:
             playing_grid = self.playing_grid
         if win_orientation == WinOrientation.HORIZONTAL:
@@ -212,9 +217,9 @@ class NoughtsAndCrosses:
             diagonal_array = np.fliplr(playing_grid).diagonal(offset=diagonal_offset)
             diag_streaks = np.convolve(diagonal_array, np.ones(self.win_length_k, dtype=int), mode="valid")
             win_streak_start_pos = int(np.where(abs(diag_streaks) == self.win_length_k)[0])
-            return[(win_streak_start_pos + diagonal_offset_index[0] + k,
-                    win_streak_start_pos + diagonal_offset_index[1] - k)
-                   for k in range(0, self.win_length_k)]
+            return [(win_streak_start_pos + diagonal_offset_index[0] + k,
+                     win_streak_start_pos + diagonal_offset_index[1] - k)
+                    for k in range(0, self.win_length_k)]
         else:
             raise ValueError("Invalid win_orientation was passed to win_location_search")
 

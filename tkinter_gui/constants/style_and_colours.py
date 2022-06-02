@@ -18,6 +18,8 @@ class Colour(Enum):
     available_cell = "#fffad6"
     occupied_cell_o = "#dedede"
     occupied_cell_x = "#8c8b8b"
+    winning_cell_flash_one = "#fdff7a"
+    winning_cell_flash_two = "#e98deb"
     unconfirmed_cell = "#ffabfc"
     unconfirmed_cell_font = "black"
 

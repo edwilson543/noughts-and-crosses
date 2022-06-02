@@ -3,14 +3,19 @@
 from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
 from game.app.player_base_class import Player
 from game.constants.game_constants import BoardMarking
+
 from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindowWidgetManager
 from tkinter_gui.app.game_continuation_window.game_continuation_window import GameContinuationPopUp
 from tkinter_gui.constants.dimensions import MainWindowDimensions
 from tkinter_gui.constants.style_and_colours import Colour, Font, Relief
+from tkinter_gui.constants.game_flow_timing import PauseDuration
+
 import tkinter as tk
 from math import floor
 from functools import partial
+from typing import List, Tuple
 import numpy as np
+from time import sleep
 import logging
 
 
@@ -121,6 +126,8 @@ class ActiveGameFrames(NoughtsAndCrosses):
         2) Confirm the cell selection and carry out the necessary GUI and backend processing to mark that cell
         3) Switch which player's label is highlighted/raised to indicate that it's their go
         4) Check if this selection has resulted in a win/ draw and carry out the necessary processing
+        5) Set the active_unconfirmed_cell to None (only executed if there is not a win). Included at the end because
+        it's needed to know what the last move was in the make_winning_streak_flash method.
 
         Parameters: None
         Returns: None
@@ -129,6 +136,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         self._confirm_cell_selection()
         self._switch_highlighted_confirmation_button()
         self._end_of_game_check_pop_up()
+        self.active_unconfirmed_cell = None
 
     def _confirmation_button_switch(self):
         """
@@ -148,16 +156,17 @@ class ActiveGameFrames(NoughtsAndCrosses):
         """
         Method to:
         1) Destroy the in-place unconfirmed cell button
-        2) Permanently marks the playing_grid as shown in the active unconfirmed cell.
+        2) Permanently marks the playing_grid as shown in the active unconfirmed cell, and add this to the playing grid
+        and widget manager
         3) Updates the backend playing_grid (the -1s, 0s and 1s) and checks whether a player has won
-        4) Sets active_unconfirmed_cell to None
         """
         self.widget_manager.playing_grid[self.active_unconfirmed_cell].destroy()
         occupied_cell_label = self._get_occupied_cell_label()
+        self.widget_manager.playing_grid[self.active_unconfirmed_cell] = occupied_cell_label
         occupied_cell_label.grid(row=self.active_unconfirmed_cell[0], column=self.active_unconfirmed_cell[1],
                                  sticky="nsew")
+
         self.mark_board(row_index=self.active_unconfirmed_cell[0], col_index=self.active_unconfirmed_cell[1])
-        self.active_unconfirmed_cell = None
         self.widget_manager.main_window.update()  # So that the cell updates straight away
 
     def _switch_highlighted_confirmation_button(self):
@@ -180,49 +189,55 @@ class ActiveGameFrames(NoughtsAndCrosses):
         winning_player = self.get_winning_player()
 
         if (winning_player is not None) and winning_player == self.player_x:
+            self._make_winning_streak_flash()
             self.starting_player_value = BoardMarking.O.value  # TODO CURRENTLY Loser starts NEXT - remove once bettered
             self.player_x.award_point()
             self.widget_manager.player_x_win_count_label.configure(
                 text=self.player_x.win_count_label_text())
-            self._set_game_up_for_next_game(winner_text=f"{winning_player.name} wins!")
+            self._set_grid_up_for_next_game(winner_text=f"{winning_player.name} wins!")
         elif (winning_player is not None) and winning_player == self.player_o:
+            self._make_winning_streak_flash()
             self.starting_player_value = BoardMarking.X.value
             self.player_o.award_point()
             self.widget_manager.player_o_win_count_label.configure(
                 text=self.player_o.win_count_label_text())
-            self._set_game_up_for_next_game(winner_text=f"{winning_player.name} wins!")
+            self._set_grid_up_for_next_game(winner_text=f"{winning_player.name} wins!")
         elif self.check_for_draw():
             self.widget_manager.draw_count_label.configure(
                 text=f"Draws:\n{self.draw_count}")
-            self._set_game_up_for_next_game(winner_text="Game ended in a draw")
+            self._set_grid_up_for_next_game(winner_text="Game ended in a draw")
 
     # Methods called during the end of game check pop up
     def _make_winning_streak_flash(self):
-        #  TODO
-        pass
+        """method to make the winning streak flash, given we know there was one"""
+        win_locations: List[Tuple[int, int]] = self.win_location_search(
+            row_index=self.active_unconfirmed_cell[0],
+            col_index=self.active_unconfirmed_cell[1],
+        )
+        for _ in range(0, PauseDuration.number_of_flashes.value):
+            for winning_cell in win_locations:
+                self.widget_manager.playing_grid[winning_cell].configure(
+                    background=Colour.winning_cell_flash_one.value
+                )
+            self.widget_manager.main_window.update()
+            sleep(PauseDuration.win_streak_flash.value)
 
-    def _set_game_up_for_next_game(self, winner_text: str):
-        """Method to reset the backend game board and call the game_continuation_top_level which controls the setup for the next game"""
+            for winning_cell in win_locations:
+                self.widget_manager.playing_grid[winning_cell].configure(
+                    background=Colour.winning_cell_flash_two.value
+                )
+            self.widget_manager.main_window.update()
+            sleep(PauseDuration.win_streak_flash.value)
+
+    def _set_grid_up_for_next_game(self, winner_text: str):
+        """
+        Method to reset the backend game board and call the game_continuation_top_level which controls the setup
+        for the next game
+        """
         self.reset_game_board()  # backend board
         self.game_continuation_top_level = GameContinuationPopUp(
             winner_text=winner_text, widget_manager=self.widget_manager)
         self.game_continuation_top_level.launch_continuation_pop_up()
-
-    def _initialise_confirmation_buttons(self) -> None:
-        """
-        Method that decides which confirmation button should be the active confirmation button at the start of a new
-        game.
-        """
-        self.widget_manager.player_x_confirmation_button.configure(
-            background=self._get_player_confirmation_button_colour(player=self.player_x))
-        self.widget_manager.player_o_confirmation_button.configure(
-            background=self._get_player_confirmation_button_colour(player=self.player_o))
-        if self.starting_player_value == BoardMarking.X.value:
-            self.widget_manager.active_confirmation_button = self.widget_manager.player_x_confirmation_button
-        elif self.starting_player_value == BoardMarking.O.value:
-            self.widget_manager.active_confirmation_button = self.widget_manager.player_o_confirmation_button
-        else:
-            raise ValueError(f"Invalid starting_player_value identified in initialise_confirmation_buttons")
 
     ##########
     # Playing grid button commands
@@ -376,7 +391,23 @@ class ActiveGameFrames(NoughtsAndCrosses):
                                 relief=Relief.player_labels.value)
         return player_label
 
-    #  Lower level methods used for formatting updates during the game
+    #  Lower level methods used for formatting updates during or at the start of the game
+    def _initialise_confirmation_buttons(self) -> None:
+        """
+        Method that decides which confirmation button should be the active confirmation button at the start of a new
+        game. It also switches which confirmation button is the active button in the widget manager.
+        """
+        self.widget_manager.player_x_confirmation_button.configure(
+            background=self._get_player_confirmation_button_colour(player=self.player_x))
+        self.widget_manager.player_o_confirmation_button.configure(
+            background=self._get_player_confirmation_button_colour(player=self.player_o))
+        if self.starting_player_value == BoardMarking.X.value:
+            self.widget_manager.active_confirmation_button = self.widget_manager.player_x_confirmation_button
+        elif self.starting_player_value == BoardMarking.O.value:
+            self.widget_manager.active_confirmation_button = self.widget_manager.player_o_confirmation_button
+        else:
+            raise ValueError(f"Invalid starting_player_value identified in initialise_confirmation_buttons")
+
     def _get_player_turn_marking(self) -> str:
         """Method to extract the player turn from the game baseclass as a 1/-1 and return it as an X or O."""
         turn_int = self.get_player_turn()

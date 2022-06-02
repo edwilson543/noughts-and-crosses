@@ -50,7 +50,6 @@ class NoughtsAndCrossesApp:
             # self.playing_window.active_game_frames.starting_player_value = \
             #     self.playing_window.active_game_frames.game_continuation_top_level.starting_player_value  # TODO
             # TODO can now add the following features:
-            # Flashing win streak
             # User is given the option for who starts the next game (take from setup) (would need to add a popup
             # attribute to it so the feedback information can be accessed)
             # TODO make sure where computer plays itself a new game starts
