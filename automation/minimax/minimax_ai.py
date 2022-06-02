@@ -1,6 +1,7 @@
 """"Subclass of the noughts and crosses game that implements the minimax algorithm"""
 
 from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
+from game.app.player_base_class import Player
 from automation.minimax.terminal_board_scores import TerminalScore
 import numpy as np
 from typing import Tuple, List
@@ -9,6 +10,9 @@ import math
 
 # todo test effectiveness when a max search depth is introduced -
 # currently pretty slow for big games and early on in the game
+# TODO test a search algorithm only searching relative to last move made for a win - only really relevant if after
+# profiling the algorithm, we know how much of the time is spent profiling
+# TODO implement caching
 
 
 class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
@@ -31,11 +35,12 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         maximisers_move: T/F depending on whether we are call this function to maximise or minimise the value
 
         alpha: The value the maximiser can already guarantee at the given search depth or above - i.e. there is
-        no point searching game trees where the minimiser is able to guarantee a lower value than this, so they are
-        'pruned' meaning they're not fully searched. Default of -inf (first call) so can only be improved on
+        no point searching game trees where the minimiser is able to guarantee a lower value than alpha, so on
+        discovering a branch on the minimiser's turn where one of the first values is lower than this it is
+        'pruned' meaning it's not fully searched. Default of -inf (first call) so it can only be improved on.
 
         beta: The value the minimiser can already guarantee at the given search depth or above - analogous ot alpha.
-        Default of +inf (first call) so can only be improved on.
+        Default of +inf (first call) so it can only be improved on.
 
         Returns: Union[int, Tuple[int, int]].
         __________
@@ -48,8 +53,12 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         """
         if playing_grid is None:
             playing_grid = self.playing_grid
-        if self.is_terminal(playing_grid=playing_grid):  # Will be called once the recursion reaches a terminal state
-            return self.evaluate_board_to_maximising_player(playing_grid=playing_grid, search_depth=search_depth), None
+
+        winning_player = self.get_winning_player(playing_grid=playing_grid)
+        draw = self.check_for_draw(playing_grid=playing_grid)
+        if (winning_player is not None) or draw:  # Will be called once the recursion reaches a terminal state
+            return self.evaluate_board_to_maximising_player(playing_grid=playing_grid, search_depth=search_depth,
+                                                            winning_player=winning_player, draw=draw), None
 
         elif maximisers_move:
             max_score = -math.inf  # Initialise as -inf so that the score can only be improved upon
@@ -86,24 +95,34 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                     break  # No need to consider game branch any further, maximiser will just avoid it
             return min_score, best_move
 
-    def evaluate_board_to_maximising_player(self, playing_grid: np.array, search_depth: int) -> int:
+    def evaluate_board_to_maximising_player(self, playing_grid: np.array, search_depth: int,
+                                            winning_player: Player, draw: bool) -> int:
         """
         Static evaluation function for a playing_grid at the bottom of the minimax search tree, from the perspective
         of the maximising player.
+
         Parameters:
         __________
+        playing_grid: the board active IN THE RECURSION TREE
+
         search_depth: the depth in the search tree of the playing_grid scenario that we are evaluating. This is included
         as a parameter so that winning boards deep in the search tree can be penalised, and losing boards high up
         in the search tree can be favoured, to minimise search depth.
+
+        winning_player: None if there is a draw, or a Player if there is a winner. This and the draw parameter are
+        included to avoid having to call the game search method twice.
+
+        draw: whether or not the board is in a draw state
         """
-        winning_player = self.get_winning_player(playing_grid=playing_grid)
-        if winning_player is not None:
-            if winning_player.marking.value == self.get_player_turn(playing_grid=self.playing_grid):
-                return TerminalScore.MAX_WIN.value - search_depth
-            else:
-                return TerminalScore.MAX_LOSS.value + search_depth
+        if (winning_player is not None) and\
+                winning_player.marking.value == self.get_player_turn(playing_grid=self.playing_grid):
+            return TerminalScore.MAX_WIN.value - search_depth
+        elif (winning_player is not None) and\
+                winning_player.marking.value == - self.get_player_turn(playing_grid=self.playing_grid):
+            return TerminalScore.MAX_LOSS.value + search_depth
         elif self.check_for_draw(playing_grid=playing_grid):
-            return TerminalScore.DRAW.value  # Could also see the impact of penalising slow draws
+            return TerminalScore.DRAW.value
+            # Could also see the impact of penalising slow draws, if these can be determined
         else:
             raise ValueError("Attempted to evaluate a playing_grid scenario that was not terminal.")
 
@@ -118,10 +137,10 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         shuffle(available_cell_index_list)
         return available_cell_index_list
 
-    def is_terminal(self, playing_grid: np.array) -> bool:
-        """
-        Method that indicates whether or not a certain state of the playing_grid is terminal or not.
-        Parameters: playing_grid - this method is called on copies of the playing board, not just the playing board
-        """
-        return (self.get_winning_player(playing_grid=playing_grid) is not None) or \
-               (self.check_for_draw(playing_grid=playing_grid))
+    # def is_terminal(self, playing_grid: np.array) -> bool:
+    #     """
+    #     Method that indicates whether or not a certain state of the playing_grid is terminal or not.
+    #     Parameters: playing_grid - this method is called on copies of the playing board, not just the playing board
+    #     """
+    #     return (self.get_winning_player(playing_grid=playing_grid) is not None) or \
+    #            (self.check_for_draw(playing_grid=playing_grid))

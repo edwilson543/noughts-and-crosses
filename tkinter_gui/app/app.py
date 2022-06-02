@@ -36,6 +36,7 @@ class NoughtsAndCrossesApp:
         while True:
             self.playing_window.launch_playing_window()
             # TODO can now add the following features:
+            # First refactor the end of the game method
             # Flashing win streak
             # User is given the option for who starts the next game (take from setup)
 
