@@ -13,6 +13,7 @@ from tkinter_gui.constants.game_flow_timing import PauseDuration
 import tkinter as tk
 from math import floor
 from functools import partial
+from typing import List, Tuple
 import numpy as np
 from time import sleep
 import logging
@@ -185,22 +186,23 @@ class ActiveGameFrames(NoughtsAndCrosses):
         3) In either eventuality (win or draw) launch a new game, first resetting the backend playing_grid
         4) Produce a pop up asking the user to continue or exit depending if either of these is the case
         """
+        someone_has_won, win_location = self.win_check_and_location_search(
+            last_played_row=self.active_unconfirmed_cell[0], last_played_col=self.active_unconfirmed_cell[1],
+            get_win_location=True)
         winning_player = None
-        someone_has_won, _ = self.win_check_and_location_search(
-            last_played_row=self.active_unconfirmed_cell[0], last_played_col=self.active_unconfirmed_cell[1])
         if someone_has_won:
-            winning_player = self.get_winning_player()
+            winning_player = self.get_winning_player(winning_game=someone_has_won)
 
         if winning_player == self.player_x:
-            self._make_winning_streak_flash()
+            self._make_winning_streak_flash(win_locations=win_location)
             self.starting_player_value = BoardMarking.O.value  # TODO CURRENTLY Loser starts NEXT - remove once bettered
             self.player_x.award_point()
             self.widget_manager.player_x_win_count_label.configure(
                 text=self.player_x.win_count_label_text())
             self._set_grid_up_for_next_game(winner_text=f"{winning_player.name} wins!")
         elif winning_player == self.player_o:
-            self._make_winning_streak_flash()
-            self.starting_player_value = BoardMarking.X.value  # TODO can delete
+            self._make_winning_streak_flash(win_locations=win_location)
+            self.starting_player_value = BoardMarking.X.value  # TODO can delete as/when above
             self.player_o.award_point()
             self.widget_manager.player_o_win_count_label.configure(
                 text=self.player_o.win_count_label_text())
@@ -211,13 +213,8 @@ class ActiveGameFrames(NoughtsAndCrosses):
             self._set_grid_up_for_next_game(winner_text="Game ended in a draw")
 
     # Methods called during the end of game check pop up
-    def _make_winning_streak_flash(self):
-        # TODO make win_locations a parameter and call from above
+    def _make_winning_streak_flash(self, win_locations: List[Tuple[int, int]]):
         """Method to make the winning streak flash, given we know where the winning streak is"""
-        _, win_locations = self.win_check_and_location_search(
-            last_played_row=self.active_unconfirmed_cell[0],
-            last_played_col=self.active_unconfirmed_cell[1],
-        )
         for _ in range(0, PauseDuration.number_of_flashes.value):
             for winning_cell in win_locations:
                 self.widget_manager.playing_grid[winning_cell].configure(
