@@ -5,7 +5,7 @@ from tkinter_gui.app.main_game_window.active_game_frames_minimax import ActiveGa
 from tkinter_gui.app.main_game_window.historic_info_frame import HistoricInfoFrame
 from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindowWidgetManager
 import tkinter as tk
-
+import logging
 
 class PlayingWindow:
     """Class bringing together the frames of the main playing window"""
@@ -25,6 +25,7 @@ class PlayingWindow:
     def launch_playing_window(self):
         """Method for launching the main noughts and crosses game play main_window and controlling the game flow"""
         # Define and configure the main_window
+        logging.info("Launching a new game window.")
         game_window = tk.Tk()
         game_window.title("Noughts and Crosses")
         game_window.configure(background=Colour.main_window.value)

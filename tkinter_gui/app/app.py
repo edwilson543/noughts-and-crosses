@@ -51,4 +51,5 @@ class NoughtsAndCrossesApp:
                 self.playing_window.active_game_frames.game_continuation_top_level.starting_player_value.get()  # TODO
             # TODO can now add the following features:
             # TODO make sure where computer plays itself a new game starts
+            # TODO disable buttons while it's computer's go
 

@@ -125,13 +125,13 @@ class GameContinuationPopUp:
         return exit_game_button
 
     # Continuation/ exit button commands
-    def _continue_game_button_command(self):
+    def _continue_game_button_command(self) -> None:
         """Method that just shuts the pop_up_window main_window"""
         self.continuation_widget_manager.pop_up_window.destroy()
         self.main_game_window_widget_manager.main_window.destroy()
 
     @staticmethod
-    def _exit_game_button_command():
+    def _exit_game_button_command() -> None:
         """Method that ends the game by exiting the application."""
         sys.exit()
 

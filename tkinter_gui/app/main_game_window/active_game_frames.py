@@ -87,6 +87,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         Note that this is only called once at the start of the game, so all cells are empty - updates are made by
         clicking the buttons.
         """
+        self.reset_game_board()  # backend board
         self._create_and_format_playing_grid_frame()
         self.widget_manager.playing_grid = np.empty(
             shape=(self.game_rows_m, self.game_cols_n), dtype=object)
@@ -233,7 +234,6 @@ class ActiveGameFrames(NoughtsAndCrosses):
         Method to reset the backend game board and call the game_continuation_top_level which controls the setup
         for the next game
         """
-        self.reset_game_board()  # backend board
         self.game_continuation_top_level = GameContinuationPopUp(
             winner=winner, draw=draw, main_game_window_widget_manager=self.widget_manager)
         self.game_continuation_top_level.launch_continuation_pop_up()

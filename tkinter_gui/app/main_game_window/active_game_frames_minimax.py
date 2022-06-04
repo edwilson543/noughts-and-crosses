@@ -38,23 +38,21 @@ class ActiveGameFramesMinimax(ActiveGameFrames, NoughtsAndCrossesMinimax):
         Note that if there is no ai player, then no functionality us added.
         """
         super()._confirmation_buttons_command()  # First do everything the super class version does
-        if (self.get_player_turn() == BoardMarking.O.value) and self.player_o_is_minimax:
-            print(f"Starting player: {self.starting_player_value}")
-            print(f"Player turn: {self.get_player_turn()}")
+        if self._whole_board_search() or self.check_for_draw():
+            # TODO this is currently a suboptimal fix for the fact that when a game involving minimax is completed, and
+            # the game was terminated after minimax's go, before starting the next game, the elifs below
+            # (previously if/elif) were called, because they did not know the game was over and a new game was starting.
+            return
+        elif (self.get_player_turn() == BoardMarking.O.value) and self.player_o_is_minimax:
             self._minimax_player_makes_next_move()
         elif (self.get_player_turn() == BoardMarking.X.value) and self.player_x_is_minimax:
-            print(f"Starting player: {self.starting_player_value}")
-            print(f"Player turn: {self.get_player_turn()}")
             self._minimax_player_makes_next_move()
 
     def check_if_minimax_goes_first(self):
         """Method to check whether the ai player goes first - otherwise we'll be stuck with nothing happening"""
-        print("\n New game. Checking if minimax goes first")
         if (self.starting_player_value == self.player_o.marking.value) and self.player_o_is_minimax:
-            # super()._initialise_confirmation_buttons()
             self._minimax_player_makes_next_move()
         elif (self.starting_player_value == self.player_x.marking.value) and self.player_x_is_minimax:
-            # super()._initialise_confirmation_buttons()
             self._minimax_player_makes_next_move()
 
     def _minimax_player_makes_next_move(self):
