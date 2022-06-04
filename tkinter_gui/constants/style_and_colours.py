@@ -38,8 +38,8 @@ class Colour(Enum):
     pop_up_window_background = "black"
     game_outcome_label = "black"
     game_outcome_label_font = "white"
-    game_continuation_exit_buttons = "black"
-    game_continuation_exit_buttons_font = "white"
+    game_continuation_exit_buttons = "#aff0eb"
+    game_continuation_exit_buttons_font = "black"
 
     ##########
     # Game setup main window

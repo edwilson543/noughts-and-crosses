@@ -1,6 +1,7 @@
 """Module containing the class that produces the top up when a player has won or there is a draw"""
 
-from game.constants.game_constants import StartingPlayer
+from game.constants.game_constants import StartingPlayer, BoardMarking
+from game.app.player_base_class import Player
 from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindowWidgetManager
 from tkinter_gui.constants.dimensions import MainWindowDimensions
 from tkinter_gui.constants.style_and_colours import Colour, Relief, Font
@@ -8,9 +9,6 @@ from dataclasses import dataclass
 from math import floor
 import tkinter as tk
 import sys
-
-
-# TODO add in check buttons for who then goes first - loser, winner, random
 
 
 @dataclass
@@ -22,15 +20,17 @@ class GameContinuationWidgets:
     pop_up_window: tk.Toplevel = None
     player_x_starts_next_game_radio: tk.Radiobutton = None
     player_o_starts_next_game_radio: tk.Radiobutton = None
-    random_player_starts_next_game: tk.Radiobutton = None
+    random_player_starts_next_game_radio: tk.Radiobutton = None
 
 
 class GameContinuationPopUp:
     def __init__(self,
-                 winner_text: str = None,
+                 winner: Player | None = None,
+                 draw: bool = False,
                  main_game_window_widget_manager: MainWindowWidgetManager = None,
                  starting_player_value: tk.IntVar = None):
-        self.winner_text = winner_text
+        self.winner = winner
+        self.draw = draw
         self.main_game_window_widget_manager = main_game_window_widget_manager
         self.starting_player_value = starting_player_value
         self.continuation_widget_manager = GameContinuationWidgets()
@@ -43,10 +43,7 @@ class GameContinuationPopUp:
 
     def _populate_pop_up_window(self):
         """Method to fill up the game_continuation_top_level main_window with all the relevant components"""
-        print("About to execute upload")
         self._upload_next_starting_player_radio_buttons_to_widget_manager()
-        print("executed upload")
-        print(f"Random player rb: {self.continuation_widget_manager.random_player_starts_next_game}")
 
         game_outcome_label = self._get_game_outcome_label()
         game_outcome_label.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
@@ -60,7 +57,7 @@ class GameContinuationPopUp:
         # Starting player selection widgets for the next game
         starting_player_label = self._get_starting_player_label()
         starting_player_label.grid(row=2, column=0, columnspan=2, sticky="nsew", padx=2, pady=2)
-        self.continuation_widget_manager.random_player_starts_next_game.grid(
+        self.continuation_widget_manager.random_player_starts_next_game_radio.grid(
             row=3, column=0, columnspan=2, sticky="nsew", padx=2, pady=2)
         self.continuation_widget_manager.player_x_starts_next_game_radio.grid(
             row=4, column=0, columnspan=2, sticky="nsew", padx=2, pady=2)
@@ -87,12 +84,16 @@ class GameContinuationPopUp:
     # Labels and buttons
     def _get_game_outcome_label(self) -> tk.Label:
         """Method to display the outcome of the game"""
+        if isinstance(self.winner, Player):
+            text = f"{self.winner.name.upper()} wins!"
+        else:
+            text = f"Game ended in a draw"
         game_outcome_label = tk.Label(
             master=self.continuation_widget_manager.pop_up_window,
-            text=self.winner_text,
+            text=text,
             background=Colour.game_outcome_label.value,
             foreground=Colour.game_outcome_label_font.value,
-            font=(Font.default_font.value, floor(MainWindowDimensions.pop_up_window.height / 6)),
+            font=(Font.default_font.value, floor(MainWindowDimensions.pop_up_window.height / 5)),
             relief=Relief.game_outcome_label.value
         )
         return game_outcome_label
@@ -105,7 +106,7 @@ class GameContinuationPopUp:
             text="Play Again",
             background=Colour.game_continuation_exit_buttons.value,
             foreground=Colour.game_continuation_exit_buttons_font.value,
-            font=(Font.default_font.value, floor(MainWindowDimensions.pop_up_window.height / 6)),
+            font=(Font.default_font.value, floor(MainWindowDimensions.pop_up_window.height / 5)),
             relief=Relief.game_continuation_exit_buttons.value
         )
         return game_continuation_button
@@ -118,7 +119,7 @@ class GameContinuationPopUp:
             text="Exit Game",
             background=Colour.game_continuation_exit_buttons.value,
             foreground=Colour.game_continuation_exit_buttons_font.value,
-            font=(Font.default_font.value, floor(MainWindowDimensions.pop_up_window.height / 6)),
+            font=(Font.default_font.value, floor(MainWindowDimensions.pop_up_window.height / 5)),
             relief=Relief.game_continuation_exit_buttons.value
         )
         return exit_game_button
@@ -144,7 +145,7 @@ class GameContinuationPopUp:
             text="Choose who starts the next game",
             background=Colour.starting_player_label.value,
             relief=Relief.starting_player_label.value,
-            font=(Font.default_font.value, floor(MainWindowDimensions.pop_up_window.height / 12)))
+            font=(Font.default_font.value, floor(MainWindowDimensions.pop_up_window.height / 8)))
         return starting_player_label
 
     def _upload_next_starting_player_radio_buttons_to_widget_manager(self) -> None:
@@ -153,7 +154,8 @@ class GameContinuationPopUp:
        These are not returned but just uploaded straight to the widget manager, because there are 3 of them which it
        makes sense to just create in a batch as below.
        """
-        self.starting_player_value = tk.IntVar(value=StartingPlayer.RANDOM.value)  # TODO set to be loser
+        self.starting_player_value = tk.IntVar()
+        self._set_loser_to_go_first_as_default()  # sets the above value to be loser or random if draw
 
         player_x_starts = tk.Radiobutton(
             master=self.continuation_widget_manager.pop_up_window,
@@ -161,9 +163,8 @@ class GameContinuationPopUp:
             value=StartingPlayer.PLAYER_X.value,
             background=Colour.starting_player_radio.value,
             relief=Relief.starting_player_radio.value,
-            font=(Font.default_font.value, floor(MainWindowDimensions.pop_up_window.height / 12)))
-        self.continuation_widget_manager.player_x_starts_radio = player_x_starts
-        print("executed player x starts button upload")
+            font=(Font.default_font.value, floor(MainWindowDimensions.pop_up_window.height / 8)))
+        self.continuation_widget_manager.player_x_starts_next_game_radio = player_x_starts
 
         player_o_starts = tk.Radiobutton(
             master=self.continuation_widget_manager.pop_up_window,
@@ -171,8 +172,8 @@ class GameContinuationPopUp:
             value=StartingPlayer.PLAYER_O.value,
             background=Colour.starting_player_radio.value,
             relief=Relief.starting_player_radio.value,
-            font=(Font.default_font.value, floor(MainWindowDimensions.pop_up_window.height / 12)))
-        self.continuation_widget_manager.player_o_starts_radio = player_o_starts
+            font=(Font.default_font.value, floor(MainWindowDimensions.pop_up_window.height / 8)))
+        self.continuation_widget_manager.player_o_starts_next_game_radio = player_o_starts
 
         random_player_starts = tk.Radiobutton(
             master=self.continuation_widget_manager.pop_up_window,
@@ -180,5 +181,19 @@ class GameContinuationPopUp:
             value=StartingPlayer.RANDOM.value,
             background=Colour.starting_player_radio.value,
             relief=Relief.starting_player_radio.value,
-            font=(Font.default_font.value, floor(MainWindowDimensions.pop_up_window.height / 12)))
-        self.continuation_widget_manager.random_player_starts_radio = random_player_starts
+            font=(Font.default_font.value, floor(MainWindowDimensions.pop_up_window.height / 8)))
+        self.continuation_widget_manager.random_player_starts_next_game_radio = random_player_starts
+
+    def _set_loser_to_go_first_as_default(self):
+        """
+        Method which selects the losing player's radio button as the default for when starting the new game.
+        The user can change the starting player to whoever, as above.
+        """
+        if isinstance(self.winner, Player) and self.winner.marking == BoardMarking.X:
+            self.starting_player_value.set(value=StartingPlayer.PLAYER_O.value)
+        elif isinstance(self.winner, Player) and self.winner.marking == BoardMarking.O:
+            self.starting_player_value.set(value=StartingPlayer.PLAYER_X.value)
+        elif self.draw:
+            self.starting_player_value.set(value=StartingPlayer.RANDOM.value)
+        else:
+            raise ValueError("No valid game outcome used to instantiate the GameContinuationWindow")

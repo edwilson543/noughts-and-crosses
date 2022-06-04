@@ -47,8 +47,8 @@ class NoughtsAndCrossesApp:
         while True:
             self.playing_window.launch_playing_window()
             self.playing_window.historic_info_frame.draw_count = self.playing_window.active_game_frames.draw_count
-            # self.playing_window.active_game_frames.starting_player_value = \
-            #     self.playing_window.active_game_frames.game_continuation_top_level.starting_player_value  # TODO
+            self.playing_window.active_game_frames.starting_player_value = \
+                self.playing_window.active_game_frames.game_continuation_top_level.starting_player_value.get()  # TODO
             # TODO can now add the following features:
             # User is given the option for who starts the next game (take from setup) (would need to add a popup
             # attribute to it so the feedback information can be accessed)

@@ -32,28 +32,25 @@ class NoughtsAndCrosses:
         self.win_length_k = setup_parameters.win_length_k
         self.player_x = setup_parameters.player_x
         self.player_o = setup_parameters.player_o
-        self.starting_player_value = self.get_starting_player(
-            starting_player_value=setup_parameters.starting_player_value)
+        self.starting_player_value = setup_parameters.starting_player_value
         self.draw_count = draw_count
         self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n))
 
     ##########
     # Methods that are a part of the core game play flow
     ##########
-    @staticmethod
-    def get_starting_player(starting_player_value: StartingPlayer) -> BoardMarking:
+    def set_starting_player(self) -> None:
         """
-        Method to allow choice of who goes first, or to be randomly selected.
-        Note that the starting player is carried as either 1 or -1 (which corresponds with the BoardMarking Enum)
+        Method to determine which board marking should go first from a starting_player_value choice.
+        This method is a function, f: StartingPlayer -> BoardMarking, f: {-1, 0, 1} |-> {-1, 1}, and thus only has an
+        effect if the starting player is to be chosen RANDOMLY.
         """
-        if starting_player_value is None:
-            pass
-        if starting_player_value == StartingPlayer.RANDOM.value:
-            return np.random.choice([BoardMarking.X.value, BoardMarking.O.value])
-        elif starting_player_value == StartingPlayer.PLAYER_X.value:
-            return BoardMarking.X.value
-        elif starting_player_value == StartingPlayer.PLAYER_O.value:
-            return BoardMarking.O.value
+        if self.starting_player_value == StartingPlayer.RANDOM.value:
+            self.starting_player_value = np.random.choice([BoardMarking.X.value, BoardMarking.O.value])
+        elif self.starting_player_value == StartingPlayer.PLAYER_X.value:
+            self.starting_player_value = BoardMarking.X.value
+        elif self.starting_player_value == StartingPlayer.PLAYER_O.value:
+            self.starting_player_value = BoardMarking.O.value
         else:
             raise ValueError("Attempted to call choose_starting_player method but with a starting_player_value"
                              " that is not in the StartingPlayer Enum.")
@@ -71,9 +68,9 @@ class NoughtsAndCrosses:
             playing_grid = self.playing_grid
         board_status = playing_grid.sum().sum()
         if board_status != 0:  # The starting player has had one more turn than the other player
-            return - self.starting_player_value
+            return BoardMarking(-self.starting_player_value).value
         else:
-            return self.starting_player_value
+            return BoardMarking(self.starting_player_value).value
 
     def mark_board(self, row_index: int, col_index: int, playing_grid: np.array = None) -> None:
         """

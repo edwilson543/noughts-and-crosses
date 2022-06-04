@@ -195,22 +195,20 @@ class ActiveGameFrames(NoughtsAndCrosses):
 
         if winning_player == self.player_x:
             self._make_winning_streak_flash(win_locations=win_location)
-            self.starting_player_value = BoardMarking.O.value  # TODO CURRENTLY Loser starts NEXT - remove once bettered
             self.player_x.award_point()
             self.widget_manager.player_x_win_count_label.configure(
                 text=self.player_x.win_count_label_text())
-            self._set_grid_up_for_next_game(winner_text=f"{winning_player.name} wins!")
+            self._set_up_for_next_game(winner=winning_player, draw=False)
         elif winning_player == self.player_o:
             self._make_winning_streak_flash(win_locations=win_location)
-            self.starting_player_value = BoardMarking.X.value  # TODO can delete as/when above
             self.player_o.award_point()
             self.widget_manager.player_o_win_count_label.configure(
                 text=self.player_o.win_count_label_text())
-            self._set_grid_up_for_next_game(winner_text=f"{winning_player.name} wins!")
+            self._set_up_for_next_game(winner=winning_player, draw=False)
         elif self.check_for_draw():
             self.widget_manager.draw_count_label.configure(
                 text=f"Draws:\n{self.draw_count}")
-            self._set_grid_up_for_next_game(winner_text="Game ended in a draw")
+            self._set_up_for_next_game(winner=None, draw=True)
 
     # Methods called during the end of game check pop up
     def _make_winning_streak_flash(self, win_locations: List[Tuple[int, int]]):
@@ -230,14 +228,14 @@ class ActiveGameFrames(NoughtsAndCrosses):
             self.widget_manager.main_window.update()
             sleep(PauseDuration.win_streak_flash.value)
 
-    def _set_grid_up_for_next_game(self, winner_text: str):
+    def _set_up_for_next_game(self, winner: Player | None, draw: bool):
         """
         Method to reset the backend game board and call the game_continuation_top_level which controls the setup
         for the next game
         """
         self.reset_game_board()  # backend board
         self.game_continuation_top_level = GameContinuationPopUp(
-            winner_text=winner_text, main_game_window_widget_manager=self.widget_manager)
+            winner=winner, draw=draw, main_game_window_widget_manager=self.widget_manager)
         self.game_continuation_top_level.launch_continuation_pop_up()
 
     ##########
@@ -397,11 +395,15 @@ class ActiveGameFrames(NoughtsAndCrosses):
         """
         Method that decides which confirmation button should be the active confirmation button at the start of a new
         game. It also switches which confirmation button is the active button in the widget manager.
+        If the starting player is initially set to be random, then this will choose one
         """
+        self.set_starting_player()  # If random, will choose a player
+
         self.widget_manager.player_x_confirmation_button.configure(
             background=self._get_player_confirmation_button_colour(player=self.player_x))
         self.widget_manager.player_o_confirmation_button.configure(
             background=self._get_player_confirmation_button_colour(player=self.player_o))
+
         if self.starting_player_value == BoardMarking.X.value:
             self.widget_manager.active_confirmation_button = self.widget_manager.player_x_confirmation_button
         elif self.starting_player_value == BoardMarking.O.value:

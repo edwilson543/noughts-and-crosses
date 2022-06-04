@@ -32,6 +32,6 @@ class Player:
             return False
 
     def win_count_label_text(self):  # TODO this should go somewhere else, in GUI
-        """Method giving the winner_text for the player's win count label"""
+        """Method giving the winner for the player's win count label"""
         text = f"{self.name}:\n{self.active_game_win_count}"
         return text
