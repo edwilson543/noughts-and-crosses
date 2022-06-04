@@ -47,9 +47,8 @@ class NoughtsAndCrossesApp:
             self.playing_window.launch_playing_window()
             self.playing_window.historic_info_frame.draw_count = self.playing_window.active_game_frames.draw_count
             self.playing_window.active_game_frames.starting_player_value = \
-                self.playing_window.active_game_frames.game_continuation_top_level.starting_player_value.get()  # TODO
+                self.playing_window.active_game_frames.game_continuation_top_level.starting_player_value.get()
 
-    # TODO can now add the following features:
-    # fix the window spam when you close the main window
-    # TODO disable buttons while it's computer's go
+    # TODO fix the following bugs:
+    # TODO disable all available cell buttons while it's computer's go
 

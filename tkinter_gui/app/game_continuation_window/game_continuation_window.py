@@ -69,10 +69,10 @@ class GameContinuationPopUp:
         Method to create the pop up TopLevel and set the relative dimensions of the grid cells in the
         pop up window.
         """
-        self.continuation_widget_manager.player_x_starts_next_game_radio = 5
-
         self.continuation_widget_manager.pop_up_window = tk.Toplevel(
             master=self.main_game_window_widget_manager.main_window, background=Colour.pop_up_window_background.value)
+        # Automatically starts a new game in the event of just closing
+        self.continuation_widget_manager.pop_up_window.protocol("WM_DELETE_WINDOW", self._continue_game_button_command)
         self.continuation_widget_manager.pop_up_window.resizable(width=False, height=False)
         self.continuation_widget_manager.pop_up_window.rowconfigure(
             index=[0, 1], minsize=MainWindowDimensions.pop_up_window.height / 4, weight=1)

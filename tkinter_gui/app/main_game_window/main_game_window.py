@@ -4,8 +4,9 @@ from tkinter_gui.constants.style_and_colours import Colour
 from tkinter_gui.app.main_game_window.active_game_frames_minimax import ActiveGameFramesMinimax
 from tkinter_gui.app.main_game_window.historic_info_frame import HistoricInfoFrame
 from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindowWidgetManager
-import tkinter as tk
+import sys
 import logging
+import tkinter as tk
 
 
 class PlayingWindow:
@@ -28,6 +29,7 @@ class PlayingWindow:
         # Define and configure the main_window
         logging.info("Launching a new game window.")
         game_window = tk.Tk()
+        game_window.protocol("WM_DELETE_WINDOW", sys.exit)  # Avoids re-launching a new playing window
         game_window.title("Noughts and Crosses")
         game_window.configure(background=Colour.main_window.value)
         game_window.rowconfigure(index=0, weight=1)
