@@ -43,13 +43,13 @@ class NoughtsAndCrossesApp:
         Method to keep launching new games as long as the user wants to keep playing.
         Information is transferred between distinct components of the game and from
         """
-        #  TODO fix the window spam when you close the main window
         while True:
             self.playing_window.launch_playing_window()
             self.playing_window.historic_info_frame.draw_count = self.playing_window.active_game_frames.draw_count
             self.playing_window.active_game_frames.starting_player_value = \
                 self.playing_window.active_game_frames.game_continuation_top_level.starting_player_value.get()  # TODO
-            # TODO can now add the following features:
-            # TODO make sure where computer plays itself a new game starts
-            # TODO disable buttons while it's computer's go
+
+    # TODO can now add the following features:
+    # fix the window spam when you close the main window
+    # TODO disable buttons while it's computer's go
 

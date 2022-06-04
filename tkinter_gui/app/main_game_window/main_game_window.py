@@ -7,6 +7,7 @@ from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindow
 import tkinter as tk
 import logging
 
+
 class PlayingWindow:
     """Class bringing together the frames of the main playing window"""
     def __init__(self,
