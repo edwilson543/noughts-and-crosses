@@ -23,7 +23,7 @@ class ActiveGameFramesMinimax(ActiveGameFrames, NoughtsAndCrossesMinimax):
         setup_parameters: The parameters required to fully define the game of N and C
         draw_count: Number of draws in the active game
         active_unconfirmed_cell: The cell the user has selected
-        widget_manager: Global widget storage object
+        main_game_window_widget_manager: Global widget storage object
         player_x_is_minimax / player_o_is_minimax: T/F depending on whether either player is controlled by the minimax
         algorithm. Either one or neither of the players can be the minimax algorithm.
         """

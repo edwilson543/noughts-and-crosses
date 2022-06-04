@@ -237,7 +237,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         """
         self.reset_game_board()  # backend board
         self.game_continuation_top_level = GameContinuationPopUp(
-            winner_text=winner_text, widget_manager=self.widget_manager)
+            winner_text=winner_text, main_game_window_widget_manager=self.widget_manager)
         self.game_continuation_top_level.launch_continuation_pop_up()
 
     ##########

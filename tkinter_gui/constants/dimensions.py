@@ -21,7 +21,7 @@ class Dimension:
 game_frame = Dimension(width=600, height=450)
 game_info_frame = Dimension(width=int(game_frame.width / 2), height=int(game_frame.height / 2))
 historic_info_frame = Dimension(width=game_info_frame.width, height=game_info_frame.height)
-pop_up_window = Dimension(width=200, height=100)
+pop_up_window = Dimension(width=200, height=300)
 
 
 @dataclass(frozen=True)
