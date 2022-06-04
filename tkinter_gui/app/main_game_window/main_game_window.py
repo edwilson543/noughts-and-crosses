@@ -36,7 +36,7 @@ class PlayingWindow:
         self.widget_manager.main_window.minsize(
             width=self.widget_manager.main_window.winfo_width(),
             height=self.widget_manager.main_window.winfo_height())
-        self.active_game_frames.check_if_ai_goes_first()
+        self.active_game_frames.check_if_minimax_goes_first()
         game_window.mainloop()
 
     def _add_frames_to_main_window(self):

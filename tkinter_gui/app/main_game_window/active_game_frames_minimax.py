@@ -38,23 +38,26 @@ class ActiveGameFramesMinimax(ActiveGameFrames, NoughtsAndCrossesMinimax):
         Note that if there is no ai player, then no functionality us added.
         """
         super()._confirmation_buttons_command()  # First do everything the super class version does
-        if (self.get_player_turn(playing_grid=self.playing_grid) == BoardMarking.O.value) and \
-                self.player_o_is_minimax:
-            self.ai_player_makes_next_move()
-        elif (self.get_player_turn(playing_grid=self.playing_grid) == BoardMarking.X.value) and \
-                self.player_x_is_minimax:
-            self.ai_player_makes_next_move()
+        if (self.get_player_turn() == BoardMarking.O.value) and self.player_o_is_minimax:
+            print(f"Starting player: {self.starting_player_value}")
+            print(f"Player turn: {self.get_player_turn()}")
+            self._minimax_player_makes_next_move()
+        elif (self.get_player_turn() == BoardMarking.X.value) and self.player_x_is_minimax:
+            print(f"Starting player: {self.starting_player_value}")
+            print(f"Player turn: {self.get_player_turn()}")
+            self._minimax_player_makes_next_move()
 
-    def check_if_ai_goes_first(self):
+    def check_if_minimax_goes_first(self):
         """Method to check whether the ai player goes first - otherwise we'll be stuck with nothing happening"""
+        print("\n New game. Checking if minimax goes first")
         if (self.starting_player_value == self.player_o.marking.value) and self.player_o_is_minimax:
-            super()._initialise_confirmation_buttons()
-            self.ai_player_makes_next_move()
+            # super()._initialise_confirmation_buttons()
+            self._minimax_player_makes_next_move()
         elif (self.starting_player_value == self.player_x.marking.value) and self.player_x_is_minimax:
-            super()._initialise_confirmation_buttons()
-            self.ai_player_makes_next_move()
+            # super()._initialise_confirmation_buttons()
+            self._minimax_player_makes_next_move()
 
-    def ai_player_makes_next_move(self):
+    def _minimax_player_makes_next_move(self):
         """
         Method to automate the next move - note there is no need to specify who's turn it is , this is all
         known through the minimax implementation.

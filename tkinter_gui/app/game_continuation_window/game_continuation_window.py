@@ -85,7 +85,7 @@ class GameContinuationPopUp:
     def _get_game_outcome_label(self) -> tk.Label:
         """Method to display the outcome of the game"""
         if isinstance(self.winner, Player):
-            text = f"{self.winner.name.upper()} wins!"
+            text = f"{self.winner.name} wins!"
         else:
             text = f"Game ended in a draw"
         game_outcome_label = tk.Label(
@@ -124,7 +124,7 @@ class GameContinuationPopUp:
         )
         return exit_game_button
 
-    # Button commands
+    # Continuation/ exit button commands
     def _continue_game_button_command(self):
         """Method that just shuts the pop_up_window main_window"""
         self.continuation_widget_manager.pop_up_window.destroy()

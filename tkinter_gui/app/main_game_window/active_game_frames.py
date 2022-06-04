@@ -397,7 +397,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         game. It also switches which confirmation button is the active button in the widget manager.
         If the starting player is initially set to be random, then this will choose one
         """
-        self.set_starting_player()  # If random, will choose a player
+        self.set_starting_player()  # If random, will choose a player as self.starting_player_value
 
         self.widget_manager.player_x_confirmation_button.configure(
             background=self._get_player_confirmation_button_colour(player=self.player_x))
