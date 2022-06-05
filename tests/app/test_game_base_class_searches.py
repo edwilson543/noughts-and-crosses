@@ -1,3 +1,8 @@
+"""
+Module for testing the 2 search algorithms in the Noughts and Crosses base class.
+One of these is a while board search, the other only searches the intersection of the board with the last turn.
+"""
+
 from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
 from game.constants.game_constants import StartingPlayer, BoardMarking
 import pytest
@@ -6,7 +11,10 @@ import numpy as np
 
 @pytest.fixture(scope="function")
 def empty_game_parameters():
-    """Note that the starting_player_value is normally overridden during tests."""
+    """
+    Note that the starting_player_value is normally overridden during tests.
+    "Empty game" because the playing grid is empty, i.e. only contains zeros.
+    """
     return NoughtsAndCrossesEssentialParameters(
         game_rows_m=5,
         game_cols_n=4,
@@ -400,7 +408,6 @@ class TestNoughtsAndCrossesWinCheckOnlyFourThree:
 
 
 ##########
-# ALTERNATIVE SEARCH METHOD NOT USED IN THE APP
 # This is a whole board search, i.e. is naive to where the last move was played
 ##########
 
