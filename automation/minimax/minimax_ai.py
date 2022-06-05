@@ -8,12 +8,14 @@ from typing import Tuple, List
 from random import shuffle
 import math
 
-
-# todo test effectiveness when a max search depth is introduced -
-# currently pretty slow for big games and early on in the game
-# TODO test a search algorithm only searching relative to last move made for a win - only really relevant if after
-# profiling the algorithm, we know how much of the time is spent profiling
-# TODO implement caching
+# CURRENTLY minimax is slow for games bigger than 3x3, even with the alpha beta pruning.
+# TODO Investigate the below ideas to speed it up
+# Introduce a max search depth
+# Profile the algorithm with cProfile, set up and automatic game runner which doesn't use the GUI
+# Investigate whether implementing caching could help
+# Leverage symmetry early on in the game - symmetric branches are strategically equivalent, so if we've already tested
+# one, don't need to check rest of equivalence class. (This could come immediately after marking the grid copy).
+# This could be done by tracking number of played turns, and switching off after this. Again, profile it.
 
 
 class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
@@ -101,7 +103,6 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                 alpha = max(alpha, potential_new_max)
                 if beta <= alpha:
                     break  # No need to consider this game branch any further, as minimiser will avoid it
-                # TODO If symmetry makes branch equivalent to one we've already checked, break
             return max_score, best_move
 
         else:  # minimisers move - they want to pick the game tree that minimises the score to the maximiser

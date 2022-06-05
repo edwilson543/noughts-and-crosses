@@ -198,13 +198,13 @@ class ActiveGameFrames(NoughtsAndCrosses):
             self._make_winning_streak_flash(win_locations=win_location)
             self.player_x.award_point()
             self.widget_manager.player_x_win_count_label.configure(
-                text=self.player_x.win_count_label_text())
+                text=self.player_x.get_win_count_label_text())
             self._game_continuation_pop_up_launch(winner=winning_player, draw=False)
         elif winning_player == self.player_o:
             self._make_winning_streak_flash(win_locations=win_location)
             self.player_o.award_point()
             self.widget_manager.player_o_win_count_label.configure(
-                text=self.player_o.win_count_label_text())
+                text=self.player_o.get_win_count_label_text())
             self._game_continuation_pop_up_launch(winner=winning_player, draw=False)
         elif self.check_for_draw():
             self.draw_count += 1

@@ -72,7 +72,7 @@ class HistoricInfoFrame:
         """
         player_win_count_label = tk.Label(
             master=self.widget_manager.historic_info_frame,
-            text=player.win_count_label_text(),
+            text=player.get_win_count_label_text(),
             font=(Font.default_font.value, floor(MainWindowDimensions.historic_info_frame.height / 12)),
             background=Colour.game_win_count_label.value,
             foreground=Colour.game_win_count_font.value,

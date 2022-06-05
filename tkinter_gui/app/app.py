@@ -48,7 +48,3 @@ class NoughtsAndCrossesApp:
             self.playing_window.historic_info_frame.draw_count = self.playing_window.active_game_frames.draw_count
             self.playing_window.active_game_frames.starting_player_value = \
                 self.playing_window.active_game_frames.game_continuation_top_level.starting_player_value.get()
-
-    # TODO fix the following bugs:
-    # TODO disable all available cell buttons while it's computer's go
-
