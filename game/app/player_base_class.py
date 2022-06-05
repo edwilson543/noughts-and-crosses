@@ -25,15 +25,13 @@ class Player:
 
     def __eq__(self, other) -> bool:
         """Method to check the equivalence of two players (by marking)"""
-        if isinstance(other, Player):
-            if other.marking == self.marking:
+        if isinstance(other, Player):  # Note the nested if as otherwise an error trying other.marking
+            if (other.marking == self.marking) and (other.name == self.name):
                 return True
-            else:
-                return False
         else:
-            raise TypeError(f"{other} is not of type Player but was compared with {self.name} for equality")
+            return False
 
-    def win_count_label_text(self):  # TODO this should go somewhere else, in GUI
-        """Method giving the text for the player's win count label"""
+    def get_win_count_label_text(self):
+        """Method giving the winner for the player's win count label"""
         text = f"{self.name}:\n{self.active_game_win_count}"
         return text

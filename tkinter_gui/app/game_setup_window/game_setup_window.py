@@ -8,6 +8,7 @@ from tkinter_gui.app.game_setup_window.game_setup_widget_manager import GameSetu
 from tkinter_gui.constants.style_and_colours import Colour, Font, Relief
 from tkinter_gui.constants.dimensions import SetupWindowDimensions
 from math import floor
+import sys
 import tkinter as tk
 
 
@@ -36,6 +37,7 @@ class SetupWindow:
     def _create_and_format_setup_window(self) -> None:
         """Method to create and format the setup window, adding it to the widget manager"""
         setup_window = tk.Tk()
+        setup_window.protocol("WM_DELETE_WINDOW", sys.exit)  # Avoids future game loop code executing
         setup_window.title("Noughts and Crosses Setup")
         setup_window.configure(background=Colour.setup_window_background.value)
         setup_window.rowconfigure(index=0, weight=1)

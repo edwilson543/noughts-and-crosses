@@ -212,7 +212,14 @@ class PlayerInfoFrame:
         return starting_player_label
 
     def _upload_radio_buttons_to_widget_manager(self) -> None:
+        """
+        Method to create the radio buttons that are used for the user to select which player should start the first
+        game.
+        These are not returned but just uploaded straight to the widget manager, because there are 3 of them which it
+        makes sense to just create in a batch as below.
+        """
         self.starting_player_value = tk.IntVar(value=StartingPlayer.RANDOM.value)
+
         player_x_starts = tk.Radiobutton(
             master=self.widget_manager.player_info_frame,
             text="Player X", variable=self.starting_player_value,
@@ -221,6 +228,7 @@ class PlayerInfoFrame:
             relief=Relief.starting_player_radio.value,
             font=(Font.default_font.value, floor(SetupWindowDimensions.player_info_frame.height / 20)))
         self.widget_manager.player_x_starts_radio = player_x_starts
+
         player_o_starts = tk.Radiobutton(
             master=self.widget_manager.player_info_frame,
             text="Player O", variable=self.starting_player_value,
@@ -229,6 +237,7 @@ class PlayerInfoFrame:
             relief=Relief.starting_player_radio.value,
             font=(Font.default_font.value, floor(SetupWindowDimensions.player_info_frame.height / 20)))
         self.widget_manager.player_o_starts_radio = player_o_starts
+
         random_player_starts = tk.Radiobutton(
             master=self.widget_manager.player_info_frame,
             text="Random", variable=self.starting_player_value,

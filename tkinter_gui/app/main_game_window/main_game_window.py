@@ -4,12 +4,15 @@ from tkinter_gui.constants.style_and_colours import Colour
 from tkinter_gui.app.main_game_window.active_game_frames_minimax import ActiveGameFramesMinimax
 from tkinter_gui.app.main_game_window.historic_info_frame import HistoricInfoFrame
 from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindowWidgetManager
+import sys
+import logging
 import tkinter as tk
 
 
 class PlayingWindow:
+    """Class bringing together the frames of the main playing window"""
     def __init__(self,
-                 setup_parameters: NoughtsAndCrossesEssentialParameters,
+                 setup_parameters=NoughtsAndCrossesEssentialParameters(),
                  widget_manager=MainWindowWidgetManager(),
                  player_x_is_minimax: bool = False,
                  player_o_is_minimax: bool = False):
@@ -21,12 +24,12 @@ class PlayingWindow:
         self.historic_info_frame = HistoricInfoFrame(
             widget_manager=self.widget_manager, setup_parameters=self.setup_parameters)
 
-# TODO same for pop up
-
     def launch_playing_window(self):
         """Method for launching the main noughts and crosses game play main_window and controlling the game flow"""
         # Define and configure the main_window
+        logging.info("Launching a new game window.")
         game_window = tk.Tk()
+        game_window.protocol("WM_DELETE_WINDOW", sys.exit)  # Avoids re-launching a new playing window
         game_window.title("Noughts and Crosses")
         game_window.configure(background=Colour.main_window.value)
         game_window.rowconfigure(index=0, weight=1)
@@ -37,7 +40,7 @@ class PlayingWindow:
         self.widget_manager.main_window.minsize(
             width=self.widget_manager.main_window.winfo_width(),
             height=self.widget_manager.main_window.winfo_height())
-        self.active_game_frames.check_if_ai_goes_first()
+        self.active_game_frames.check_if_minimax_goes_first()
         game_window.mainloop()
 
     def _add_frames_to_main_window(self):

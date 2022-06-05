@@ -1,14 +1,21 @@
 """"Subclass of the noughts and crosses game that implements the minimax algorithm"""
 
 from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
+from game.app.player_base_class import Player
 from automation.minimax.terminal_board_scores import TerminalScore
 import numpy as np
 from typing import Tuple, List
 from random import shuffle
 import math
 
-# todo test effectiveness when a max search depth is introduced -
-# currently pretty slow for big games and early on in the game
+# CURRENTLY minimax is slow for games bigger than 3x3, even with the alpha beta pruning.
+# TODO Investigate the below ideas to speed it up
+# Introduce a max search depth
+# Profile the algorithm with cProfile, set up and automatic game runner which doesn't use the GUI
+# Investigate whether implementing caching could help
+# Leverage symmetry early on in the game - symmetric branches are strategically equivalent, so if we've already tested
+# one, don't need to check rest of equivalence class. (This could come immediately after marking the grid copy).
+# This could be done by tracking number of played turns, and switching off after this. Again, profile it.
 
 
 class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
@@ -18,11 +25,17 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         """Note that the maximising_player is the player that the minimax ai will play as"""
         super().__init__(setup_parameters, draw_count)
 
-    def get_minimax_move(self, playing_grid: np.array = None, search_depth: int = 0, maximisers_move: bool = True,
+    def get_minimax_move(self, last_played_row: int = None, last_played_col: int = None, playing_grid: np.array = None,
+                         search_depth: int = 0, maximisers_move: bool = True,
                          alpha: int = -math.inf, beta: int = math.inf) -> (int, Tuple[int, int]):
         """
         Parameters:
         ----------
+        last_played_row/last_played_col: The row / column that the last board marking was made in. This is included
+        so that the win search algorithm (_quick_win_search) only searches the relevant part of the board, speeding
+        things up a fair bit. These are defaulted because the minimax only evaluates moves it makes itself, so never
+        takes in an external 'last played move' - such a parameter may be a future way to speed it up though.
+
         playing_grid: The playing grid that is being searched. Note that we can't just used the instance attribute
         playing_grid as this gets altered throughout the searching by testing different game trees.
 
@@ -31,13 +44,14 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         maximisers_move: T/F depending on whether we are call this function to maximise or minimise the value
 
         alpha: The value the maximiser can already guarantee at the given search depth or above - i.e. there is
-        no point searching game trees where the minimiser is able to guarantee a lower value than this, so they are
-        'pruned' meaning they're not fully searched. Default of -inf (first call) so can only be improved on
+        no point searching game trees where the minimiser is able to guarantee a lower value than alpha, so on
+        discovering a branch on the minimiser's turn where one of the first values is lower than this it is
+        'pruned' meaning it's not fully searched. Default of -inf (first call) so it can only be improved on.
 
         beta: The value the minimiser can already guarantee at the given search depth or above - analogous ot alpha.
-        Default of +inf (first call) so can only be improved on.
+        Default of +inf (first call) so it can only be improved on.
 
-        Returns: Union[int, Tuple[int, int]].
+        Returns: (int, Tuple[int, int])
         __________
         int when the first if statement passes. In this case the recursion has reached a board of terminal state as
         so just evaluates it
@@ -48,16 +62,38 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         """
         if playing_grid is None:
             playing_grid = self.playing_grid
-        if self.is_terminal(playing_grid=playing_grid):  # Will be called once the recursion reaches a terminal state
-            return self.evaluate_board_to_maximising_player(playing_grid=playing_grid, search_depth=search_depth), None
+
+        # Checks for a terminal state (win or draw)
+        if last_played_row is not None:
+            game_has_been_won, _ = self.win_check_and_location_search(
+                get_win_location=False,
+                playing_grid=playing_grid,
+                last_played_row=last_played_row,
+                last_played_col=last_played_col)
+        else:  # This is the first call to minimax from the active game state, so there is no last_played_row/col
+            game_has_been_won = False
+
+        game_has_been_drawn = self.check_for_draw(playing_grid=playing_grid)
+
+        # Evaluate the board in a terminal state from the perspective of the maximising player
+        if game_has_been_won:
+            winning_player = self.get_winning_player(winning_game=game_has_been_won, playing_grid=playing_grid)
+            score = self._evaluate_board_to_maximising_player(
+                playing_grid=playing_grid, search_depth=search_depth, winning_player=winning_player)
+            return score, None
+        elif game_has_been_drawn:
+            score = self._evaluate_board_to_maximising_player(
+                playing_grid=playing_grid, search_depth=search_depth, draw=game_has_been_drawn)
+            return score, None
 
         elif maximisers_move:
             max_score = -math.inf  # Initialise as -inf so that the score can only be improved upon
             best_move = None
-            for move_option in self.get_available_cell_indices(playing_grid=playing_grid):
+            for move_option in self._get_available_cell_indices(playing_grid=playing_grid):
                 playing_grid_copy = playing_grid.copy()
                 self.mark_board(row_index=move_option[0], col_index=move_option[1], playing_grid=playing_grid_copy)
                 potential_new_max, _ = self.get_minimax_move(  # call minimax recursively until we hit end-state boards
+                    last_played_row=move_option[0], last_played_col=move_option[1],
                     playing_grid=playing_grid_copy, search_depth=search_depth + 1, maximisers_move=not maximisers_move,
                     alpha=alpha, beta=beta)
                 # 'not maximisers_move' is to indicate that when minimax is next called, it's the other player's go
@@ -72,10 +108,11 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         else:  # minimisers move - they want to pick the game tree that minimises the score to the maximiser
             min_score = math.inf  # Initialise as +inf so that score can only be improved upon
             best_move = None
-            for move_option in self.get_available_cell_indices(playing_grid=playing_grid):
+            for move_option in self._get_available_cell_indices(playing_grid=playing_grid):
                 playing_grid_copy = playing_grid.copy()
                 self.mark_board(row_index=move_option[0], col_index=move_option[1], playing_grid=playing_grid_copy)
                 potential_new_min, _ = self.get_minimax_move(
+                    last_played_row=move_option[0], last_played_col=move_option[1],
                     playing_grid=playing_grid_copy, search_depth=search_depth + 1, maximisers_move=not maximisers_move,
                     alpha=alpha, beta=beta)
                 if potential_new_min < min_score:
@@ -86,29 +123,47 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                     break  # No need to consider game branch any further, maximiser will just avoid it
             return min_score, best_move
 
-    def evaluate_board_to_maximising_player(self, playing_grid: np.array, search_depth: int) -> int:
+    def _evaluate_board_to_maximising_player(self, playing_grid: np.array, search_depth: int,
+                                             winning_player: Player | None = None, draw: bool | None = None) -> int:
         """
         Static evaluation function for a playing_grid at the bottom of the minimax search tree, from the perspective
         of the maximising player.
+        Note that get_minimax_move() is only ever called for who's go it is next, i.e. the player to maximise for
+        is not specified. Therefore, we need to know who's turn it is to mark the board, which is maintained in this
+        method through the self.get_player_turn() with the default argument for playing_grid.
+
         Parameters:
         __________
+        playing_grid: the board active IN THE RECURSION TREE
+
         search_depth: the depth in the search tree of the playing_grid scenario that we are evaluating. This is included
         as a parameter so that winning boards deep in the search tree can be penalised, and losing boards high up
         in the search tree can be favoured, to minimise search depth.
+
+        winning_player: None if there is a draw, or the winning Player object if there is a winner.
+        This and the draw parameter are included to avoid having to call the game search method twice.
+
+        draw: whether or not the board is in a draw state
+
+        Notes: the maximising player is taken as the current player's turn - minimax in this app is only ever called
+        for the current player's turn.
         """
-        winning_player = self.get_winning_player(playing_grid=playing_grid)
-        if winning_player is not None:
-            if winning_player.marking.value == self.get_player_turn(playing_grid=self.playing_grid):
-                return TerminalScore.MAX_WIN.value - search_depth
-            else:
-                return TerminalScore.MAX_LOSS.value + search_depth
+        if (winning_player is not None) and \
+                winning_player.marking.value == self.get_player_turn():  # If end state winner is player AI wants to win
+            # Note that we don't use the playing_grid_copy, because we want the turn of the player on the actual grid,
+            # not on the copy grid
+            return TerminalScore.MAX_WIN.value - search_depth
+        elif (winning_player is not None) and \
+                winning_player.marking.value == - self.get_player_turn():
+            return TerminalScore.MAX_LOSS.value + search_depth
         elif self.check_for_draw(playing_grid=playing_grid):
-            return TerminalScore.DRAW.value  # Could also see the impact of penalising slow draws
+            return TerminalScore.DRAW.value - search_depth
+            # Could test the relative speed of determining whether draws will be reached ahead of a full board
         else:
             raise ValueError("Attempted to evaluate a playing_grid scenario that was not terminal.")
 
     @staticmethod
-    def get_available_cell_indices(playing_grid: np.array) -> List[Tuple[int, int]]:
+    def _get_available_cell_indices(playing_grid: np.array) -> List[Tuple[int, int]]:
         """
         Method that looks at where the cells on the playing_grid are unmarked and returns a list (in a random order) of
         the index of each empty cell. This is the iterator for the minimax method.
@@ -117,11 +172,3 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         available_cell_index_list = [tuple(index) for index in np.argwhere(playing_grid == 0)]
         shuffle(available_cell_index_list)
         return available_cell_index_list
-
-    def is_terminal(self, playing_grid: np.array) -> bool:
-        """
-        Method that indicates whether or not a certain state of the playing_grid is terminal or not.
-        Parameters: playing_grid - this method is called on copies of the playing board, not just the playing board
-        """
-        return (self.get_winning_player(playing_grid=playing_grid) is not None) or \
-               (self.check_for_draw(playing_grid=playing_grid))

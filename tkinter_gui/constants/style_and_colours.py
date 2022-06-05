@@ -18,6 +18,8 @@ class Colour(Enum):
     available_cell = "#fffad6"
     occupied_cell_o = "#dedede"
     occupied_cell_x = "#8c8b8b"
+    winning_cell_flash_one = "#fdff7a"
+    winning_cell_flash_two = "#e98deb"
     unconfirmed_cell = "#ffabfc"
     unconfirmed_cell_font = "black"
 
@@ -36,8 +38,8 @@ class Colour(Enum):
     pop_up_window_background = "black"
     game_outcome_label = "black"
     game_outcome_label_font = "white"
-    game_continuation_exit_buttons = "black"
-    game_continuation_exit_buttons_font = "white"
+    game_continuation_exit_buttons = "#aff0eb"
+    game_continuation_exit_buttons_font = "black"
 
     ##########
     # Game setup main window
@@ -59,8 +61,8 @@ class Colour(Enum):
     player_info_labels = "#9ec4e6"
     player_name_entry = "white"
     player_is_computer_checkbuttons = "#c2ffc8"
-    starting_player_label = "#acad76"
-    starting_player_radio = "#fcffa1"
+    starting_player_label = "#acad76" # Also used for the pop up
+    starting_player_radio = "#fcffa1"  # Also used for the pop up
 
 
 class Font(Enum):
@@ -104,5 +106,5 @@ class Relief(Enum):
     player_info_frame = tk.RIDGE
     player_info_labels = tk.GROOVE
     player_name_entry = tk.SUNKEN
-    starting_player_label = tk.RIDGE
-    starting_player_radio = tk.RAISED
+    starting_player_label = tk.RIDGE  # Also used for the pop up
+    starting_player_radio = tk.RAISED  # Also used for the pop up

@@ -1,7 +1,7 @@
 from game.app.player_base_class import Player
-from game.constants.game_constants import BoardMarking, StartingPlayer, WinOrientation
+from game.constants.game_constants import BoardMarking, StartingPlayer
 import numpy as np
-from typing import Union, List, Tuple
+from typing import List, Tuple
 from dataclasses import dataclass
 
 
@@ -32,29 +32,28 @@ class NoughtsAndCrosses:
         self.win_length_k = setup_parameters.win_length_k
         self.player_x = setup_parameters.player_x
         self.player_o = setup_parameters.player_o
-        self.starting_player_value = self.get_starting_player(
-            starting_player_value=setup_parameters.starting_player_value)
+        self.starting_player_value = setup_parameters.starting_player_value
         self.draw_count = draw_count
         self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n))
 
     ##########
     # Methods that are a part of the core game play flow
     ##########
-    @staticmethod
-    def get_starting_player(starting_player_value: StartingPlayer) -> BoardMarking:
+    def set_starting_player(self) -> None:
         """
-        Method to allow choice of who goes first, or to be randomly selected.
-        Note that the starting player is carried as either 1 or -1 (which corresponds with the BoardMarking Enum)
+        Method to determine which board marking should go first from a starting_player_value choice.
+        This method is a function, f: StartingPlayer -> BoardMarking, f: {-1, 0, 1} |-> {-1, 1}, and thus only has an
+        effect if the starting player is to be chosen RANDOMLY.
         """
-        if starting_player_value == StartingPlayer.RANDOM.value:
-            return np.random.choice([BoardMarking.X.value, BoardMarking.O.value])
-        elif starting_player_value == StartingPlayer.PLAYER_X.value:
-            return BoardMarking.X.value
-        elif starting_player_value == StartingPlayer.PLAYER_O.value:
-            return BoardMarking.O.value
+        if self.starting_player_value == StartingPlayer.RANDOM.value:
+            self.starting_player_value = np.random.choice([BoardMarking.X.value, BoardMarking.O.value])
+        elif self.starting_player_value == StartingPlayer.PLAYER_X.value:
+            self.starting_player_value = BoardMarking.X.value
+        elif self.starting_player_value == StartingPlayer.PLAYER_O.value:
+            self.starting_player_value = BoardMarking.O.value
         else:
-            raise ValueError("Attempted to call choose_starting_player method non-randomly but with a player_name"
-                             " that did not match either of the players.")
+            raise ValueError("Attempted to call choose_starting_player method but with a starting_player_value"
+                             " that is not in the StartingPlayer Enum.")
 
     def get_player_turn(self, playing_grid: np.array = None) -> BoardMarking:
         """
@@ -69,10 +68,9 @@ class NoughtsAndCrosses:
             playing_grid = self.playing_grid
         board_status = playing_grid.sum().sum()
         if board_status != 0:  # The starting player has had one more turn than the other player
-            player_turn = -board_status
-            return - board_status
+            return BoardMarking(-self.starting_player_value).value
         else:
-            return self.starting_player_value
+            return BoardMarking(self.starting_player_value).value
 
     def mark_board(self, row_index: int, col_index: int, playing_grid: np.array = None) -> None:
         """
@@ -93,22 +91,123 @@ class NoughtsAndCrosses:
         else:
             raise ValueError(f"mark_board attempted to mark non-empty cell at {row_index, col_index}.")
 
-    def get_winning_player(self, playing_grid: np.array = None) -> Union[None, Player]:
+    def win_check_and_location_search(self, last_played_row: int, last_played_col: int, get_win_location: bool,
+                                      playing_grid: np.array = None) -> (bool, List[Tuple[int, int]]):
         """
-        Method to perform the winning playing_grid search, and return None or the winning player,
-        depending on if there's a winning player.
+        Method to determine whether or not there is a win and the LOCATION of the win.
+        get_win_location controls whether we are interested in the win_location or not. Note that just having a
+        separate method to find the win location would introduce huge redundancy as all variables used to check for a
+        win are needed to find the win location, hence the slightly longer method.
+
+        Parameters:
+        ----------
+        last_played_row/last_played_col - where the last move on the board was made, to restrict the search area.
+
+        get_win_location - if this is True then the method returns the win locations as well, if it's false then the
+        only return is a bool for whether or not the board exhibits a win
+
+        playing_grid - the board we are searching for a win
+
+        Returns:
+        ----------
+        bool - T/F depending on whether or not there is a win
+        List[Tuple[int, int]] - A list of the indexes corresponding to the winning streak (only if get_win_location is
+        set to True)
+
+        Other information:
+        ----------
+        This method only searches the intersection of the last move with the board, making it much faster than searching
+        the entire board for a win.
+        Determining the location of the win adds a lot of extra processing which significantly increases the runtime of
+        the search, therefore when the win location is NOT needed (e.g. in the minimax algorithm), the get_win_location
+        should be set to False.
         """
         if playing_grid is None:
             playing_grid = self.playing_grid
-        win, _ = self._winning_board_search(playing_grid=playing_grid)
-        if not win:
-            return None
+
+        # Get the maximum streak in each direction, and check for a win in this direction
+        # Last played row
+        row_streaks = np.convolve(playing_grid[last_played_row], np.ones(self.win_length_k, dtype=int), mode="valid")
+        max_row_streak = max(abs(row_streaks))
+        row_win = max_row_streak == self.win_length_k
+
+        # Last played column
+        col_streaks = np.convolve(playing_grid[:, last_played_col], np.ones(self.win_length_k, dtype=int), mode="valid")
+        max_col_streak = max(abs(col_streaks))
+        col_win = max_col_streak == self.win_length_k
+
+        # Last played south east diagonal
+        south_east_diagonal_offset = last_played_col - last_played_row
+        south_east_diagonal_array = np.diagonal(playing_grid, offset=south_east_diagonal_offset)
+        south_east_diagonal_streaks = np.convolve(
+            south_east_diagonal_array, np.ones(self.win_length_k, dtype=int), mode="valid")
+        max_south_east_streak = max(abs(south_east_diagonal_streaks))
+        south_east_win = max_south_east_streak == self.win_length_k
+
+        # Last played south west diagonal
+        south_west_diagonal_offset = (playing_grid.shape[1] - last_played_col - 1) - last_played_row
+        south_west_diagonal_array = np.fliplr(playing_grid).diagonal(offset=south_west_diagonal_offset)
+        south_west_diagonal_streaks = np.convolve(
+            south_west_diagonal_array, np.ones(self.win_length_k, dtype=int), mode="valid")
+        max_south_west_streak = max(abs(south_west_diagonal_streaks))
+        south_west_win = max_south_west_streak == self.win_length_k
+
+        # If we only need to know whether it's a win or no win, just return this and None win location
+        if not get_win_location:
+            return (row_win or col_win or south_east_win or south_west_win), None
+
+        # Otherwise we get the exact win location, and return this along with whether or not there is a win
+        elif get_win_location and row_win:
+            win_streak_start_col = int(np.where(abs(row_streaks) == self.win_length_k)[0])
+            win_locations = [(last_played_row, win_streak_start_col + k) for k in range(0, self.win_length_k)]
+            return row_win, win_locations
+
+        elif get_win_location and col_win:
+            win_streak_start_row = int(np.where(abs(col_streaks) == self.win_length_k)[0])
+            win_locations = [(win_streak_start_row + k, last_played_col) for k in range(0, self.win_length_k)]
+            return col_win, win_locations
+
+        elif get_win_location and south_east_win:
+            south_east_diagonal_offset_index = (max(-south_east_diagonal_offset, 0), max(south_east_diagonal_offset, 0))
+            win_streak_start_pos = int(np.where(abs(south_east_diagonal_streaks) == self.win_length_k)[0])
+            win_locations = [(win_streak_start_pos + south_east_diagonal_offset_index[0] + k,
+                              win_streak_start_pos + south_east_diagonal_offset_index[1] + k)
+                             for k in range(0, self.win_length_k)]
+            return south_east_win, win_locations
+
+        elif get_win_location and south_west_win:
+            south_west_diagonal_offset_index = (max(-south_west_diagonal_offset, 0),
+                                                (playing_grid.shape[1] - 1 - max(south_west_diagonal_offset, 0)))
+            win_streak_start_pos = int(np.where(abs(south_west_diagonal_streaks) == self.win_length_k)[0])
+            win_locations = [(win_streak_start_pos + south_west_diagonal_offset_index[0] + k,
+                              win_streak_start_pos + south_west_diagonal_offset_index[1] - k)
+                             for k in range(0, self.win_length_k)]
+            return south_west_win, win_locations
         else:
-            previous_mark_made_by = - self.get_player_turn(playing_grid=playing_grid)
-            if previous_mark_made_by == BoardMarking.X.value:
-                return self.player_x
-            else:
-                return self.player_o
+            return False, None  # Not a win in any direction and therefore None winning location
+
+    def get_winning_player(self, winning_game: bool, playing_grid: np.array = None) -> None | Player:
+        """
+        Method to return the winning player, given that we know there is a winning game scenario
+
+        Parameters:
+        __________
+        winning_game: True/False if this is a winning game scenario. RAISES a ValueError if False if passed
+        playing_grid: The playing grid we are extracting the winning player from
+
+        Returns:
+        None, or the winning player
+        """
+        if playing_grid is None:
+            playing_grid = self.playing_grid
+
+        previous_mark_made_by = - self.get_player_turn(playing_grid=playing_grid)
+        if winning_game and (previous_mark_made_by == BoardMarking.X.value):
+            return self.player_x
+        elif winning_game and (previous_mark_made_by == BoardMarking.O.value):
+            return self.player_o
+        else:
+            raise ValueError("Attempted to get_winning_player from a non-winning board scenario")
 
     def check_for_draw(self, playing_grid: np.array = None) -> bool:
         """
@@ -120,28 +219,24 @@ class NoughtsAndCrosses:
         Parameters: playing_grid, to allow re-use for minimax
         Returns: bool - T/F depending on whether the board has reached a draw
         """
-        live_board_check = False  # whether we are checking the actual playing board, or just a copy of it
         if playing_grid is None:
             playing_grid = self.playing_grid
-            live_board_check = True
         draw = np.all(playing_grid != 0)
-        if draw and live_board_check:
-            self.draw_count += 1
         return draw
 
     def reset_game_board(self) -> None:
         """Method to reset the game playing_grid - replaces all entries in the playing_grid with a zero"""
         self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n))
 
-    # Lower level methods that are needed for the core game flow
     ##########
-    # Search algorithm for the whole playing_grid win search
+    # This is a whole board search, i.e. is naive to where the last move was played, and thus is only used when this
+    # information is not available
     ##########
-    def _winning_board_search(self, playing_grid: np.array = None) -> (bool, WinOrientation):
+    def _whole_board_search(self, playing_grid: np.array = None) -> bool:
         """
         Method to check whether or not the playing_grid has reached a winning state.
         Note that the search will stop as soon as a win is found (i.e. not check subsequent arrays in the list).
-        However, all rows are checked first, then verticals etc. so # todo check the impact of adding a random shuffle
+        However, all rows are checked first, then verticals etc. could test the impact of a random shuffle on speed.
 
         Parameters: playing_grid, so that this can be re-used in the minimax ai
 
@@ -153,48 +248,18 @@ class NoughtsAndCrosses:
         if playing_grid is None:
             playing_grid = self.playing_grid
 
-        if self._search_array_list_for_win(
-                array_list=self._get_row_arrays(playing_grid=playing_grid)):
-            win_orientation = WinOrientation.HORIZONTAL
-        elif self._search_array_list_for_win(
-                array_list=self._get_col_arrays(playing_grid=playing_grid)):
-            win_orientation = WinOrientation.VERTICAL
-        elif self._search_array_list_for_win(
-                array_list=self._get_south_east_diagonal_arrays(playing_grid=playing_grid)):
-            win_orientation = WinOrientation.SOUTH_EAST
-        elif self._search_array_list_for_win(
-                array_list=self._get_north_east_diagonal_arrays(playing_grid=playing_grid)):
-            win_orientation = WinOrientation.NORTH_EAST
-        return (win_orientation is not None), win_orientation
+        row_win = self._search_array_list_for_win(
+            array_list=self._get_row_arrays(playing_grid=playing_grid))
+        col_win = self._search_array_list_for_win(
+            array_list=self._get_col_arrays(playing_grid=playing_grid))
+        south_east_win = self._search_array_list_for_win(
+            array_list=self._get_south_east_diagonal_arrays(playing_grid=playing_grid))
+        north_east_win = self._search_array_list_for_win(
+            array_list=self._get_north_east_diagonal_arrays(playing_grid=playing_grid))
 
-    def win_location_search(self, playing_grid: np.array, row_index: int, col_index: int) -> List[Tuple[int, int]]:
-        ### Balint please ignore this it's a work in progress
-        """
-        Method to determine the LOCATION of a win given that we know there is a win.
-        The method leverages the fact that we only need to search the intersection of the last move with the board.
-        Note this is not used to check for wins, only to determine where they are once we know there is one.
-        # TODO could go in GUI
+        return row_win + col_win + south_east_win + north_east_win
 
-        Parameters:
-        ----------
-        playing_grid - the board
-        row_index.col_index - where the last move on the board was made
-
-        Returns:
-        ----------
-        A list of the indexes corresponding to the winning line
-        """
-        if playing_grid is None:
-            playing_grid = self.playing_grid
-        _, win_orientation = self._winning_board_search(playing_grid=playing_grid)
-        if win_orientation == WinOrientation.HORIZONTAL:
-            row_streaks = np.convolve(playing_grid[row_index], np.ones(self.win_length_k, dtype=int), mode="valid")
-            win_streak_end_col = int(np.where(abs(row_streaks) == self.win_length_k)[1])
-            return [(row_index, win_streak_end_col - k) for k in range(0, self.win_length_k)]
-        elif win_orientation == WinOrientation.VERTICAL:
-            pass  # TODO decide whether this is a good idea or note
-
-    #  Methods called in winning_board_search and quick_search
+    #  Methods called in _winning_board_search
     def _search_array_list_for_win(self, array_list: list[np.array]) -> bool:
         """
         Searches a list of numpy arrays for an array of consecutive markings (1s or -1s), representing a win.
