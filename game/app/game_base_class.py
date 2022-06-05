@@ -219,13 +219,9 @@ class NoughtsAndCrosses:
         Parameters: playing_grid, to allow re-use for minimax
         Returns: bool - T/F depending on whether the board has reached a draw
         """
-        live_board_check = False  # whether we are checking the actual playing board, or just a copy of it (minimax)
         if playing_grid is None:
             playing_grid = self.playing_grid
-            live_board_check = True
         draw = np.all(playing_grid != 0)
-        if draw and live_board_check:
-            self.draw_count += 1
         return draw
 
     def reset_game_board(self) -> None:
@@ -233,14 +229,14 @@ class NoughtsAndCrosses:
         self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n))
 
     ##########
-    # ALTERNATIVE SEARCH METHOD NOT USED IN THE APP
-    # This is a whole board search, i.e. is naive to where the last move was played
+    # This is a whole board search, i.e. is naive to where the last move was played, and thus is only used when this
+    # information is not available
     ##########
     def _whole_board_search(self, playing_grid: np.array = None) -> bool:
         """
         Method to check whether or not the playing_grid has reached a winning state.
         Note that the search will stop as soon as a win is found (i.e. not check subsequent arrays in the list).
-        However, all rows are checked first, then verticals etc. so # todo check the impact of adding a random shuffle
+        However, all rows are checked first, then verticals etc. could test the impact of a random shuffle on speed.
 
         Parameters: playing_grid, so that this can be re-used in the minimax ai
 

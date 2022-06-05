@@ -199,17 +199,18 @@ class ActiveGameFrames(NoughtsAndCrosses):
             self.player_x.award_point()
             self.widget_manager.player_x_win_count_label.configure(
                 text=self.player_x.win_count_label_text())
-            self._set_up_for_next_game(winner=winning_player, draw=False)
+            self._game_continuation_pop_up_launch(winner=winning_player, draw=False)
         elif winning_player == self.player_o:
             self._make_winning_streak_flash(win_locations=win_location)
             self.player_o.award_point()
             self.widget_manager.player_o_win_count_label.configure(
                 text=self.player_o.win_count_label_text())
-            self._set_up_for_next_game(winner=winning_player, draw=False)
+            self._game_continuation_pop_up_launch(winner=winning_player, draw=False)
         elif self.check_for_draw():
+            self.draw_count += 1
             self.widget_manager.draw_count_label.configure(
                 text=f"Draws:\n{self.draw_count}")
-            self._set_up_for_next_game(winner=None, draw=True)
+            self._game_continuation_pop_up_launch(winner=None, draw=True)
 
     # Methods called during the end of game check pop up
     def _make_winning_streak_flash(self, win_locations: List[Tuple[int, int]]):
@@ -229,14 +230,25 @@ class ActiveGameFrames(NoughtsAndCrosses):
             self.widget_manager.main_window.update()
             sleep(PauseDuration.win_streak_flash.value)
 
-    def _set_up_for_next_game(self, winner: Player | None, draw: bool):
+    def _game_continuation_pop_up_launch(self, winner: Player | None, draw: bool):
         """
         Method to reset the backend game board and call the game_continuation_top_level which controls the setup
         for the next game
         """
+        self._switch_off_all_available_cell_buttons()
         self.game_continuation_top_level = GameContinuationPopUp(
             winner=winner, draw=draw, main_game_window_widget_manager=self.widget_manager)
         self.game_continuation_top_level.launch_continuation_pop_up()
+
+    def _switch_off_all_available_cell_buttons(self):
+        """
+        Method to switch off all available cell buttons. So that whilst the pop up is open, they can't be clicked.
+        Also used to make sure the user can't mess up the computer's turn by clicking one of the available cell
+        buttons during minimax's turn.
+        """
+        for widget in self.widget_manager.playing_grid.flat:  # Note playing grid widgets are stored as a numpy array
+            if isinstance(widget, tk.Button):
+                widget["state"] = tk.DISABLED
 
     ##########
     # Playing grid button commands
