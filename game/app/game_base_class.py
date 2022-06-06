@@ -116,21 +116,22 @@ class NoughtsAndCrosses:
 
         Other information:
         ----------
-        This method only searches the intersection of the last move with the board, making it much faster than searching
-        the entire board for a win.
+        This method only searches the intersection of the self.win_length_k boundary around the last move with the
+        board, making it much faster than searching the entire board for a win.
         Determining the location of the win adds a lot of extra processing which significantly increases the runtime of
         the search, therefore when the win location is NOT needed (e.g. in the minimax algorithm), the get_win_location
         should be set to False.
         """
         # TODO try to generalise in such a way as could be extended to 3D
-        # TODO only search tiles within self.win_length_k of the last played mark - ALREADY DONE ROWS
+        # TODO only search tiles within self.win_length_k of the last played mark - ALREADY DONE ROWS, COLS
 
         if playing_grid is None:
             playing_grid = self.playing_grid
 
         # Get the maximum streak in each direction, and check for a win in this direction
-        # Last played row - we only check [max(0, lp_col - win_length+1), lp_col + win_length)
-        last_played_row_slice = playing_grid[last_played_row,
+        # Last played row
+        last_played_row_slice = playing_grid[  # We only check the win_length_k interval around the last played row
+                                last_played_row,
                                 max(last_played_col - self.win_length_k + 1, 0):
                                 min(last_played_col + self.win_length_k, playing_grid.shape[1])]
         row_streaks = np.convolve(last_played_row_slice, np.ones(self.win_length_k, dtype=int), mode="valid")
@@ -138,7 +139,11 @@ class NoughtsAndCrosses:
         row_win = max_row_streak == self.win_length_k
 
         # Last played column
-        col_streaks = np.convolve(playing_grid[:, last_played_col], np.ones(self.win_length_k, dtype=int), mode="valid")
+        last_played_col_slice = self.playing_grid[ # We only check the win_length_k interval around the last played col
+                                max(last_played_row - self.win_length_k + 1, 0):
+                                min(last_played_row + self.win_length_k, playing_grid.shape[0]),
+                                last_played_col]
+        col_streaks = np.convolve(last_played_col_slice, np.ones(self.win_length_k, dtype=int), mode="valid")
         max_col_streak = max(abs(col_streaks))
         col_win = max_col_streak == self.win_length_k
 
@@ -171,7 +176,9 @@ class NoughtsAndCrosses:
             return row_win, win_locations
 
         elif get_win_location and col_win:
-            win_streak_start_row = int(np.where(abs(col_streaks) == self.win_length_k)[0])
+            win_streak_start_row = max(last_played_row + (int(
+                np.where(abs(col_streaks) == self.win_length_k)[0]) - self.win_length_k + 1),
+                0)
             win_locations = [(win_streak_start_row + k, last_played_col) for k in range(0, self.win_length_k)]
             return col_win, win_locations
 
