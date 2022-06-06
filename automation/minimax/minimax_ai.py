@@ -109,8 +109,6 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                     best_move = move_option
                 alpha = max(alpha, potential_new_max)
                 if beta <= alpha:
-                    print(f"Alpha: {alpha}")
-                    print(f"Beta: {beta}")
                     break  # No need to consider this game branch any further, as minimiser will avoid it
             return max_score, best_move
 
@@ -129,8 +127,6 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                     best_move = move_option
                 beta = min(beta, potential_new_min)
                 if beta <= alpha:
-                    print(f"Alpha: {alpha}")
-                    print(f"Beta: {beta}")
                     break  # No need to consider game branch any further, maximiser will just avoid it
             return min_score, best_move
 
