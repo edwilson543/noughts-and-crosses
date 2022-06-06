@@ -8,6 +8,7 @@ from typing import Tuple, List
 from random import shuffle
 import math
 
+
 # CURRENTLY minimax is slow for games bigger than 3x3, even with the alpha beta pruning.
 # TODO Investigate the below ideas to speed it up
 # Introduce a max search depth
@@ -16,6 +17,7 @@ import math
 # Leverage symmetry early on in the game - symmetric branches are strategically equivalent, so if we've already tested
 # one, don't need to check rest of equivalence class. (This could come immediately after marking the grid copy).
 # This could be done by tracking number of played turns, and switching off after this. Again, profile it.
+# Evaluate boards which aren't in an end-state, say by the number of streak of length win_length_k -1
 
 
 class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
@@ -43,12 +45,17 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
 
         maximisers_move: T/F depending on whether we are call this function to maximise or minimise the value
 
-        alpha: The value the maximiser can already guarantee at the given search depth or above - i.e. there is
-        no point searching game trees where the minimiser is able to guarantee a lower value than alpha, so on
-        discovering a branch on the minimiser's turn where one of the first values is lower than this it is
-        'pruned' meaning it's not fully searched. Default of -inf (first call) so it can only be improved on.
+        alpha: The best (highest) value the maximiser can already guarantee at the given search depth or above.
+        There is therefore no point searching further into game trees where the maximiser CANNOT force a higher value
+        than alpha, so on discovering a branch during the maximiser's turn where one of the leaf node values is higher
+        than alpha, alpha is updated, and the branch is 'pruned' if the minimiser can guarantee a lower value
+        (beta <= alpha).
+        Default of -inf (first call) so it can only be improved on.
 
-        beta: The value the minimiser can already guarantee at the given search depth or above - analogous ot alpha.
+        beta: The best (lowest) value the minimiser can already guarantee at the given search depth or above.
+        This is analogous to alpha - there is no point searching game trees where the minimiser cannot force a lower
+        value than beta, so on discovering that a leaf node has a lower value than beta, beta is updated, and the branch
+        is pruned if the maximiser can guarantee a higher value (alpha >= beta).
         Default of +inf (first call) so it can only be improved on.
 
         Returns: (int, Tuple[int, int])
@@ -102,6 +109,8 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                     best_move = move_option
                 alpha = max(alpha, potential_new_max)
                 if beta <= alpha:
+                    print(f"Alpha: {alpha}")
+                    print(f"Beta: {beta}")
                     break  # No need to consider this game branch any further, as minimiser will avoid it
             return max_score, best_move
 
@@ -120,6 +129,8 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                     best_move = move_option
                 beta = min(beta, potential_new_min)
                 if beta <= alpha:
+                    print(f"Alpha: {alpha}")
+                    print(f"Beta: {beta}")
                     break  # No need to consider game branch any further, maximiser will just avoid it
             return min_score, best_move
 
