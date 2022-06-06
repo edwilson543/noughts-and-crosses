@@ -41,9 +41,9 @@ class TestNoughtsAndCrossesWinCheckAndSearchLocationFiveFour:
             [1, -1, 1, -1]
         ])
         win, win_locations = empty_game.win_check_and_location_search(
-            last_played_row=0, last_played_col=2, get_win_location=True)
-        expected_win_location = [(0, 1), (0, 2), (0, 3)]
-        assert win and (set(win_locations) == set(expected_win_location))
+            last_played_row=0, last_played_col=3, get_win_location=True)
+        expected_win_location = {(0, 1), (0, 2), (0, 3)}
+        assert win and (set(win_locations) == expected_win_location)
 
     def test_horizontal_win_middle_left_location(self, empty_game):
         empty_game.playing_grid = np.array([
@@ -55,8 +55,8 @@ class TestNoughtsAndCrossesWinCheckAndSearchLocationFiveFour:
         ])
         win, win_locations = empty_game.win_check_and_location_search(
             last_played_row=2, last_played_col=1, get_win_location=True)
-        expected_win_location = [(2, 0), (2, 1), (2, 2)]
-        assert win and (set(win_locations) == set(expected_win_location))
+        expected_win_location = {(2, 0), (2, 1), (2, 2)}
+        assert win and (set(win_locations) == expected_win_location)
 
     ##########
     # Test for vertical wins
@@ -71,8 +71,8 @@ class TestNoughtsAndCrossesWinCheckAndSearchLocationFiveFour:
         ])
         win, win_locations = empty_game.win_check_and_location_search(
             last_played_row=2, last_played_col=0, get_win_location=True)
-        expected_win_location = [(1, 0), (2, 0), (3, 0)]
-        assert win and (set(win_locations) == set(expected_win_location))
+        expected_win_location = {(1, 0), (2, 0), (3, 0)}
+        assert win and (set(win_locations) == expected_win_location)
 
     def test_vertical_win_middle_top_right(self, empty_game):
         empty_game.playing_grid = np.array([
@@ -84,8 +84,8 @@ class TestNoughtsAndCrossesWinCheckAndSearchLocationFiveFour:
         ])
         win, win_locations = empty_game.win_check_and_location_search(
             last_played_row=0, last_played_col=2, get_win_location=True)
-        expected_win_location = [(0, 2), (1, 2), (2, 2)]
-        assert win and (set(win_locations) == set(expected_win_location))
+        expected_win_location = {(0, 2), (1, 2), (2, 2)}
+        assert win and (set(win_locations) == expected_win_location)
 
     ##########
     # Tests for south east diagonal win
@@ -101,8 +101,8 @@ class TestNoughtsAndCrossesWinCheckAndSearchLocationFiveFour:
         ])
         win, win_locations = empty_game.win_check_and_location_search(
             last_played_row=3, last_played_col=3, get_win_location=True)
-        expected_win_location = [(1, 1), (2, 2), (3, 3)]
-        assert win and (set(win_locations) == set(expected_win_location))
+        expected_win_location = {(1, 1), (2, 2), (3, 3)}
+        assert win and (set(win_locations) == expected_win_location)
 
     def test_south_east_win_lower_triangle_diag(self, empty_game):
         empty_game.playing_grid = np.array([
@@ -114,8 +114,8 @@ class TestNoughtsAndCrossesWinCheckAndSearchLocationFiveFour:
         ])
         win, win_locations = empty_game.win_check_and_location_search(
             last_played_row=3, last_played_col=1, get_win_location=True)
-        expected_win_location = [(2, 0), (3, 1), (4, 2)]
-        assert win and (set(win_locations) == set(expected_win_location))
+        expected_win_location = {(2, 0), (3, 1), (4, 2)}
+        assert win and (set(win_locations) == expected_win_location)
 
     ##########
     # Tests for north east diagonal win
@@ -130,8 +130,8 @@ class TestNoughtsAndCrossesWinCheckAndSearchLocationFiveFour:
         ])
         win, win_locations = empty_game.win_check_and_location_search(
             last_played_row=1, last_played_col=3, get_win_location=True)
-        expected_win_location = [(1, 3), (2, 2), (3, 1)]
-        assert win and (set(win_locations) == set(expected_win_location))
+        expected_win_location = {(1, 3), (2, 2), (3, 1)}
+        assert win and (set(win_locations) == expected_win_location)
 
     def test_south_west_win_upper_triangle_diag(self, empty_game):
         empty_game.playing_grid = np.array([
@@ -143,8 +143,8 @@ class TestNoughtsAndCrossesWinCheckAndSearchLocationFiveFour:
         ])
         win, win_locations = empty_game.win_check_and_location_search(
             last_played_row=1, last_played_col=1, get_win_location=True)
-        expected_win_location = [(0, 2), (1, 1), (2, 0)]
-        assert win and (set(win_locations) == set(expected_win_location))
+        expected_win_location = {(0, 2), (1, 1), (2, 0)}
+        assert win and (set(win_locations) == expected_win_location)
 
 
 class TestNoughtsAndCrossesWinCheckOnlyFiveFour:

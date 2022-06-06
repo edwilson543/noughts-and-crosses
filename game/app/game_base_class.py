@@ -122,12 +122,18 @@ class NoughtsAndCrosses:
         the search, therefore when the win location is NOT needed (e.g. in the minimax algorithm), the get_win_location
         should be set to False.
         """
+        # TODO try to generalise in such a way as could be extended to 3D
+        # TODO only search tiles within self.win_length_k of the last played mark - ALREADY DONE ROWS
+
         if playing_grid is None:
             playing_grid = self.playing_grid
 
         # Get the maximum streak in each direction, and check for a win in this direction
-        # Last played row
-        row_streaks = np.convolve(playing_grid[last_played_row], np.ones(self.win_length_k, dtype=int), mode="valid")
+        # Last played row - we only check [max(0, lp_col - win_length+1), lp_col + win_length)
+        last_played_row_slice = playing_grid[last_played_row,
+                                max(last_played_col - self.win_length_k + 1, 0):
+                                min(last_played_col + self.win_length_k, playing_grid.shape[1])]
+        row_streaks = np.convolve(last_played_row_slice, np.ones(self.win_length_k, dtype=int), mode="valid")
         max_row_streak = max(abs(row_streaks))
         row_win = max_row_streak == self.win_length_k
 
@@ -152,13 +158,15 @@ class NoughtsAndCrosses:
         max_south_west_streak = max(abs(south_west_diagonal_streaks))
         south_west_win = max_south_west_streak == self.win_length_k
 
-        # If we only need to know whether it's a win or no win, just return this and None win location
+        # If we only need to know whether it's a win or not a win, just return this and None win location
         if not get_win_location:
             return (row_win or col_win or south_east_win or south_west_win), None
 
         # Otherwise we get the exact win location, and return this along with whether or not there is a win
         elif get_win_location and row_win:
-            win_streak_start_col = int(np.where(abs(row_streaks) == self.win_length_k)[0])
+            win_streak_start_col = max(last_played_col + (int(
+                np.where(abs(row_streaks) == self.win_length_k)[0]) - self.win_length_k + 1),
+                                       0)  # We only check [max(0, lp_col - win_length+1), lp_col + win_length)
             win_locations = [(last_played_row, win_streak_start_col + k) for k in range(0, self.win_length_k)]
             return row_win, win_locations
 
