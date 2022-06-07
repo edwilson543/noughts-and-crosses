@@ -3,7 +3,7 @@ from game.constants.game_constants import BoardMarking, StartingPlayer
 import numpy as np
 from typing import List, Tuple
 from dataclasses import dataclass
-
+from functools import lru_cache
 
 @dataclass(frozen=False)
 class NoughtsAndCrossesEssentialParameters:
@@ -97,6 +97,7 @@ class NoughtsAndCrosses:
         else:
             raise ValueError(f"mark_board attempted to mark non-empty cell at {marking_index}.")
 
+    # @lru_cache(maxsize=100)
     def win_check_and_location_search(self, last_played_index: np.ndarray, get_win_location: bool,
                                       playing_grid: np.array = None) -> (bool, List[Tuple[int]]):
         """

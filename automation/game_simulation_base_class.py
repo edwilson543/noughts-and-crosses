@@ -1,9 +1,16 @@
+"""Module for defining how simulations of noughts and crosses can be run."""
+
+# Standard library imports
+from enum import Enum, auto
+from typing import List
+
+# Third party imports
+import numpy as np
+
+# Local application imports
 from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
 from game.constants.game_constants import StartingPlayer, BoardMarking
 from automation.minimax.minimax_ai import NoughtsAndCrossesMinimax
-from enum import Enum, auto
-from typing import List
-import numpy as np
 
 
 class PlayerOptions(Enum):
@@ -14,7 +21,8 @@ class PlayerOptions(Enum):
 
 class GameSimulator(NoughtsAndCrossesMinimax):
     """
-    Class to run simulations of the noughts and crosses game, for profiling and data collection.
+    Class to DEFINE simulation parameters of the noughts and crosses game.
+    These can be used for profiling, data collection, etc.
 
     Instance attributes:
     __________

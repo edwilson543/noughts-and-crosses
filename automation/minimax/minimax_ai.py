@@ -1,12 +1,17 @@
 """"Subclass of the noughts and crosses game that implements the minimax algorithm"""
 
-from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
-from game.app.player_base_class import Player
-from automation.minimax.terminal_board_scores import TerminalScore
-import numpy as np
+# Standard library imports
 from typing import List
 from random import shuffle
 import math
+
+# Third party imports
+import numpy as np
+
+# Local application imports
+from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
+from game.app.player_base_class import Player
+from automation.minimax.terminal_board_scores import TerminalScore
 
 
 # CURRENTLY minimax is slow for games bigger than 3x3, even with the alpha beta pruning.
