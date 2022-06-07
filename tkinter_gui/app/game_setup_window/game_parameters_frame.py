@@ -137,7 +137,7 @@ class GameParametersFrame:
         """
         # Update cols label
         value = self.game_cols_n.get()
-        text = f"Cols: {value}"
+        text = f"Columns: {value}"
         self.widget_manager.game_cols_label.configure(text=text)
         # Update win length if needed
         self.widget_manager.win_length_scale.configure(to=max(self.game_rows_m.get(), self.game_cols_n.get()))
