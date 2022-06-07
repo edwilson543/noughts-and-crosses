@@ -41,7 +41,7 @@ class TestNoughtsAndCrossesWinCheckAndSearchLocationFiveFour:
             [1, -1, 1, -1]
         ])
         win, win_locations = empty_game.win_check_and_location_search(
-            last_played_row=0, last_played_col=3, get_win_location=True)
+            last_played_index=np.array([0, 3]), get_win_location=True)
         expected_win_location = {(0, 1), (0, 2), (0, 3)}
         assert win and (set(win_locations) == expected_win_location)
 
@@ -54,7 +54,7 @@ class TestNoughtsAndCrossesWinCheckAndSearchLocationFiveFour:
             [1, -1, 1, -1]
         ])
         win, win_locations = empty_game.win_check_and_location_search(
-            last_played_row=2, last_played_col=1, get_win_location=True)
+            last_played_index=np.array([2, 1]), get_win_location=True)
         expected_win_location = {(2, 0), (2, 1), (2, 2)}
         assert win and (set(win_locations) == expected_win_location)
 
@@ -70,7 +70,7 @@ class TestNoughtsAndCrossesWinCheckAndSearchLocationFiveFour:
             [1, -1, 1, -1]
         ])
         win, win_locations = empty_game.win_check_and_location_search(
-            last_played_row=2, last_played_col=0, get_win_location=True)
+            last_played_index=np.array([2, 0]), get_win_location=True)
         expected_win_location = {(1, 0), (2, 0), (3, 0)}
         assert win and (set(win_locations) == expected_win_location)
 
@@ -83,7 +83,7 @@ class TestNoughtsAndCrossesWinCheckAndSearchLocationFiveFour:
             [0, 0, 0, 0]
         ])
         win, win_locations = empty_game.win_check_and_location_search(
-            last_played_row=0, last_played_col=2, get_win_location=True)
+            last_played_index=np.array([0, 2]), get_win_location=True)
         expected_win_location = {(0, 2), (1, 2), (2, 2)}
         assert win and (set(win_locations) == expected_win_location)
 
@@ -100,7 +100,7 @@ class TestNoughtsAndCrossesWinCheckAndSearchLocationFiveFour:
             [1, -1, 0, 0]
         ])
         win, win_locations = empty_game.win_check_and_location_search(
-            last_played_row=3, last_played_col=3, get_win_location=True)
+            last_played_index=np.array([3, 3]), get_win_location=True)
         expected_win_location = {(1, 1), (2, 2), (3, 3)}
         assert win and (set(win_locations) == expected_win_location)
 
@@ -113,7 +113,7 @@ class TestNoughtsAndCrossesWinCheckAndSearchLocationFiveFour:
             [0, -1, -1, 0]
         ])
         win, win_locations = empty_game.win_check_and_location_search(
-            last_played_row=3, last_played_col=1, get_win_location=True)
+            last_played_index=np.array([3, 1]), get_win_location=True)
         expected_win_location = {(2, 0), (3, 1), (4, 2)}
         assert win and (set(win_locations) == expected_win_location)
 
@@ -129,7 +129,7 @@ class TestNoughtsAndCrossesWinCheckAndSearchLocationFiveFour:
             [0, 0, -1, 0]
         ])
         win, win_locations = empty_game.win_check_and_location_search(
-            last_played_row=1, last_played_col=3, get_win_location=True)
+            last_played_index=np.array([1, 3]), get_win_location=True)
         expected_win_location = {(1, 3), (2, 2), (3, 1)}
         assert win and (set(win_locations) == expected_win_location)
 
@@ -142,7 +142,7 @@ class TestNoughtsAndCrossesWinCheckAndSearchLocationFiveFour:
             [1, -1, 1, -1]
         ])
         win, win_locations = empty_game.win_check_and_location_search(
-            last_played_row=1, last_played_col=1, get_win_location=True)
+            last_played_index=np.array([1, 1]), get_win_location=True)
         expected_win_location = {(0, 2), (1, 1), (2, 0)}
         assert win and (set(win_locations) == expected_win_location)
 
@@ -161,7 +161,7 @@ class TestNoughtsAndCrossesWinCheckOnlyFiveFour:
             [1, -1, 1, -1]
         ])
         win, _ = empty_game.win_check_and_location_search(
-            last_played_row=0, last_played_col=2, get_win_location=False)
+            last_played_index=np.array([0, 2]), get_win_location=False)
         expected_win_location = [(0, 1), (0, 2), (0, 3)]
         assert win
 
@@ -174,7 +174,7 @@ class TestNoughtsAndCrossesWinCheckOnlyFiveFour:
             [1, -1, 1, -1]
         ])
         win, _ = empty_game.win_check_and_location_search(
-            last_played_row=2, last_played_col=1, get_win_location=False)
+            last_played_index=np.array([2, 1]), get_win_location=False)
         expected_win_location = [(2, 0), (2, 1), (2, 2)]
         assert win
 
@@ -190,7 +190,7 @@ class TestNoughtsAndCrossesWinCheckOnlyFiveFour:
             [1, -1, 1, -1]
         ])
         win, _ = empty_game.win_check_and_location_search(
-            last_played_row=2, last_played_col=0, get_win_location=False)
+            last_played_index=np.array([2, 0]), get_win_location=False)
         expected_win_location = [(1, 0), (2, 0), (3, 0)]
         assert win
 
@@ -203,7 +203,7 @@ class TestNoughtsAndCrossesWinCheckOnlyFiveFour:
             [0, 0, 0, 0]
         ])
         win, _ = empty_game.win_check_and_location_search(
-            last_played_row=0, last_played_col=2, get_win_location=False)
+            last_played_index=np.array([0,2]), get_win_location=False)
         expected_win_location = [(0, 2), (1, 2), (2, 2)]
         assert win
 
@@ -220,7 +220,7 @@ class TestNoughtsAndCrossesWinCheckOnlyFiveFour:
             [1, -1, 0, 0]
         ])
         win, _ = empty_game.win_check_and_location_search(
-            last_played_row=3, last_played_col=3, get_win_location=False)
+            last_played_index=np.array([3, 3]), get_win_location=False)
         expected_win_location = [(1, 1), (2, 2), (3, 3)]
         assert win
 
@@ -233,7 +233,7 @@ class TestNoughtsAndCrossesWinCheckOnlyFiveFour:
             [0, -1, -1, 0]
         ])
         win, _ = empty_game.win_check_and_location_search(
-            last_played_row=3, last_played_col=1, get_win_location=False)
+            last_played_index=np.array([3, 1]), get_win_location=False)
         expected_win_location = [(2, 0), (3, 1), (4, 2)]
         assert win
 
@@ -249,7 +249,7 @@ class TestNoughtsAndCrossesWinCheckOnlyFiveFour:
             [0, 0, -1, 0]
         ])
         win, _ = empty_game.win_check_and_location_search(
-            last_played_row=1, last_played_col=3, get_win_location=False)
+            last_played_index=np.array([1, 3]), get_win_location=False)
         expected_win_location = [(1, 3), (2, 2), (3, 1)]
         assert win
 
@@ -262,7 +262,7 @@ class TestNoughtsAndCrossesWinCheckOnlyFiveFour:
             [1, -1, 1, -1]
         ])
         win, _ = empty_game.win_check_and_location_search(
-            last_played_row=1, last_played_col=1, get_win_location=False)
+            last_played_index=np.array([1, 1]), get_win_location=False)
         expected_win_location = [(0, 2), (1, 1), (2, 0)]
         assert win
 
@@ -293,15 +293,15 @@ class TestNoughtsAndCrossesWinCheckOnlyFourThree:
             [1, 1, -1],
             [-1, 1, -1]
         ])
-        win, _ = four_three_game.win_check_and_location_search(last_played_row=0, last_played_col=0,
-                                                               get_win_location=False)
+        win, _ = four_three_game.win_check_and_location_search(
+            last_played_index=np.array([0, 0]), get_win_location=False)
         assert not win
 
     def test_no_win_empty_board(self, four_three_game):
         four_three_game.playing_grid = np.zeros(shape=(4, 3))
         four_three_game.playing_grid[1, 1] = BoardMarking.X.value
-        win, _ = four_three_game.win_check_and_location_search(last_played_row=1, last_played_col=1,
-                                                               get_win_location=False)
+        win, _ = four_three_game.win_check_and_location_search(
+            last_played_index=np.array([1, 1]),get_win_location=False)
         assert not win
 
     ##########
@@ -314,8 +314,8 @@ class TestNoughtsAndCrossesWinCheckOnlyFourThree:
             [0, -1, 0],
             [0, 0, 0]
         ])
-        win, _ = four_three_game.win_check_and_location_search(last_played_row=0, last_played_col=1,
-                                                               get_win_location=False)
+        win, _ = four_three_game.win_check_and_location_search(
+            last_played_index=np.array([0, 1]), get_win_location=False)
         assert win
 
     def test_horizontal_win_middle(self, four_three_game):
@@ -325,8 +325,8 @@ class TestNoughtsAndCrossesWinCheckOnlyFourThree:
             [-1, -1, -1],
             [0, 0, 0]
         ])
-        win, _ = four_three_game.win_check_and_location_search(last_played_row=2, last_played_col=2,
-                                                               get_win_location=False)
+        win, _ = four_three_game.win_check_and_location_search(
+            last_played_index=np.array([2, 2]), get_win_location=False)
         assert win
 
     ##########
@@ -339,8 +339,8 @@ class TestNoughtsAndCrossesWinCheckOnlyFourThree:
             [-1, 1, -1],
             [-1, 1, -1]
         ])
-        win, _ = four_three_game.win_check_and_location_search(last_played_row=3, last_played_col=0,
-                                                               get_win_location=False)
+        win, _ = four_three_game.win_check_and_location_search(
+            last_played_index=np.array([3, 0]), get_win_location=False)
         assert win
 
     def test_vertical_win_top_right(self, four_three_game):
@@ -350,8 +350,8 @@ class TestNoughtsAndCrossesWinCheckOnlyFourThree:
             [-1, -1, 1],
             [1, -1, -1]
         ])
-        win, _ = four_three_game.win_check_and_location_search(last_played_row=1, last_played_col=2,
-                                                               get_win_location=False)
+        win, _ = four_three_game.win_check_and_location_search(
+            last_played_index=np.array([1, 2]), get_win_location=False)
         assert win
 
     ##########
@@ -365,8 +365,8 @@ class TestNoughtsAndCrossesWinCheckOnlyFourThree:
             [-1, 0, -1],
             [1, -1, 0]
         ])
-        win, _ = four_three_game.win_check_and_location_search(last_played_row=1, last_played_col=1,
-                                                               get_win_location=False)
+        win, _ = four_three_game.win_check_and_location_search(
+            last_played_index=np.array([1, 1]), get_win_location=False)
         assert win
 
     def test_south_east_win_lower_triangle_diag(self, four_three_game):
@@ -376,8 +376,8 @@ class TestNoughtsAndCrossesWinCheckOnlyFourThree:
             [-1, -1, 0],
             [0, -1, -1]
         ])
-        win, _ = four_three_game.win_check_and_location_search(last_played_row=3, last_played_col=2,
-                                                               get_win_location=False)
+        win, _ = four_three_game.win_check_and_location_search(
+            last_played_index=np.array([3, 2]), get_win_location=False)
         assert win
 
     ##########
@@ -391,8 +391,8 @@ class TestNoughtsAndCrossesWinCheckOnlyFourThree:
             [-1, 0, -1],
             [0, -1, 0]
         ])
-        win, _ = four_three_game.win_check_and_location_search(last_played_row=2, last_played_col=0,
-                                                               get_win_location=False)
+        win, _ = four_three_game.win_check_and_location_search(
+            last_played_index=np.array([2, 0]), get_win_location=False)
         assert win
 
     def test_north_east_win_lower_triangle_diag(self, four_three_game):
@@ -402,8 +402,8 @@ class TestNoughtsAndCrossesWinCheckOnlyFourThree:
             [0, -1, -1],
             [-1, -1, 0]
         ])
-        win, _ = four_three_game.win_check_and_location_search(last_played_row=2, last_played_col=1,
-                                                               get_win_location=False)
+        win, _ = four_three_game.win_check_and_location_search(
+            last_played_index=np.array([2, 1]), get_win_location=False)
         assert win
 
 

@@ -188,7 +188,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         4) Produce a pop up asking the user to continue or exit depending if either of these is the case
         """
         someone_has_won, win_location = self.win_check_and_location_search(
-            last_played_row=self.active_unconfirmed_cell[0], last_played_col=self.active_unconfirmed_cell[1],
+            last_played_index=self.active_unconfirmed_cell[0], last_played_col=self.active_unconfirmed_cell[1],
             get_win_location=True)
         winning_player = None
         if someone_has_won:
