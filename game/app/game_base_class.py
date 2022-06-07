@@ -1,9 +1,15 @@
-from game.app.player_base_class import Player
-from game.constants.game_constants import BoardMarking, StartingPlayer
-import numpy as np
+# Standard library imports
 from typing import List, Tuple
 from dataclasses import dataclass
 from functools import lru_cache
+
+# Third party imports
+import numpy as np
+
+# Local application imports
+from game.app.player_base_class import Player
+from game.constants.game_constants import BoardMarking, StartingPlayer
+
 
 @dataclass(frozen=False)
 class NoughtsAndCrossesEssentialParameters:
@@ -157,7 +163,7 @@ class NoughtsAndCrosses:
         else:
             return False, None  # No win has been found, and thus no winning location
 
-    def get_winning_player(self, winning_game: bool, playing_grid: np.array = None) -> None | Player:
+    def get_winning_player(self, winning_game: bool, playing_grid: np.ndarray = None) -> None | Player:
         """
         Method to return the winning player, given that we know there is a winning game scenario
 
@@ -180,7 +186,7 @@ class NoughtsAndCrosses:
         else:
             raise ValueError("Attempted to get_winning_player from a non-winning board scenario")
 
-    def check_for_draw(self, playing_grid: np.array = None) -> bool:
+    def check_for_draw(self, playing_grid: np.ndarray = None) -> bool:
         """
         Method that checks whether or not the playing_grid has reached a stalemate.
         This is currently naive in that it just checks for a full playing_grid - a draw may in fact have been
@@ -223,7 +229,7 @@ class NoughtsAndCrosses:
     # This is a whole board search, i.e. is naive to where the last move was played, and thus is only used when this
     # information is not available
     ##########
-    def _whole_board_search(self, playing_grid: np.array = None) -> bool:
+    def _whole_board_search(self, playing_grid: np.ndarray = None) -> bool:
         """
         Method to check whether or not the playing_grid has reached a winning state.
         Note that the search will stop as soon as a win is found (i.e. not check subsequent arrays in the list).
@@ -251,7 +257,7 @@ class NoughtsAndCrosses:
         return row_win + col_win + south_east_win + north_east_win
 
     #  Methods called in _winning_board_search
-    def _search_array_list_for_win(self, array_list: list[np.array]) -> bool:
+    def _search_array_list_for_win(self, array_list: list[np.ndarray]) -> bool:
         """
         Searches a list of numpy arrays for an array of consecutive markings (1s or -1s), representing a win.
 
@@ -268,7 +274,7 @@ class NoughtsAndCrosses:
                 return True  # Diagonals contains a winning array
         return False  # The algorithm has looped over all south-east diagonals and not found any winning boards
 
-    def _get_row_arrays(self, playing_grid: np.array = None) -> list[np.array]:
+    def _get_row_arrays(self, playing_grid: np.ndarray = None) -> list[np.ndarray]:
         """
         Parameters: playing_grid, so that this can be re-used for minimax
         Returns: a list of the row arrays on the playing grid
@@ -278,7 +284,7 @@ class NoughtsAndCrosses:
         row_array_list = [playing_grid[row_index] for row_index in range(0, self.game_rows_m)]
         return row_array_list
 
-    def _get_col_arrays(self, playing_grid: np.array = None) -> list[np.array]:
+    def _get_col_arrays(self, playing_grid: np.ndarray = None) -> list[np.ndarray]:
         """
         Parameters: playing_grid, so that this can be re-used for minimax
         Returns: a list of the row arrays on the playing grid
@@ -288,7 +294,7 @@ class NoughtsAndCrosses:
         col_array_list = [playing_grid[:, col_index] for col_index in range(0, self.game_cols_n)]
         return col_array_list
 
-    def _get_south_east_diagonal_arrays(self, playing_grid: np.array = None) -> list[np.array]:
+    def _get_south_east_diagonal_arrays(self, playing_grid: np.ndarray = None) -> list[np.ndarray]:
         """
         Method to extract the south_east diagonals of sufficient length from the playing grid
         The first element in the diagonal_offset_list is the diagonals in the lower triangle and leading diagonal (of
@@ -311,7 +317,7 @@ class NoughtsAndCrosses:
         diagonal_array_list = [np.diagonal(playing_grid, offset) for offset in diagonal_offset_list]
         return diagonal_array_list
 
-    def _get_north_east_diagonal_arrays(self, playing_grid: np.array = None) -> list[np.array]:
+    def _get_north_east_diagonal_arrays(self, playing_grid: np.ndarray = None) -> list[np.ndarray]:
         """
         Method to extract the north_east diagonals of sufficient length from the playing grid
 

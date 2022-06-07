@@ -136,7 +136,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                     break  # No need to consider game branch any further, maximiser will just avoid it
             return min_score, best_move
 
-    def _evaluate_board_to_maximising_player(self, playing_grid: np.array, search_depth: int,
+    def _evaluate_board_to_maximising_player(self, playing_grid: np.ndarray, search_depth: int,
                                              winning_player: Player | None = None, draw: bool | None = None) -> int:
         """
         Static evaluation function for a playing_grid at the bottom of the minimax search tree, from the perspective
