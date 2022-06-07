@@ -3,6 +3,7 @@ from game.constants.game_constants import BoardMarking, StartingPlayer
 import numpy as np
 from typing import List, Tuple
 from dataclasses import dataclass
+from functools import lru_cache
 
 
 @dataclass(frozen=False)
@@ -35,6 +36,7 @@ class NoughtsAndCrosses:
         self.starting_player_value = setup_parameters.starting_player_value
         self.draw_count = draw_count
         self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n))
+        self.search_directions = self._get_search_directions()
 
     ##########
     # Methods that are a part of the core game play flow
@@ -128,8 +130,7 @@ class NoughtsAndCrosses:
         if playing_grid is None:
             playing_grid = self.playing_grid
 
-        search_directions = {(1, 0), (0, 1), (1, -1), (1, 1)}  # TODO get this set from a cached method
-        for search_direction in search_directions:
+        for search_direction in self.search_directions:
             unfiltered_indexes_to_search: list = [(last_played_row + offset * search_direction[0],  # TODO
                                                    last_played_col + offset * search_direction[1])
                                                   for offset in range(-self.win_length_k + 1, self.win_length_k)]
@@ -200,10 +201,13 @@ class NoughtsAndCrosses:
         self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n))
 
     # Lower level methods
-    def _get_search_directions(self) -> List[Tuple[int]]:
+    @lru_cache
+    def _get_search_directions(self) -> List[Tuple[int, int]]:
         """
         Method that returns the directions the search algorithm should look in around the last played index for a win
         """
+        return [(1, 0), (0, 1), (1, -1), (1, 1)]
+        # TODO
         # spanning_set: list = []
         #
         # playing_grid_dimension = np.ndim(self.playing_grid)
