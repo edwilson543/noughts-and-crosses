@@ -167,7 +167,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         occupied_cell_label.grid(row=self.active_unconfirmed_cell[0], column=self.active_unconfirmed_cell[1],
                                  sticky="nsew")
 
-        self.mark_board(row_index=self.active_unconfirmed_cell[0], col_index=self.active_unconfirmed_cell[1])
+        self.mark_board(marking_index=np.array(self.active_unconfirmed_cell))
         self.widget_manager.main_window.update()  # So that the cell updates straight away
 
     def _switch_highlighted_confirmation_button(self):
@@ -188,7 +188,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         4) Produce a pop up asking the user to continue or exit depending if either of these is the case
         """
         someone_has_won, win_location = self.win_check_and_location_search(
-            last_played_index=self.active_unconfirmed_cell[0], last_played_col=self.active_unconfirmed_cell[1],
+            last_played_index=np.array(self.active_unconfirmed_cell),
             get_win_location=True)
         winning_player = None
         if someone_has_won:

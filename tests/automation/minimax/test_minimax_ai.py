@@ -50,7 +50,7 @@ class TestMinimaxThreeThreeThree:
         ])
         score, minimax_move = new_game_with_minimax_player.get_minimax_move()
         assert score == TerminalScore.MAX_WIN.value - 1  # -1 to reflect a search depth of 1 to find the win
-        assert minimax_move == tuple((2, 2))
+        assert np.all(minimax_move == np.array([2, 2]))
 
     def test_minimax_gets_winning_move_north_east_diagonal(self, new_game_with_minimax_player):
         """Test that minimax can win in one move when presented opportunity (north east diagonal win)"""
@@ -62,7 +62,7 @@ class TestMinimaxThreeThreeThree:
         ])
         score, minimax_move = new_game_with_minimax_player.get_minimax_move()
         assert score == TerminalScore.MAX_WIN.value - 1  # -1 to reflect a search depth of 1 to find the win
-        assert minimax_move == tuple((1, 1))
+        assert np.all(minimax_move == np.array([1, 1]))
 
     def test_minimax_makes_blocking_move_middle_left_vertical(self, new_game_with_minimax_player):
         """Test that minimax can win in one move when presented opportunity"""
@@ -73,7 +73,7 @@ class TestMinimaxThreeThreeThree:
             [BoardMarking.X.value, BoardMarking.O.value, 0]
         ])
         _, minimax_move = new_game_with_minimax_player.get_minimax_move()
-        assert minimax_move == tuple((1, 0))
+        assert np.all(minimax_move == np.array([1, 0]))
 
     def test_minimax_makes_blocking_move_south_east_diagonal(self, new_game_with_minimax_player):
         """Test that minimax can win in one move when presented opportunity"""
@@ -84,4 +84,4 @@ class TestMinimaxThreeThreeThree:
             [0, BoardMarking.O.value, 0]
         ])
         _, minimax_move = new_game_with_minimax_player.get_minimax_move()
-        assert minimax_move == tuple((2, 2))
+        assert np.all(minimax_move == np.array([2, 2]))

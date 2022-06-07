@@ -3,7 +3,6 @@ from game.constants.game_constants import BoardMarking, StartingPlayer
 import numpy as np
 from typing import List, Tuple
 from dataclasses import dataclass
-from functools import lru_cache
 
 
 @dataclass(frozen=False)
@@ -74,12 +73,13 @@ class NoughtsAndCrosses:
         else:
             return BoardMarking(self.starting_player_value).value
 
-    def mark_board(self, row_index: int, col_index: int, playing_grid: np.array = None) -> None:
+    def mark_board(self, marking_index: np.ndarray, playing_grid: np.array = None) -> None:
         """
         Method to make a new entry on the game playing_grid. Note that there is no opportunity to mark out of turn,
         because the get_player_turn method is called within this method.
         Parameters:
-        Row/col index - the index of the playing_grid where the mark will be made
+        marking_index - the index, as a numpy array, of the playing_grid where the mark will be made
+        playing_grid - the playing grid or copy that we are marking
         Returns:
         None
         Outcomes:
@@ -87,23 +87,24 @@ class NoughtsAndCrosses:
         """
         if playing_grid is None:
             playing_grid = self.playing_grid
-        if playing_grid[row_index, col_index] == 0:
+        if playing_grid[tuple(marking_index)] == 0:
             marking = self.get_player_turn(playing_grid=playing_grid)
-            playing_grid[row_index, col_index] = marking
+            playing_grid[tuple(marking_index)] = marking
         else:
-            raise ValueError(f"mark_board attempted to mark non-empty cell at {row_index, col_index}.")
+            raise ValueError(f"mark_board attempted to mark non-empty cell at {marking_index}.")
 
-    def win_check_and_location_search(self, last_played_row: int, last_played_col: int, get_win_location: bool,
-                                      playing_grid: np.array = None) -> (bool, List[Tuple[int, int]]):
+    def win_check_and_location_search(self, last_played_index: np.ndarray, get_win_location: bool,
+                                      playing_grid: np.array = None) -> (bool, List[Tuple[int]]):
         """
         Method to determine whether or not there is a win and the LOCATION of the win.
-        get_win_location controls whether we are interested in the win_location or not. Note that just having a
-        separate method to find the win location would introduce huge redundancy as all variables used to check for a
+        get_win_location controls whether we are interested in the win_location or not. Note that having a separate
+        method to find the win location would introduce huge redundancy as all variables used to check for a
         win are needed to find the win location, hence the slightly longer method.
 
         Parameters:
         ----------
-        last_played_row/last_played_col - where the last move on the board was made, to restrict the search area.
+        last_played_index - where the last move on the board was made, to restrict the search area, represented by a
+        numpy array
 
         get_win_location - if this is True then the method returns the win locations as well, if it's false then the
         only return is a bool for whether or not the board exhibits a win
@@ -113,26 +114,21 @@ class NoughtsAndCrosses:
         Returns:
         ----------
         bool - T/F depending on whether or not there is a win
-        List[Tuple[int, int]] - A list of the indexes corresponding to the winning streak (only if get_win_location is
+        List[Tuple[int]] - A list of the indexes corresponding to the winning streak (only if get_win_location is
         set to True)
 
         Other information:
         ----------
-        This method only searches the intersection of the self.win_length_k boundary around the last move with the
+        This method only searches the intersection of the self.win_length_k - 1 boundary around the last move with the
         board, making it much faster than searching the entire board for a win.
         Determining the location of the win adds extra processing, increasing the runtime of the search, therefore when
         the win location is NOT needed (e.g. in the minimax algorithm), the get_win_location should be set to False.
         """
-        # TODO try to generalise in such a way as could be extended to 3D
-        # TODO only search tiles within self.win_length_k of the last played mark - ALREADY DONE ROWS, COLS
-        # TODO change the arguments to be one index - and therefore lose last played row argument
-
         if playing_grid is None:
             playing_grid = self.playing_grid
 
         for search_direction in self.search_directions:
-            unfiltered_indexes_to_search: list = [(last_played_row + offset * search_direction[0],  # TODO
-                                                   last_played_col + offset * search_direction[1])
+            unfiltered_indexes_to_search: list = [tuple(last_played_index + offset * search_direction)
                                                   for offset in range(-self.win_length_k + 1, self.win_length_k)]
             valid_search_ranges = [range(0, playing_grid.shape[n]) for n in range(0, np.ndim(playing_grid))]
             valid_indexes_to_search: list = [search_index for search_index in unfiltered_indexes_to_search if
@@ -153,8 +149,6 @@ class NoughtsAndCrosses:
                 win_streak_location_indexes: list = valid_indexes_to_search[
                                                     win_streak_start_int:win_streak_start_int + self.win_length_k]
                 return winning_streak_found, win_streak_location_indexes
-            # TODO note win_streak_location_indexes no longer a list of tuples, so minimax failing
-            # Can either update this, or minimax  - try printing the win_streak_location, may not be this
         else:
             return False, None  # No win has been found, and thus no winning location
 
@@ -201,13 +195,13 @@ class NoughtsAndCrosses:
         self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n))
 
     # Lower level methods
-    @lru_cache
-    def _get_search_directions(self) -> List[Tuple[int, int]]:
+    def _get_search_directions(self) -> List[np.ndarray]:
         """
         Method that returns the directions the search algorithm should look in around the last played index for a win
         """
-        return [(1, 0), (0, 1), (1, -1), (1, 1)]
-        # TODO
+        # Note this is just a placeholder method
+        return [np.array([1, 0]), np.array([0, 1]), np.array([1, -1]), np.array([1, 1])]
+        # TODO generate the list for n-dimensions computationally - initial idea below
         # spanning_set: list = []
         #
         # playing_grid_dimension = np.ndim(self.playing_grid)
@@ -218,6 +212,7 @@ class NoughtsAndCrosses:
         #
         # search_directions = spanning_set
         # for unit_vectors in spanning_set:
+        # Need to create the sum and difference of each combination of unit vectors
 
     ##########
     # This is a whole board search, i.e. is naive to where the last move was played, and thus is only used when this
