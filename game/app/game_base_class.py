@@ -40,21 +40,25 @@ class NoughtsAndCrosses:
     ##########
     # Methods that are a part of the core game play flow
     ##########
-    def set_starting_player(self) -> None:
+    def set_starting_player(self, starting_player_value=None) -> None:
         """
         Method to determine which board marking should go first from a starting_player_value choice.
         This method is a function, f: StartingPlayer -> BoardMarking, f: {-1, 0, 1} |-> {-1, 1}, and thus only has an
         effect if the starting player is to be chosen RANDOMLY.
         """
-        if self.starting_player_value == StartingPlayer.RANDOM.value:
+        if starting_player_value is None:
+            starting_player_value = self.starting_player_value
+
+        if starting_player_value == StartingPlayer.RANDOM.value or self.starting_player_value is None:
             self.starting_player_value = np.random.choice([BoardMarking.X.value, BoardMarking.O.value])
-        elif self.starting_player_value == StartingPlayer.PLAYER_X.value:
+        elif starting_player_value == StartingPlayer.PLAYER_X.value:
             self.starting_player_value = BoardMarking.X.value
-        elif self.starting_player_value == StartingPlayer.PLAYER_O.value:
+        elif starting_player_value == StartingPlayer.PLAYER_O.value:
             self.starting_player_value = BoardMarking.O.value
         else:
             raise ValueError("Attempted to call choose_starting_player method but with a starting_player_value"
-                             " that is not in the StartingPlayer Enum.")
+                             " that is not in the StartingPlayer Enum. "
+                             f"self.starting_player_value: {self.starting_player_value}")
 
     def get_player_turn(self, playing_grid: np.array = None) -> BoardMarking:
         """

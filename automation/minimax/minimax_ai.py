@@ -4,7 +4,7 @@ from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssenti
 from game.app.player_base_class import Player
 from automation.minimax.terminal_board_scores import TerminalScore
 import numpy as np
-from typing import Tuple, List
+from typing import List
 from random import shuffle
 import math
 
@@ -29,8 +29,8 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
 
     def get_minimax_move(self, last_played_index: np.array = None, playing_grid: np.array = None,
                          search_depth: int = 0, maximisers_move: bool = True,
-                         alpha: int = -math.inf, beta: int = math.inf) -> (int, Tuple[int, int]):
-       # TODO update docstring
+                         alpha: int = -math.inf, beta: int = math.inf) -> (int, np.ndarray):
+        # TODO update docstring
         """
         Parameters:
         ----------
