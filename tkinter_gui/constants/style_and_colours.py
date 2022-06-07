@@ -1,6 +1,8 @@
 from enum import Enum
 import tkinter as tk
 
+# TODO could add a light/dark theme
+
 
 class Colour(Enum):
     ##########
