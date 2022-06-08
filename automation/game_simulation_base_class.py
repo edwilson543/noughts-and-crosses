@@ -90,8 +90,8 @@ class GameSimulator(NoughtsAndCrossesMinimax):
 
     def _get_random_move(self):
         """
-        Method to generate a random move on the playing grid.
-        Note that the _get_available_cell_indices method already includes a random shuffle, so we can just index of
+        Method to generate array random move on the playing grid.
+        Note that the _get_available_cell_indices method already includes array random shuffle, so we can just index of
         the first element in this list.
         """
         random_options: List[np.ndarray] = self._get_available_cell_indices(playing_grid=self.playing_grid)

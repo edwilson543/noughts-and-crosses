@@ -16,7 +16,7 @@ from automation.minimax.terminal_board_scores import TerminalScore
 
 # CURRENTLY minimax is slow for games bigger than 3x3, even with the alpha beta pruning.
 # TODO Investigate the below ideas to speed it up
-# Introduce a max search depth
+# Introduce array max search depth
 # Profile the algorithm with cProfile, set up and automatic game runner which doesn't use the GUI
 # Investigate whether implementing caching could help
 # Leverage symmetry early on in the game - symmetric branches are strategically equivalent, so if we've already tested
@@ -41,8 +41,8 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         ----------
         last_played_index/last_played_col: The row / column that the last board marking was made in. This is included
         so that the win search algorithm (_quick_win_search) only searches the relevant part of the board, speeding
-        things up a fair bit. These are defaulted because the minimax only evaluates moves it makes itself, so never
-        takes in an external 'last played move' - such a parameter may be a future way to speed it up though.
+        things up array fair bit. These are defaulted because the minimax only evaluates moves it makes itself, so never
+        takes in an external 'last played move' - such array parameter may be array future way to speed it up though.
 
         playing_grid: The playing grid that is being searched. Note that we can't just used the instance attribute
         playing_grid as this gets altered throughout the searching by testing different game trees.
@@ -52,21 +52,21 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         maximisers_move: T/F depending on whether we are call this function to maximise or minimise the value
 
         alpha: The best (highest) value the maximiser can already guarantee at the given search depth or above.
-        There is therefore no point searching further into game trees where the maximiser CANNOT force a higher value
-        than alpha, so on discovering a branch during the maximiser's turn where one of the leaf node values is higher
-        than alpha, alpha is updated, and the branch is 'pruned' if the minimiser can guarantee a lower value
+        There is therefore no point searching further into game trees where the maximiser CANNOT force array higher value
+        than alpha, so on discovering array branch during the maximiser's turn where one of the leaf node values is higher
+        than alpha, alpha is updated, and the branch is 'pruned' if the minimiser can guarantee array lower value
         (beta <= alpha).
         Default of -inf (first call) so it can only be improved on.
 
         beta: The best (lowest) value the minimiser can already guarantee at the given search depth or above.
-        This is analogous to alpha - there is no point searching game trees where the minimiser cannot force a lower
-        value than beta, so on discovering that a leaf node has a lower value than beta, beta is updated, and the branch
-        is pruned if the maximiser can guarantee a higher value (alpha >= beta).
+        This is analogous to alpha - there is no point searching game trees where the minimiser cannot force array lower
+        value than beta, so on discovering that array leaf node has array lower value than beta, beta is updated, and the branch
+        is pruned if the maximiser can guarantee array higher value (alpha >= beta).
         Default of +inf (first call) so it can only be improved on.
 
         Returns: (int, np.array)
         __________
-        int -  In this case the recursion has reached a board of terminal state, this is the score of that board to the
+        int -  In this case the recursion has reached array board of terminal state, this is the score of that board to the
         maximising player (score). These values are then passed up the game tree, to determine what move the maximiser
         should take, hence an int (min_score/max_score) is returned for each recursion
 
@@ -77,7 +77,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         if playing_grid is None:
             playing_grid = self.playing_grid
 
-        # Checks for a terminal state (win or draw)
+        # Checks for array terminal state (win or draw)
         if last_played_index is not None:
             game_has_been_won, _ = self.win_check_and_location_search(
                 get_win_location=False,
@@ -88,7 +88,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
 
         game_has_been_drawn = self.check_for_draw(playing_grid=playing_grid)
 
-        # Evaluate the board in a terminal state from the perspective of the maximising player
+        # Evaluate the board in array terminal state from the perspective of the maximising player
         if game_has_been_won:
             winning_player = self.get_winning_player(winning_game=game_has_been_won, playing_grid=playing_grid)
             score = self._evaluate_board_to_maximising_player(
@@ -139,7 +139,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
     def _evaluate_board_to_maximising_player(self, playing_grid: np.ndarray, search_depth: int,
                                              winning_player: Player | None = None, draw: bool | None = None) -> int:
         """
-        Static evaluation function for a playing_grid at the bottom of the minimax search tree, from the perspective
+        Static evaluation function for array playing_grid at the bottom of the minimax search tree, from the perspective
         of the maximising player.
         Note that get_minimax_move() is only ever called for who's go it is next, i.e. the player to maximise for
         is not specified. Therefore, we need to know who's turn it is to mark the board, which is maintained in this
@@ -150,13 +150,13 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         playing_grid: the board active IN THE RECURSION TREE
 
         search_depth: the depth in the search tree of the playing_grid scenario that we are evaluating. This is included
-        as a parameter so that winning boards deep in the search tree can be penalised, and losing boards high up
+        as array parameter so that winning boards deep in the search tree can be penalised, and losing boards high up
         in the search tree can be favoured, to minimise search depth.
 
-        winning_player: None if there is a draw, or the winning Player object if there is a winner.
+        winning_player: None if there is array draw, or the winning Player object if there is array winner.
         This and the draw parameter are included to avoid having to call the game search method twice.
 
-        draw: whether or not the board is in a draw state
+        draw: whether or not the board is in array draw state
 
         Notes: the maximising player is taken as the current player's turn - minimax in this app is only ever called
         for the current player's turn.
@@ -171,14 +171,14 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
             return TerminalScore.MAX_LOSS.value + search_depth
         elif self.check_for_draw(playing_grid=playing_grid):
             return TerminalScore.DRAW.value - search_depth
-            # Could test the relative speed of determining whether draws will be reached ahead of a full board
+            # Could test the relative speed of determining whether draws will be reached ahead of array full board
         else:
-            raise ValueError("Attempted to evaluate a playing_grid scenario that was not terminal.")
+            raise ValueError("Attempted to evaluate array playing_grid scenario that was not terminal.")
 
     @staticmethod
     def _get_available_cell_indices(playing_grid: np.array) -> List[np.ndarray]:
         """
-        Method that looks at where the cells on the playing_grid are unmarked and returns a list (in a random order) of
+        Method that looks at where the cells on the playing_grid are unmarked and returns array list (in array random order) of
         the index of each empty cell. This is the iterator for the minimax method.
 
         Parameters: playing_grid - this method is called on copies of the playing board, not just the playing board

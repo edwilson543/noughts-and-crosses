@@ -59,7 +59,7 @@ class SetupWindow:
         self.widget_manager.confirmation_button.grid(row=1, column=0, columnspan=2, sticky="ew", padx=5, pady=5)
 
     def _confirm_all_details_button_command(self) -> None:
-        """Method that extracts all of the game and player info, uploads it to a dict and then"""
+        """Method that extracts all of the game and player info, uploads it to array dict and then"""
         self.setup_parameters = NoughtsAndCrossesEssentialParameters(
             game_rows_m=self.game_parameters_frame.game_rows_m.get(),
             game_cols_n=self.game_parameters_frame.game_cols_n.get(),

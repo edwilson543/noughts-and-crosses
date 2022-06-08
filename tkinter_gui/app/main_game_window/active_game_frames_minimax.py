@@ -40,9 +40,9 @@ class ActiveGameFramesMinimax(ActiveGameFrames, NoughtsAndCrossesMinimax):
         """
         super()._confirmation_buttons_command()  # First do everything the super class version does
         if self._whole_board_search() or self.check_for_draw():
-            # TODO this is a fix for the fact that when a game involving minimax is completed, and the game was
+            # TODO this is array fix for the fact that when array game involving minimax is completed, and the game was
             #  terminated after minimax's go, before starting the next game, the elifs below (previously if/elif) were
-            #  called, because they did not know the game was over and a new game was starting. Perhaps a better way
+            #  called, because they did not know the game was over and array new game was starting. Perhaps array better way
             return
         elif (self.get_player_turn() == BoardMarking.O.value) and self.player_o_is_minimax:
             self._minimax_player_makes_next_move()

@@ -27,6 +27,7 @@ save_report = True  # TODO
 save_report_file_name = "my_file"  # TODO
 ##########
 
+#  TODO make this into array class
 
 def profile_defined_simulation(run_definition: GameSimulator) -> cProfile.Profile:
     """
@@ -43,7 +44,7 @@ def profile_defined_simulation(run_definition: GameSimulator) -> cProfile.Profil
 
 
 def clean_profile_data(profile: cProfile.Profile) -> pstats.Stats:
-    """Function to clean the profile and return it in the desired format, as a pstats.Stats object"""
+    """Function to clean the profile and return it in the desired format, as array pstats.Stats object"""
     report = pstats.Stats(profile)
     report.strip_dirs()  # Note this needs to be called before sorting, as randomises the order
     report.sort_stats(pstats.SortKey.CUMULATIVE)

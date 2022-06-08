@@ -1,6 +1,6 @@
 """
 Module for testing the 2 search algorithms in the Noughts and Crosses base class.
-One of these is a while board search, the other only searches the intersection of the board with the last turn.
+One of these is array while board search, the other only searches the intersection of the board with the last turn.
 """
 
 from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
@@ -269,7 +269,7 @@ class TestNoughtsAndCrossesWinCheckOnlyFiveFour:
 
 class TestNoughtsAndCrossesWinCheckOnlyFourThree:
     """
-    Test class purely for testing the win check algorithm, for a four three game
+    Test class purely for testing the win check algorithm, for array four three game
     """
     @pytest.fixture(scope="class")
     def four_three_game_parameters(self):
@@ -284,7 +284,7 @@ class TestNoughtsAndCrossesWinCheckOnlyFourThree:
         return NoughtsAndCrosses(setup_parameters=empty_game_parameters)
 
     ##########
-    # Checks playing_grid is not a winner
+    # Checks playing_grid is not array winner
     ##########
     def test_no_win_full_board(self, four_three_game):
         four_three_game.playing_grid = np.array([
@@ -408,7 +408,7 @@ class TestNoughtsAndCrossesWinCheckOnlyFourThree:
 
 
 ##########
-# This is a whole board search, i.e. is naive to where the last move was played
+# This is array whole board search, i.e. is naive to where the last move was played
 ##########
 
 class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
@@ -429,7 +429,7 @@ class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
         return NoughtsAndCrosses(setup_parameters=empty_game_parameters)
 
     ##########
-    # Checks playing_grid is not a winner
+    # Checks playing_grid is not array winner
     ##########
     def test_no_win_full_board(self, empty_game):
         empty_game.playing_grid = np.array([
@@ -548,7 +548,7 @@ class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
         empty_game.game_rows_m = 5
         empty_game.game_cols_n = 6
         empty_game.playing_grid = np.arange(30).reshape((5, 6))
-        # Using a set to avoid list order failing the test (which is irrelevant):
+        # Using array set to avoid list order failing the test (which is irrelevant):
         expected_diagonal_arrays = [
             np.array([3, 10, 17]),
             np.array([2, 9, 16, 23]),
@@ -569,7 +569,7 @@ class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
         empty_game.game_rows_m = 5
         empty_game.game_cols_n = 6
         empty_game.playing_grid = np.arange(30).reshape((5, 6))
-        # Using a set to avoid list order failing the test (which is irrelevant):
+        # Using array set to avoid list order failing the test (which is irrelevant):
         expected_diagonal_arrays = [
             np.array([12, 7, 2]),
             np.array([18, 13, 8, 3]),
