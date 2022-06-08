@@ -12,7 +12,6 @@ from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
 from game.app.game_base_class import Player
 from game.constants.game_constants import BoardMarking
 
-
 ####################
 # PROFILING Simulation parameters
 ####################
@@ -30,7 +29,7 @@ player_o_simulated_as = PlayerOptions.RANDOM
 print_report_to_terminal = True
 number_of_rows_to_print = 10
 save_report_to_file = True  # Note this isn't that useful - dump_stats
-saved_report_file_name = "report_profile" + ".log"
+saved_report_file_name = "report_profile" + ".log"  # Do not remove extension here
 ####################
 
 
@@ -87,25 +86,42 @@ class GameProfiler:
     def print_and_or_save_profile_report(self, profile: cProfile.Profile) -> None:
         """
         Method to print and or save the profile report to file, depending on the instance variables truth.
-        Note that both if statements use the pstats print_stats method - this is because the dump_stats method doesn't
-        produce human readable files, only files intended to be reloaded. In this context, the purpose of saving the
-        profile file is to read it, thus the implementation used.
         """
         if self.print_report:
-            report = pstats.Stats(profile)
-            report = self.clean_profile_data(report=report)
-            print("Report print")
-            report.print_stats(self.print_entries)
+            self._print_report_to_terminal(profile=profile)
         if self.save_report:
-            file_path = self.report_file_path / self.report_file_name
-            with open(file_path, "w") as stream:
-                report = pstats.Stats(profile, stream=stream)  # The stream defines where the report gets printed to
-                report = self.clean_profile_data(report=report)
-                print("Report save")
-                report.print_stats()  # Saves the entire log to file
+            self._save_report_to_file(profile=profile)
+
+    def _print_report_to_terminal(self, profile: cProfile.Profile) -> None:
+        """Method to print the profiling report directly to the terminal"""
+        report = pstats.Stats(profile)
+        report = self._clean_profile_data(report=report)
+        print(self.simulation_definition.get_string_detailing_simulation_parameters())
+        report.print_stats(self.print_entries)
+
+    def _save_report_to_file(self, profile: cProfile.Profile) -> None:
+        """
+        Method to save the profiling report to file.
+        Note that the pstats the dump_stats method doesn't produce human readable files, only files intended to be
+        reloaded. In this context, the purpose of saving the profile file is to read it, thus the implementation used,
+        rather than dump_stats
+        """
+        temporary_file_path = self.report_file_path / "temporary_file.log"
+        saved_file_path = self.report_file_path / self.report_file_name
+        # Note that the temporary/saved file is so that we can add some simulation metadata to the start of the file
+
+        with open(temporary_file_path, "w") as stream:
+            report = pstats.Stats(profile, stream=stream)  # The stream defines where the report gets printed to
+            report = self._clean_profile_data(report=report)
+            report.print_stats()  # Saves the entire log to file
+        with open(temporary_file_path, "r") as temporary_file, open(saved_file_path, "w") as saved_file:
+            saved_file.write(self.simulation_definition.get_string_detailing_simulation_parameters())
+            old_content = temporary_file.readlines()
+            saved_file.writelines(old_content)
+        temporary_file_path.unlink()  # Delete the temporary file
 
     @staticmethod
-    def clean_profile_data(report: pstats.Stats) -> pstats.Stats:
+    def _clean_profile_data(report: pstats.Stats) -> pstats.Stats:
         """Method to clean the pstats.Stats report and return it in the desired format."""
         report.strip_dirs()  # Note this needs to be called before sorting, as it randomises the order
         report.sort_stats(pstats.SortKey.CUMULATIVE)

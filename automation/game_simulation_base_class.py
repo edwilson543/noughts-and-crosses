@@ -97,4 +97,11 @@ class GameSimulator(NoughtsAndCrossesMinimax):
         random_options: List[np.ndarray] = self._get_available_cell_indices(playing_grid=self.playing_grid)
         return random_options[0]
 
-
+    def get_string_detailing_simulation_parameters(self) -> str:
+        """Method to generate a string representation of the simulation run that we are profiling"""
+        text = f"########## Simulation parameters ##########\n"\
+            f"(m, n, k) = ({self.game_rows_m}, {self.game_cols_n}, {self.win_length_k})\n" \
+            f"Number of finished games simulated: {self.number_of_simulations}\n" \
+            f"Player X was simulated as: {self.player_x_as.name}\n" \
+            f"Player O was simulated as: {self.player_o_as.name}\n\n"
+        return text
