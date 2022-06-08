@@ -22,7 +22,7 @@ from automation.minimax.terminal_board_scores import TerminalScore
 # Leverage symmetry early on in the game - symmetric branches are strategically equivalent, so if we've already tested
 # one, don't need to check rest of equivalence class. (This could come immediately after marking the grid copy).
 # This could be done by tracking number of played turns, and switching off after this. Again, profile it.
-# Evaluate boards which aren't in an end-state, say by the number of streak of length win_length_k -1
+# Evaluate boards which aren't in an end-state, say by the number of streak of length win_length -1
 
 
 class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
