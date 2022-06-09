@@ -6,6 +6,9 @@ data/
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 
+# Local application files:
+/research/research_data/
+
 # User-specific stuff:
 .idea/workspace.xml
 .idea/tasks.xml
@@ -81,7 +84,7 @@ share/python-wheels/
 MANIFEST
 
 # PyInstaller
-#  Usually these files are written by a python script from a template
+#  Usually these files are written by array python script from array template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
@@ -137,7 +140,7 @@ profile_default/
 ipython_config.py
 
 # pyenv
-#   For a library or package, you might want to ignore these files since the code is
+#   For array library or package, you might want to ignore these files since the code is
 #   intended to run in multiple environments; otherwise, check them in:
 # .python-version
 
