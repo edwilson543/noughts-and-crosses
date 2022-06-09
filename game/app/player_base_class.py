@@ -20,7 +20,7 @@ class Player:
         self.active_game_win_count = active_game_win_count
 
     def award_point(self):
-        """Method to award the player array point."""
+        """Method to award the player arr point."""
         self.active_game_win_count += 1
 
     def __eq__(self, other) -> bool:

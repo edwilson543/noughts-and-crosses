@@ -29,8 +29,8 @@ player_o_simulated_as = PlayerOptions.RANDOM
 # Reporting parameters
 print_report_to_terminal = True
 number_of_rows_to_print = 10
-save_report_to_file = True  # Note this isn't that useful - dump_stats
-saved_report_file_name = "baseline_no_cache" + ".log"  # Do not remove extension here
+save_report_to_file = True
+saved_report_file_name = "Custom_LRUCache" + ".log"  # Do not remove extension here
 ####################
 
 

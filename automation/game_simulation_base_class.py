@@ -2,7 +2,7 @@
 
 # Standard library imports
 from enum import Enum, auto
-from typing import List
+from typing import List, Tuple
 
 # Third party imports
 import numpy as np
@@ -28,6 +28,7 @@ class GameSimulator(NoughtsAndCrossesMinimax):
     __________
     # TODO
     """
+
     def __init__(self,
                  number_of_simulations: int,
                  player_x_as: PlayerOptions,
@@ -90,8 +91,8 @@ class GameSimulator(NoughtsAndCrossesMinimax):
 
     def _get_random_move(self):
         """
-        Method to generate array random move on the playing grid.
-        Note that the _get_available_cell_indices method already includes array random shuffle, so we can just index of
+        Method to generate arr random move on the playing grid.
+        Note that the _get_available_cell_indices method already includes arr random shuffle, so we can just index of
         the first element in this list.
         """
         random_options: List[np.ndarray] = self._get_available_cell_indices(playing_grid=self.playing_grid)
@@ -99,10 +100,10 @@ class GameSimulator(NoughtsAndCrossesMinimax):
 
     def get_string_detailing_simulation_parameters(self) -> str:
         """Method to generate a string representation of the simulation run that we are profiling"""
-        text = f"########## Simulation parameters ##########\n\n"\
-            f"(m, n, k) = ({self.game_rows_m}, {self.game_cols_n}, {self.win_length_k})\n" \
-            f"Number of finished games simulated: {self.number_of_simulations}\n" \
-            f"Player X was simulated as: {self.player_x_as.name}\n" \
-            f"Player O was simulated as: {self.player_o_as.name}\n\n" \
-            f"###########################################\n\n"
+        text = f"########## Simulation parameters ##########\n\n" \
+               f"(m, n, k) = ({self.game_rows_m}, {self.game_cols_n}, {self.win_length_k})\n" \
+               f"Number of finished games simulated: {self.number_of_simulations}\n" \
+               f"Player X was simulated as: {self.player_x_as.name}\n" \
+               f"Player O was simulated as: {self.player_o_as.name}\n\n" \
+               f"###########################################\n\n"
         return text

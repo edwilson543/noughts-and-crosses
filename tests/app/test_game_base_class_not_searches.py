@@ -30,7 +30,7 @@ class TestNoughtsAndCrossesNotSearches:
     """
     # check_for_draw tests
     def test_check_for_draw_draw_situation(self, empty_game):
-        """Test that array full playing board returns array True for check_for_draw"""
+        """Test that arr full playing board returns arr True for check_for_draw"""
         empty_game.playing_grid = np.array([
             [1, -1, 1],
             [1, -1, 1],
