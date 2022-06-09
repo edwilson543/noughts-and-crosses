@@ -23,13 +23,21 @@ class LRUCacheWinSearch:
     value.
     Challenge therefore is to cache the search function based only on a chosen subset of its kwargs, and also to make
     these arguments hashable as they are implemented as numpy arrays.
+
+    Decorator parameters:
+    ----------
+    hash_key_kwargs: a set of the keys joined in a tuple that the hash key should be created out of (REQUIRED)
+    maxsize: the maximum number of return values of the decorated function stored in the cache (OPTIONAL, defaults
+    to infinity in effect.)
     """
 
     def __init__(self,
-                 win_search_func=None,
-                 maxsize: int = None):
-        self.win_search_func = win_search_func
+                 hash_key_kwargs: set,
+                 maxsize: int = None,
+                 win_search_func=None):
+        self.hash_key_kwargs = hash_key_kwargs
         self.cache_maxsize = maxsize
+        self.win_search_func = win_search_func
         self.cache = OrderedDict({})
         if win_search_func is not None:
             update_wrapper(self, win_search_func)
@@ -37,7 +45,7 @@ class LRUCacheWinSearch:
     def __call__(self, win_search_func=None, *args, **kwargs):
         """
         Because this is a decorator class, we need to make it callable.
-        Due to the maxsize argument, we need the if/elif below, rather than just to always return the search_return.
+        Due to the decorator arguments, we need the if/elif below, rather than just to always return the search_return.
         The if executes in the case where a maxsize argument has been passed to the decorator and therefore an instance
         of the class has already been created, at the point at which we call the decorator on the search function. This
         returns an instance of the class (which as a decorator in effect replaces the search function), and because it
@@ -76,8 +84,8 @@ class LRUCacheWinSearch:
         if self.cache_maxsize is not None and len(self.cache) > self.cache_maxsize:
             self.cache.popitem(last=False)  # last=False specifies the LRU item in this case
 
-    @staticmethod
-    def _create_hash_key_from_kwargs(*args, **kwargs) -> Tuple[Tuple, bool]:
+    # @staticmethod
+    def _create_hash_key_from_kwargs(self, *args, **kwargs) -> Tuple:
         """
         Method to get the kwargs that we want to use as keys for the cache, make them hashable, and generate one
         key we want to use for the cache.
@@ -87,16 +95,13 @@ class LRUCacheWinSearch:
         on whether get_win_location is set to True or False - otherwise when using minimax in the GUI the cache would
         return no win location, as minimax uses get_win_location=False and GUI uses get_win_location=True.
         """
-        if "playing_grid" in kwargs and "get_win_location" in kwargs:
-            playing_grid: np.ndarray = kwargs["playing_grid"]
-            get_win_location: bool = kwargs["get_win_location"]
-            playing_grid_tuple: tuple = np_array_to_tuple(arr=playing_grid)
-            return playing_grid_tuple, get_win_location  # As below, a tuple comprehension could be used here
+        if self.hash_key_kwargs is not None:
+            hash_key_tuple = tuple(np_array_to_tuple(kwargs[key_kwarg]) if
+                             (key_kwarg in kwargs and key_kwarg in self.hash_key_kwargs) else
+                             kwargs[key_kwarg] for key_kwarg in self.hash_key_kwargs)
+            return hash_key_tuple
         else:
-            raise KeyError("Attempted to create a hashable cache key for the win search cache in method: "
-                           "_create_hashable_cache_key_from_kwargs\n."
-                           "However, the kwargs did not contain either a playing_grid or a get_win_location kwarg.\n"
-                           f"args: {args}, kwargs: {kwargs}.")
+            raise KeyError("No kwargs were specified to construct the hash key for the lru cache from.")
 
 
 ##########

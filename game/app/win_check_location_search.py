@@ -5,10 +5,10 @@ from typing import Tuple, List
 import numpy as np
 
 # Local application imports
-from research.win_check_cache_decorators import LRUCacheWinSearch
+from game.app.win_check_cache_decorators import LRUCacheWinSearch
 
 
-@LRUCacheWinSearch(maxsize=100000)
+@LRUCacheWinSearch(maxsize=100000, hash_key_kwargs={"playing_grid", "get_win_location"})
 def win_check_and_location_search(playing_grid: np.ndarray, last_played_index: np.ndarray, get_win_location: bool,
                                   search_directions, win_length_k: int) -> (bool, List[Tuple[int]]):
     """
