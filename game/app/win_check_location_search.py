@@ -8,9 +8,9 @@ import numpy as np
 from research.win_check_cache_decorators import LRUCacheWinSearch
 
 
-@LRUCacheWinSearch
-def win_check_and_location_search_cus(playing_grid: np.ndarray, last_played_index: np.ndarray, get_win_location: bool,
-                                      search_directions, win_length_k: int) -> (bool, List[Tuple[int]]):
+@LRUCacheWinSearch(maxsize=100000)
+def win_check_and_location_search(playing_grid: np.ndarray, last_played_index: np.ndarray, get_win_location: bool,
+                                  search_directions, win_length_k: int) -> (bool, List[Tuple[int]]):
     """
     Method to determine whether or not there is arr win and the LOCATION of the win.
     get_win_location controls whether we are interested in the win_location or not. Note that having arr separate

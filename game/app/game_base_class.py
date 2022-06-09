@@ -8,8 +8,7 @@ import numpy as np
 # Local application imports
 from game.app.player_base_class import Player
 from game.constants.game_constants import BoardMarking, StartingPlayer
-from research.win_check_cache_decorators import LRUCacheWinSearch
-from game.app.win_check_location_search import win_check_and_location_search_cus
+from game.app.win_check_location_search import win_check_and_location_search
 
 
 @dataclass(frozen=False)
@@ -137,7 +136,7 @@ class NoughtsAndCrosses:
         if playing_grid is None:
             playing_grid = self.playing_grid
 
-        return_val = win_check_and_location_search_cus(
+        return_val = win_check_and_location_search(
             playing_grid=playing_grid,
             last_played_index=last_played_index,
             get_win_location=get_win_location,

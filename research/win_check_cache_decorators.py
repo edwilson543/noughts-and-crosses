@@ -5,7 +5,7 @@ best one that speeds it up.
 
 # Standard library imports
 from typing import Tuple, List
-from functools import lru_cache, wraps
+from functools import lru_cache, update_wrapper, wraps
 from collections import OrderedDict
 
 # Third party imports
@@ -17,28 +17,39 @@ import numpy as np
 ##########
 class LRUCacheWinSearch:
     """
-    Class to implement a tailor made lru cache for the win search method.
-    The idea is to only include the playing_grid and get_win_locations arguments as keys in the hash, as these are the
-    only arguments that affect the return value. In particular, the last_played_index does NOT affect the return value.
+    Decorator class to implement a tailor made lru cache for the win search method.
+    The idea is to only include the playing_grid and get_win_locations arguments in the hash keys of the cache, as these
+    are the only arguments that affect the return value. In particular, the last_played_index does NOT affect the return
+    value.
+    Challenge therefore is to cache the search function based only on a chosen subset of its kwargs, and also to make
+    these arguments hashable as they are implemented as numpy arrays.
     """
 
     def __init__(self,
-                 win_search_func,
+                 win_search_func=None,
                  maxsize: int = None):
         self.win_search_func = win_search_func
         self.cache_maxsize = maxsize
         self.cache = OrderedDict({})
+        if win_search_func is not None:
+            update_wrapper(self, win_search_func)
 
-    def __call__(self, maxsize: int = None, *args, **kwargs):
-        if self.cache_maxsize is None:
+    def __call__(self, win_search_func=None, *args, **kwargs):
+        """
+        Because this is a decorator class, we need to make it callable.
+        Due to the maxsize argument, we need the if/elif below, rather than just to always return the search_return.
+        The if executes in the case where a maxsize argument has been passed to the decorator and therefore an instance
+        of the class has already been created, at the point at which we call the decorator on the search function. This
+        returns an instance of the class (which as a decorator in effect replaces the search function), and because it
+        now has a self.win_search_func, when called the second elif will be True.
+        The second elif essentially reflects the normal calling of the win check and location search, but with the
+        added functionality of caching.
+        """
+        if win_search_func is not None and self.win_search_func is None:
+            self.win_search_func = win_search_func
+            return self
+        elif win_search_func is None and self.win_search_func is not None:
             return self._get_search_return_value(*args, **kwargs)
-        elif isinstance(maxsize, int) and maxsize > 0:
-            def wrapper(*wrapper_args, **wrapper_kwargs):
-                self.cache_maxsize = maxsize  # This is then used in the _cache_return_value method
-                return self._get_search_return_value(*args, **kwargs)
-            return wrapper
-        else:
-            raise ValueError(f"Invalid maxsize for the LRUCacheWinSearch of {maxsize} passed in the constructor.")
 
     def _get_search_return_value(self, *args, **kwargs) -> (bool, List[Tuple[int]]):
         """
@@ -80,7 +91,7 @@ class LRUCacheWinSearch:
             playing_grid: np.ndarray = kwargs["playing_grid"]
             get_win_location: bool = kwargs["get_win_location"]
             playing_grid_tuple: tuple = np_array_to_tuple(arr=playing_grid)
-            return playing_grid_tuple, get_win_location
+            return playing_grid_tuple, get_win_location  # As below, a tuple comprehension could be used here
         else:
             raise KeyError("Attempted to create a hashable cache key for the win search cache in method: "
                            "_create_hashable_cache_key_from_kwargs\n."
@@ -129,10 +140,9 @@ def lru_cache_hashable(maxsize: int):
     return lru_cache_hashable_decorator
 
 
-def np_array_to_tuple(arr: np.ndarray | Tuple) -> Tuple| np.ndarray:
+def np_array_to_tuple(arr: np.ndarray | Tuple) -> Tuple | np.ndarray:
     """Utility function to convert an n-dimensional np.ndarray into a Tuple (for hashability)"""
     try:
         return tuple(np_array_to_tuple(element) for element in arr)
     except TypeError:  # Recursion has exhausted all dimensions
         return arr
-
