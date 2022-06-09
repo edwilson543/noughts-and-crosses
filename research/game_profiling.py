@@ -4,6 +4,7 @@
 import cProfile
 import pstats
 from pathlib import Path
+from datetime import datetime
 
 # Local application imports
 from root_directory import ROOT_PATH
@@ -21,7 +22,7 @@ columns = 3
 win_length = 3
 
 # Simulation parameters
-number_of_complete_games_to_simulate = 1
+number_of_complete_games_to_simulate = 2
 player_x_simulated_as = PlayerOptions.MINIMAX
 player_o_simulated_as = PlayerOptions.RANDOM
 
@@ -29,7 +30,7 @@ player_o_simulated_as = PlayerOptions.RANDOM
 print_report_to_terminal = True
 number_of_rows_to_print = 10
 save_report_to_file = True  # Note this isn't that useful - dump_stats
-saved_report_file_name = "report_profile" + ".log"  # Do not remove extension here
+saved_report_file_name = "baseline_no_cache" + ".log"  # Do not remove extension here
 ####################
 
 
@@ -106,10 +107,13 @@ class GameProfiler:
         reloaded. In this context, the purpose of saving the profile file is to read it, thus the implementation used,
         rather than dump_stats
         """
-        temporary_file_path = self.report_file_path / "temporary_file.log"
-        saved_file_path = self.report_file_path / self.report_file_name
+        datetime_label = datetime.now().strftime("%Y_%m_%d")
+        temporary_file_path = self.report_file_path / datetime_label / "temporary_file.log"
+        saved_file_path = self.report_file_path / datetime_label / self.report_file_name
         # Note that the temporary/saved file is so that we can add some simulation metadata to the start of the file
 
+        if not Path.is_dir(self.report_file_path / datetime_label):
+            Path.mkdir(self.report_file_path / datetime_label, parents=True)
         with open(temporary_file_path, "w") as stream:
             report = pstats.Stats(profile, stream=stream)  # The stream defines where the report gets printed to
             report = self._clean_profile_data(report=report)
