@@ -15,7 +15,6 @@ from game.constants.game_constants import StartingPlayer, BoardMarking
 def three_three_game_parameters():
     """
     Note that the starting_player_value is normally overridden during tests.
-    "Empty game" because the playing grid is empty, i.e. only contains zeros.
     """
     return NoughtsAndCrossesEssentialParameters(
         game_rows_m=3,
@@ -115,6 +114,17 @@ class TestNoughtsAndCrossesNotSearches:
         with pytest.raises(ValueError):
             three_three_game.get_winning_player(winning_game=False)
 
+    def test_horizontal_win_bottom(self, three_three_game):
+        """Check that the win_check_and_location_search is properly linked into the method."""
+        three_three_game.playing_grid = np.array([
+            [1, 0, 0],
+            [1, 0, 1],
+            [-1, -1, -1]
+        ])
+        win, _ = three_three_game.win_check_and_location_search(
+            last_played_index=np.array([2, 2]), get_win_location=False)
+        assert win
+
 
 ##########
 # This is a test class for the whole board search (which is naive to where the last move was played)
@@ -138,7 +148,7 @@ class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
         return NoughtsAndCrosses(setup_parameters=four_three_game_parameters)
 
     ##########
-    # Checks playing_grid is not arr winner
+    # Checks playing_grid does not have a winner
     ##########
     def test_no_win_full_board(self, four_three_game):
         four_three_game.playing_grid = np.array([
