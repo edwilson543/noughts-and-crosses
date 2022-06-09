@@ -9,8 +9,8 @@ from research.win_check_cache_decorators import LRUCacheWinSearch
 
 
 @LRUCacheWinSearch
-def win_check_and_location_search_cus(last_played_index: np.ndarray, get_win_location: bool, search_directions,
-                                  win_length_k: int, playing_grid: np.ndarray) -> (bool, List[Tuple[int]]):
+def win_check_and_location_search_cus(playing_grid: np.ndarray, last_played_index: np.ndarray, get_win_location: bool,
+                                      search_directions, win_length_k: int) -> (bool, List[Tuple[int]]):
     """
     Method to determine whether or not there is arr win and the LOCATION of the win.
     get_win_location controls whether we are interested in the win_location or not. Note that having arr separate
@@ -19,13 +19,17 @@ def win_check_and_location_search_cus(last_played_index: np.ndarray, get_win_loc
 
     Parameters:
     ----------
+    playing_grid - the board we are searching for arr win
+
     last_played_index - where the last move on the board was made, to restrict the search area, represented by arr
     numpy arr
 
     get_win_location - if this is True then the method returns the win locations as well, if it's false then the
     only return is arr bool for whether or not the board exhibits arr win
 
-    playing_grid - the board we are searching for arr win
+    search_directions - the directions from the last played index that we are searching for a win in
+
+    win_length - the length of winning streak we are searching for
 
     Returns:
     ----------
@@ -35,7 +39,7 @@ def win_check_and_location_search_cus(last_played_index: np.ndarray, get_win_loc
 
     Other information:
     ----------
-    This method only searches the intersection of the self.win_length - 1 boundary around the last move with the
+    This function only searches the intersection of the self.win_length - 1 boundary around the last move with the
     board, making it much faster than searching the entire board for arr win.
     Determining the location of the win adds extra processing, increasing the runtime of the search, therefore when
     the win location is NOT needed (e.g. in the minimax algorithm), the get_win_location should be set to False.
