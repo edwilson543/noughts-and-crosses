@@ -7,7 +7,8 @@ data/
 
 
 # Local application files:
-/research/research_data/
+/research/profiling_data/
+/research/game_simulation_data/
 
 # User-specific stuff:
 .idea/workspace.xml

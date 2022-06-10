@@ -22,7 +22,7 @@ columns = 3
 win_length = 3
 
 # Simulation parameters
-number_of_complete_games_to_simulate = 2
+number_of_complete_games_to_simulate = 5
 player_x_simulated_as = PlayerOptions.MINIMAX
 player_o_simulated_as = PlayerOptions.RANDOM
 
@@ -30,7 +30,7 @@ player_o_simulated_as = PlayerOptions.RANDOM
 print_report_to_terminal = True
 number_of_rows_to_print = 10
 save_report_to_file = True
-saved_report_file_name = "Custom_LRUCache" + ".log"  # Do not remove extension here
+saved_report_file_suffix = "_Custom_LRUCache"  # Note 'suffix' because simulation metadata auto included. Extension too.
 ####################
 
 
@@ -45,8 +45,9 @@ class GameProfiler:
                  print_report: bool = True,
                  print_entries: int = 10,
                  save_report: bool = False,
-                 report_file_path: Path = ROOT_PATH / "research" / "research_data",
-                 report_file_name: str = None):
+                 report_file_path: Path = ROOT_PATH / "research" / "profiling_data",
+                 report_file_name: str = None,
+                 report_file_suffix: str = ".log"):
         self.game_parameters = NoughtsAndCrossesEssentialParameters(
             game_rows_m=game_rows_m,
             game_cols_n=game_cols_n,
@@ -65,7 +66,8 @@ class GameProfiler:
         self.print_entries = print_entries
         self.save_report = save_report
         self.report_file_path = report_file_path
-        self.report_file_name = report_file_name
+        self.report_file_suffix = report_file_name
+        self.report_file_extension = report_file_suffix
 
     def run_profiling_and_profile_processing(self) -> None:
         """Method tog generate the profile of the simulated code, manipulate it a bit and print / save it"""
@@ -109,7 +111,7 @@ class GameProfiler:
         """
         datetime_label = datetime.now().strftime("%Y_%m_%d")
         temporary_file_path = self.report_file_path / datetime_label / "temporary_file.log"
-        saved_file_path = self.report_file_path / datetime_label / self.report_file_name
+        saved_file_path = self.report_file_path / datetime_label / self._get_full_report_file_name()
         # Note that the temporary/saved file is so that we can add some simulation metadata to the start of the file
 
         if not Path.is_dir(self.report_file_path / datetime_label):
@@ -131,6 +133,11 @@ class GameProfiler:
         report.sort_stats(pstats.SortKey.CUMULATIVE)
         return report
 
+    def _get_full_report_file_name(self) -> str:
+        """Method to get the full name of the file to be used for the file."""
+        prefix = self.simulation_definition.get_output_file_prefix()
+        return prefix + self.report_file_suffix + self.report_file_extension
+
 
 if __name__ == "__main__":
     game_profiler = GameProfiler(
@@ -143,6 +150,6 @@ if __name__ == "__main__":
         print_report=print_report_to_terminal,
         print_entries=number_of_rows_to_print,
         save_report=save_report_to_file,
-        report_file_name=saved_report_file_name
+        report_file_name=saved_report_file_suffix
     )
     game_profiler.run_profiling_and_profile_processing()

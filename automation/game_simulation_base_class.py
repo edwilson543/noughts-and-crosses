@@ -2,7 +2,7 @@
 
 # Standard library imports
 from enum import Enum, auto
-from typing import List, Tuple
+from typing import List
 
 # Third party imports
 import numpy as np
@@ -26,7 +26,11 @@ class GameSimulator(NoughtsAndCrossesMinimax):
 
     Instance attributes:
     __________
-    # TODO
+    number_of_simulations: The number of games that will be simulated to completion between the two players
+    player_x_as/player_o_as: The automatic players X and O will be simulated as
+    collect_data: True/False depending on whether we want to store the simulated games
+    setup_parameters: The parameters of the game we are simulating
+    draw_count: The count of the number of draws for the game we are simulating
     """
 
     def __init__(self,
@@ -97,6 +101,13 @@ class GameSimulator(NoughtsAndCrossesMinimax):
         """
         random_options: List[np.ndarray] = self._get_available_cell_indices(playing_grid=self.playing_grid)
         return random_options[0]
+
+    # Methods relating to output metadata
+    def get_output_file_prefix(self) -> str:
+        """Method to create a string of the form: 3_3_3_MINIMAX_RANDOM as a prefix for data files"""
+        text = f"{self.game_rows_m}_{self.game_cols_n}_{self.win_length_k}_{self.player_x_as.name}_" \
+               f"{self.player_o_as.name}"
+        return text
 
     def get_string_detailing_simulation_parameters(self) -> str:
         """Method to generate a string representation of the simulation run that we are profiling"""
