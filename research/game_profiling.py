@@ -8,7 +8,8 @@ from datetime import datetime
 
 # Local application imports
 from root_directory import ROOT_PATH
-from automation.game_simulation_base_class import GameSimulator, PlayerOptions
+from automation.game_simulation.game_simulation_base_class import GameSimulator
+from automation.game_simulation.game_simulation_constants import PlayerOptions
 from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
 from game.app.game_base_class import Player
 from game.constants.game_constants import BoardMarking

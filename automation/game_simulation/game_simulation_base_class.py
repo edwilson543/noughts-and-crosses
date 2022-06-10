@@ -1,22 +1,18 @@
 """Module for defining how simulations of noughts and crosses can be run."""
 
 # Standard library imports
-from enum import Enum, auto
 from typing import List
+from pathlib import Path
 
 # Third party imports
 import numpy as np
+import pandas as pd
 
 # Local application imports
 from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
 from game.constants.game_constants import StartingPlayer, BoardMarking
 from automation.minimax.minimax_ai import NoughtsAndCrossesMinimax
-
-
-class PlayerOptions(Enum):
-    """Enumeration of the different player options the simulated players can be."""
-    MINIMAX = auto()
-    RANDOM = auto()
+from automation.game_simulation.game_simulation_constants import SimulationColumnName, PlayerOptions
 
 
 class GameSimulator(NoughtsAndCrossesMinimax):
@@ -34,16 +30,19 @@ class GameSimulator(NoughtsAndCrossesMinimax):
     """
 
     def __init__(self,
+                 setup_parameters: NoughtsAndCrossesEssentialParameters,
                  number_of_simulations: int,
                  player_x_as: PlayerOptions,
                  player_o_as: PlayerOptions,
                  collect_data: bool,
-                 setup_parameters: NoughtsAndCrossesEssentialParameters):
+                 collected_data_path: Path = None,
+                 collected_data_file_suffix: Path = None):
         super().__init__(setup_parameters)
         self.number_of_simulations = number_of_simulations
         self.player_x_as = player_x_as
         self.player_o_as = player_o_as
         self.collect_data = collect_data
+        self.simulation_data = self._construct_empty_simulation_dataframe()
 
     def run_simulations(self):
         """Method to call to run the simulations of the game play"""
@@ -100,6 +99,24 @@ class GameSimulator(NoughtsAndCrossesMinimax):
         """
         random_options: List[np.ndarray] = self._get_available_cell_indices(playing_grid=self.playing_grid)
         return random_options[0]
+
+    # Methods relating to data structure for the collected simulation data
+    def _construct_empty_simulation_dataframe(self) -> pd.DataFrame:
+        """Method to initialise an empty pandas DataFrame in the relevant structure for collecting game data."""
+        if self.collect_data:
+            possible_moves = self.game_rows_m * self.game_cols_n
+            columns = [SimulationColumnName.STARTING_PLAYER.name, SimulationColumnName.WINNING_PLAYER.name] + \
+                [f"{SimulationColumnName.MOVE.name}_{move_number+1}" for move_number in range(0, possible_moves)]
+            index = pd.RangeIndex(0, self.number_of_simulations)
+            simulation_dataframe = pd.DataFrame(columns=columns, index=index, dtype=str)
+            return simulation_dataframe
+
+    def _encode_board_as_string(self) -> str:
+        """Method that converts the numpy array board into a human readable string"""
+        element_wise_int_to_str_func = np.vectorize(lambda mark: BoardMarking(mark).name if mark != 0 else "-")
+        np_array_of_strings = element_wise_int_to_str_func(self.playing_grid)
+        array_string = np.array2string(np_array_of_strings)
+        return array_string
 
     # Methods relating to output metadata
     def get_output_file_prefix(self) -> str:

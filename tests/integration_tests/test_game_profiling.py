@@ -4,7 +4,7 @@
 import pytest
 
 # Local application imports
-from automation.game_simulation_base_class import PlayerOptions
+from automation.game_simulation.game_simulation_constants import PlayerOptions
 from research.game_profiling import GameProfiler
 
 
