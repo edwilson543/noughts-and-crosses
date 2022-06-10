@@ -33,14 +33,11 @@ class LRUCacheWinSearch:
 
     def __init__(self,
                  hash_key_kwargs: set,
-                 maxsize: int = None,
-                 win_search_func=None):
+                 maxsize: int = None):
         self.hash_key_kwargs = hash_key_kwargs
         self.cache_maxsize = maxsize
-        self.win_search_func = win_search_func
+        self.win_search_func = None
         self.cache = OrderedDict({})
-        if win_search_func is not None:
-            update_wrapper(self, win_search_func)
 
     def __call__(self, win_search_func=None, *args, **kwargs):
         """
@@ -52,9 +49,14 @@ class LRUCacheWinSearch:
         now has a self.win_search_func, when called the second elif will be True.
         The second elif essentially reflects the normal calling of the win check and location search, but with the
         added functionality of caching.
+
+        Parameters:
+        win_search_func: The function we are decorating (present as an arg for the if but not the elif)
+        *args/**kwargs: The args/kwargs of the search function (present for the elif but not the if)
         """
         if win_search_func is not None and self.win_search_func is None:
             self.win_search_func = win_search_func
+            update_wrapper(self, win_search_func)
             return self
         elif win_search_func is None and self.win_search_func is not None:
             return self._get_search_return_value(*args, **kwargs)
@@ -79,6 +81,8 @@ class LRUCacheWinSearch:
         Method to cache the passed return_value with the passed hash_key, and if the maximum size of the cache
         is exceeded, remove the least recently used item. Note that return_value becomes the most recently used item.
         """
+        #  TODO a clever thing here would be to add the symmetric equivalence class of the board - may or may not
+        # speed it up though
         self.cache[hash_key] = return_value
         self.cache.move_to_end(key=hash_key)  # Now the most recently used
         if self.cache_maxsize is not None and len(self.cache) > self.cache_maxsize:
