@@ -70,8 +70,8 @@ class GameProfiler:
         self.report_file_extension = report_file_suffix
 
     def run_profiling_and_profile_processing(self) -> None:
-        """Method tog generate the profile of the simulated code, manipulate it a bit and print / save it"""
-        game_profile = game_profiler.profile_defined_simulation()
+        """Method to generate the profile of the simulated code, manipulate it a bit and print / save it"""
+        game_profile = self.profile_defined_simulation()
         self.print_and_or_save_profile_report(profile=game_profile)
 
     def profile_defined_simulation(self) -> cProfile.Profile:

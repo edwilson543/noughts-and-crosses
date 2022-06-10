@@ -38,9 +38,8 @@ class GameSimulator(NoughtsAndCrossesMinimax):
                  player_x_as: PlayerOptions,
                  player_o_as: PlayerOptions,
                  collect_data: bool,
-                 setup_parameters: NoughtsAndCrossesEssentialParameters,
-                 draw_count: int = 0):
-        super().__init__(setup_parameters, draw_count)
+                 setup_parameters: NoughtsAndCrossesEssentialParameters):
+        super().__init__(setup_parameters)
         self.number_of_simulations = number_of_simulations
         self.player_x_as = player_x_as
         self.player_o_as = player_o_as
