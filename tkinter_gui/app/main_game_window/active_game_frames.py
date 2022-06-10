@@ -1,22 +1,27 @@
 """Module containing the playing grid and active game info frame (which contains the master confirmation buttons)"""
 
+# Standard library imports
+from functools import partial
+import logging
+from math import floor
+from time import sleep
+import tkinter as tk
+from typing import List, Tuple
+
+# Third party imports
+import numpy as np
+
+# Local application imports
 from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
 from game.app.player_base_class import Player
 from game.constants.game_constants import BoardMarking
 
+# Local application GUI imports
 from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindowWidgetManager
 from tkinter_gui.app.game_continuation_window.game_continuation_window import GameContinuationPopUp
 from tkinter_gui.constants.dimensions import MainWindowDimensions
 from tkinter_gui.constants.style_and_colours import Colour, Font, Relief
 from tkinter_gui.constants.game_flow_timing import PauseDuration
-
-import tkinter as tk
-from math import floor
-from functools import partial
-from typing import List, Tuple
-import numpy as np
-from time import sleep
-import logging
 
 
 class ActiveGameFrames(NoughtsAndCrosses):

@@ -4,9 +4,9 @@ best one that speeds it up.
 """
 
 # Standard library imports
-from typing import Tuple, List
-from functools import lru_cache, update_wrapper, wraps
 from collections import OrderedDict
+from functools import lru_cache, update_wrapper, wraps
+from typing import Tuple, List
 
 # Third party imports
 import numpy as np

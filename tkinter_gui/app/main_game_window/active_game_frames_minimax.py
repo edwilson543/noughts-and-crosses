@@ -1,13 +1,18 @@
 """Module which subclasses the active game frames to allow minimax to play as one of the players"""
 
+# Standard library imports
+from time import sleep
+import tkinter as tk
+
+# Local application imports
 from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
 from game.constants.game_constants import BoardMarking
 from automation.minimax.minimax_ai import NoughtsAndCrossesMinimax
+
+# Local applications GUI imports
 from tkinter_gui.app.main_game_window.active_game_frames import ActiveGameFrames
 from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindowWidgetManager
 from tkinter_gui.constants.game_flow_timing import PauseDuration
-from time import sleep
-import tkinter as tk
 
 
 class ActiveGameFramesMinimax(ActiveGameFrames, NoughtsAndCrossesMinimax):
