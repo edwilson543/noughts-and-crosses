@@ -7,7 +7,8 @@ data/
 
 
 # Local application files:
-/research/research_data/
+/research/profiling_data/
+/research/game_simulation_data/
 
 # User-specific stuff:
 .idea/workspace.xml
@@ -84,7 +85,7 @@ share/python-wheels/
 MANIFEST
 
 # PyInstaller
-#  Usually these files are written by array python script from array template
+#  Usually these files are written by arr python script from arr template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
@@ -140,7 +141,7 @@ profile_default/
 ipython_config.py
 
 # pyenv
-#   For array library or package, you might want to ignore these files since the code is
+#   For arr library or package, you might want to ignore these files since the code is
 #   intended to run in multiple environments; otherwise, check them in:
 # .python-version
 
