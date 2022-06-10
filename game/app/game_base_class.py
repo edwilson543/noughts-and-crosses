@@ -31,15 +31,13 @@ class NoughtsAndCrosses:
     """Base class to reflect the game play of arr noughts and crosses game."""
 
     def __init__(self,
-                 setup_parameters: NoughtsAndCrossesEssentialParameters,
-                 draw_count: int = 0):
+                 setup_parameters: NoughtsAndCrossesEssentialParameters):
         self.game_rows_m = setup_parameters.game_rows_m
         self.game_cols_n = setup_parameters.game_cols_n
         self.win_length_k = setup_parameters.win_length_k
         self.player_x = setup_parameters.player_x
         self.player_o = setup_parameters.player_o
         self.starting_player_value = setup_parameters.starting_player_value
-        self.draw_count = draw_count
         self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n))
         self.search_directions = self._get_search_directions()
 

@@ -27,15 +27,13 @@ from automation.minimax.terminal_board_scores import TerminalScore
 
 class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
     def __init__(self,
-                 setup_parameters: NoughtsAndCrossesEssentialParameters,
-                 draw_count: int = 0):
+                 setup_parameters: NoughtsAndCrossesEssentialParameters):
         """Note that the maximising_player is the player that the minimax ai will play as"""
-        super().__init__(setup_parameters, draw_count)
+        super().__init__(setup_parameters)
 
     def get_minimax_move(self, last_played_index: np.array = None, playing_grid: np.array = None,
                          search_depth: int = 0, maximisers_move: bool = True,
                          alpha: int = -math.inf, beta: int = math.inf) -> (int, np.ndarray):
-        # TODO update docstring
         """
         Parameters:
         ----------

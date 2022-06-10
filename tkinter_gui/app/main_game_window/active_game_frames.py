@@ -27,7 +27,8 @@ class ActiveGameFrames(NoughtsAndCrosses):
                  widget_manager=MainWindowWidgetManager(),
                  game_continuation_top_level: GameContinuationPopUp = None,
                  winner_text: str = None):
-        super().__init__(setup_parameters, draw_count)
+        super().__init__(setup_parameters)
+        self.draw_count = draw_count
         self.active_unconfirmed_cell = active_unconfirmed_cell
         self.widget_manager = widget_manager
         self.min_cell_height = floor(MainWindowDimensions.game_frame.height / setup_parameters.game_rows_m)
