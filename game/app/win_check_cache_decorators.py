@@ -11,10 +11,15 @@ from typing import Tuple, List
 # Third party imports
 import numpy as np
 
+# Local application imports
+from utils import np_array_to_tuple
+
 
 ##########
 # Option 1 - a custom class decorator implementing a lru_cache
 ##########
+
+
 class LRUCacheWinSearch:
     """
     Decorator class to implement a tailor made lru cache for the win search method.
@@ -147,11 +152,3 @@ def lru_cache_hashable(maxsize: int):
         return lru_cache_hashable_wrapper
 
     return lru_cache_hashable_decorator
-
-
-def np_array_to_tuple(arr: np.ndarray | Tuple) -> Tuple | np.ndarray:
-    """Utility function to convert an n-dimensional np.ndarray into a Tuple (for hashability)"""
-    try:
-        return tuple(np_array_to_tuple(element) for element in arr)
-    except TypeError:  # Recursion has exhausted all dimensions
-        return arr

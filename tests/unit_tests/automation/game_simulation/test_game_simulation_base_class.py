@@ -38,12 +38,16 @@ class TestGameSimulationBaseClass:
     def test_construct_empty_simulation_dataframe(self, three_three_game_simulator):
         """Tests that the dataframe construction method produces the correct columns for a 3 x 3 game."""
         move = SimulationColumnName.MOVE.name
+        board_status = SimulationColumnName.BOARD_STATUS.name
         expected_columns = [SimulationColumnName.STARTING_PLAYER.name, SimulationColumnName.WINNING_PLAYER.name] + \
-            [f"{move}_1", f"{move}_2", f"{move}_3", f"{move}_4", f"{move}_5", f"{move}_6", f"{move}_7", f"{move}_8",
-             f"{move}_9"]
+            [f"{board_status}_1", f"{board_status}_2", f"{board_status}_3", f"{board_status}_4", f"{board_status}_5",
+             f"{board_status}_6", f"{board_status}_7", f"{board_status}_8", f"{board_status}_9"] + \
+        [f"{move}_1", f"{move}_2", f"{move}_3", f"{move}_4", f"{move}_5", f"{move}_6", f"{move}_7", f"{move}_8",
+         f"{move}_9"]
         actual_columns = three_three_game_simulator._construct_empty_simulation_dataframe().columns
         assert all(expected_columns == actual_columns)
 
+    # TODO - pending decision on what the best way to store the board string is
     # def test_encode_string_to_board(self, three_three_game_simulator):
     #     """Test that the correct string representation of the board is produced"""
     #     three_three_game_simulator.playing_grid = np.array([

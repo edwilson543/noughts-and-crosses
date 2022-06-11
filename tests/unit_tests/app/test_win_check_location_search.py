@@ -36,6 +36,7 @@ def search_directions():
     """Returns the (2D) search directions parameter to be used in the win check function"""
     return [np.array([1, 0]), np.array([0, 1]), np.array([1, -1]), np.array([1, 1])]
 
+
 @pytest.fixture(scope="module")
 def win_length_k():
     """Returns the wind length to be used in the win check function"""
@@ -310,10 +311,10 @@ class TestNoughtsAndCrossesWinCheckOnlyFiveFour:
 
 class TestNoughtsAndCrossesWinCheckOnlyFourThree:
     """
-    Test class purely for testing the win check algorithm, for arr four three game
+    Test class purely for testing the win check algorithm, for a four three game
     """
     ##########
-    # Checks playing_grid is not arr winner
+    # Checks playing_grid is not a winner
     ##########
     def test_no_win_full_board(self, search_directions, win_length_k):
         playing_grid = np.array([

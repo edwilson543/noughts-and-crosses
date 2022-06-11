@@ -10,7 +10,7 @@ import pytest
 
 
 class TestMinimaxThreeThreeThree:
-    """Class to test the effectiveness of the minimax function on arr m,n,k = 3,3,3 game."""
+    """Class to test the effectiveness of the minimax function on a m,n,k = 3,3,3 game."""
     @pytest.fixture(scope="class")
     def human_player(self):
         return Player(name="Human", marking=BoardMarking.X)
@@ -22,8 +22,8 @@ class TestMinimaxThreeThreeThree:
     @pytest.fixture(scope="class")
     def new_game_parameters(self, human_player, minimax_player):
         """
-        A starting player is included so that we aren't missing arr non-default arg, however is specified throughout
-        testing. Note that if arr board configuration is manually specified which implies arr starting player different
+        A starting player is included so that we aren't missing a non-default arg, however is specified throughout
+        testing. Note that if a board configuration is manually specified which implies a starting player different
         to that manually specified, then minimax will fail as it'll try to play for the human.
         """
         return NoughtsAndCrossesEssentialParameters(
@@ -49,7 +49,7 @@ class TestMinimaxThreeThreeThree:
             [BoardMarking.O.value, BoardMarking.O.value, 0]
         ])
         score, minimax_move = new_game_with_minimax_player.get_minimax_move()
-        assert score == TerminalScore.MAX_WIN.value - 1  # -1 to reflect arr search depth of 1 to find the win
+        assert score == TerminalScore.MAX_WIN.value - 1  # -1 to reflect a search depth of 1 to find the win
         assert np.all(minimax_move == np.array([2, 2]))
 
     def test_minimax_gets_winning_move_north_east_diagonal(self, new_game_with_minimax_player):
@@ -61,7 +61,7 @@ class TestMinimaxThreeThreeThree:
             [BoardMarking.O.value, BoardMarking.X.value, 0]
         ])
         score, minimax_move = new_game_with_minimax_player.get_minimax_move()
-        assert score == TerminalScore.MAX_WIN.value - 1  # -1 to reflect arr search depth of 1 to find the win
+        assert score == TerminalScore.MAX_WIN.value - 1  # -1 to reflect a search depth of 1 to find the win
         assert np.all(minimax_move == np.array([1, 1]))
 
     def test_minimax_makes_blocking_move_middle_left_vertical(self, new_game_with_minimax_player):

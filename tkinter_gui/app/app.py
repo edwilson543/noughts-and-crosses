@@ -19,9 +19,9 @@ class NoughtsAndCrossesApp:
         2) Confirming their details closes the setup window, having set these parameters globally in the
         self.setup_window object
         3) A game is launched using these parameters.
-        4) Once one of the players has won, the game win counts by player are updated and arr pop up is launched
+        4) Once one of the players has won, the game win counts by player are updated and a pop up is launched
         5) The pop up determines whether the game continues or not
-        6) If it continues, arr new game is launched
+        6) If it continues, a new game is launched
         """
         self.setup_game()
         self.keep_launching_new_games()

@@ -12,20 +12,20 @@ from game.app.win_check_cache_decorators import LRUCacheWinSearch
 def win_check_and_location_search(playing_grid: np.ndarray, last_played_index: np.ndarray, get_win_location: bool,
                                   search_directions, win_length_k: int) -> (bool, List[Tuple[int]]):
     """
-    Method to determine whether or not there is arr win and the LOCATION of the win.
-    get_win_location controls whether we are interested in the win_location or not. Note that having arr separate
-    method to find the win location would introduce huge redundancy as all variables used to check for arr
+    Method to determine whether or not there is a win and the LOCATION of the win.
+    get_win_location controls whether we are interested in the win_location or not. Note that having a separate
+    method to find the win location would introduce huge redundancy as all variables used to check for a
     win are needed to find the win location, hence the slightly longer method.
 
     Parameters:
     ----------
-    playing_grid - the board we are searching for arr win
+    playing_grid - the board we are searching for a win
 
-    last_played_index - where the last move on the board was made, to restrict the search area, represented by arr
-    numpy arr
+    last_played_index - where the last move on the board was made, to restrict the search area, represented by a
+    numpy a
 
     get_win_location - if this is True then the method returns the win locations as well, if it's false then the
-    only return is arr bool for whether or not the board exhibits arr win
+    only return is a bool for whether or not the board exhibits a win
 
     search_directions - the directions from the last played index that we are searching for a win in
 
@@ -33,14 +33,14 @@ def win_check_and_location_search(playing_grid: np.ndarray, last_played_index: n
 
     Returns:
     ----------
-    bool - T/F depending on whether or not there is arr win
+    bool - T/F depending on whether or not there is a win
     List[Tuple[int]] - A list of the indexes corresponding to the winning streak (only if get_win_location is
     set to True)
 
     Other information:
     ----------
     This function only searches the intersection of the self.win_length - 1 boundary around the last move with the
-    board, making it much faster than searching the entire board for arr win.
+    board, making it much faster than searching the entire board for a win.
     Determining the location of the win adds extra processing, increasing the runtime of the search, therefore when
     the win location is NOT needed (e.g. in the minimax algorithm), the get_win_location should be set to False.
     """
@@ -63,7 +63,7 @@ def win_check_and_location_search(playing_grid: np.ndarray, last_played_index: n
         elif winning_streak_found and get_win_location:
             win_streak_start_index = np.where(streak_lengths == win_length_k)
             win_streak_start_int: int = np.array(win_streak_start_index).item(0)
-            # .item() avoids issue with dimension - it extracts the scalar value, regardless of arr dimension
+            # .item() avoids issue with dimension - it extracts the scalar value, regardless of a dimension
             win_streak_location_indexes: list = valid_indexes_to_search[
                                                 win_streak_start_int:win_streak_start_int + win_length_k]
             return winning_streak_found, win_streak_location_indexes

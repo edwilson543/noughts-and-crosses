@@ -14,4 +14,5 @@ class SimulationColumnName(Enum):
     """Enumeration of the different column names to be used in the dataframe collection game simulation data"""
     STARTING_PLAYER = auto()
     WINNING_PLAYER = auto()
+    BOARD_STATUS = auto()
     MOVE = auto()
