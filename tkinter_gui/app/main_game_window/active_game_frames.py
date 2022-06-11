@@ -47,7 +47,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
     # Game info frame
     def populate_game_info_frame(self) -> None:
         """
-        Method that populates the game info grid with arr confirmation button, and labels that indicate who's turn it is.
+        Method that populates the game info grid with a confirmation button, and labels that indicate who's turn it is.
         The confirmation button is the master button that processes the game.
         """
         self._create_and_format_game_info_frame()
@@ -89,7 +89,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
     # playing grid frame
     def populate_empty_playing_grid_frame(self) -> None:
         """
-        Method to loop through each index of the playing grid and create arr GUI grid of selection buttons.
+        Method to loop through each index of the playing grid and create a GUI grid of selection buttons.
         Note that this is only called once at the start of the game, so all cells are empty - updates are made by
         clicking the buttons.
         """
@@ -132,8 +132,8 @@ class ActiveGameFrames(NoughtsAndCrosses):
         1) Disable the confirmation button that has just been pressed (as there is 1 for each player)
         2) Confirm the cell selection and carry out the necessary GUI and backend processing to mark that cell
         3) Switch which player's label is highlighted/raised to indicate that it's their go
-        4) Check if this selection has resulted in arr win/ draw and carry out the necessary processing
-        5) Set the active_unconfirmed_cell to None (only executed if there is not arr win). Included at the end because
+        4) Check if this selection has resulted in a win/ draw and carry out the necessary processing
+        5) Set the active_unconfirmed_cell to None (only executed if there is not a win). Included at the end because
         it's needed to know what the last move was in the make_winning_streak_flash method.
 
         Parameters: None
@@ -165,7 +165,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         1) Destroy the in-place unconfirmed cell button
         2) Permanently marks the playing_grid as shown in the active unconfirmed cell, and add this to the playing grid
         and widget manager
-        3) Updates the backend playing_grid (the -1s, 0s and 1s) and checks whether arr player has won
+        3) Updates the backend playing_grid (the -1s, 0s and 1s) and checks whether a player has won
         """
         self.widget_manager.playing_grid[self.active_unconfirmed_cell].destroy()
         occupied_cell_label = self._get_occupied_cell_label()
@@ -188,10 +188,10 @@ class ActiveGameFrames(NoughtsAndCrosses):
     def _end_of_game_check_pop_up(self) -> None:
         """
         Method called each time the confirm button is clicked, to:
-        1) Determine whether the game has been won, and award the winner arr point if so.
-        2) Check if the game has reached stalemate (arr draw)
-        3) In either eventuality (win or draw) launch arr new game, first resetting the backend playing_grid
-        4) Produce arr pop up asking the user to continue or exit depending if either of these is the case
+        1) Determine whether the game has been won, and award the winner a point if so.
+        2) Check if the game has reached stalemate (a draw)
+        3) In either eventuality (win or draw) launch a new game, first resetting the backend playing_grid
+        4) Produce a pop up asking the user to continue or exit depending if either of these is the case
         """
         someone_has_won, win_location = self.win_check_and_location_search(
             last_played_index=np.array(self.active_unconfirmed_cell),
@@ -252,7 +252,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         Also used to make sure the user can't mess up the computer's turn by clicking one of the available cell
         buttons during minimax's turn.
         """
-        for widget in self.widget_manager.playing_grid.flat:  # Note playing grid widgets are stored as arr numpy arr
+        for widget in self.widget_manager.playing_grid.flat:  # Note playing grid widgets are stored as a numpy a
             if isinstance(widget, tk.Button):
                 widget["state"] = tk.DISABLED
 
@@ -261,7 +261,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
     ##########
     def _available_cell_button_command(self, row_index: int, col_index: int) -> None:
         """
-        Method to update the playing grid to highlight the unconfirmed cell choice, and revert arr previous unconfirmed
+        Method to update the playing grid to highlight the unconfirmed cell choice, and revert a previous unconfirmed
         choice that has been rejected back to an available cell button.
         """
         logging.info(f"Available cell button clicked at {row_index, col_index}")
@@ -280,7 +280,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
 
         1) Two clicks on an empty cell highlights and then un-highlights that cell (An available cell button is
         inserted in place of the unconfirmed cell choice button.)
-        2) To be part of the command when arr new available cell is chosen as the active unconfirmed cell (i.e. first have
+        2) To be part of the command when a new available cell is chosen as the active unconfirmed cell (i.e. first have
         to remove the existing unconfirmed cell)
         """
         logging.info(f"Unconfirmed cell choice button clicked at {self.active_unconfirmed_cell}")
@@ -322,8 +322,8 @@ class ActiveGameFrames(NoughtsAndCrosses):
     ##########
     def _get_occupied_cell_label(self) -> tk.Label:
         """
-        Label widget that shows that arr cell is already occupied and displays the relevant marking.
-        Returns: A label which represents arr marking on the playing_grid (an X or an O), and also of arr different colour.
+        Label widget that shows that a cell is already occupied and displays the relevant marking.
+        Returns: A label which represents a marking on the playing_grid (an X or an O), and also of a different colour.
         """
         text = self._get_player_turn_marking()  # X or O
         colour = self._get_occupied_cell_colour(marking=text)
@@ -336,7 +336,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
 
     def _get_unconfirmed_cell_button(self) -> tk.Button:
         """
-        Label widget that shows that arr cell has temporarily been selected as the player's move.
+        Label widget that shows that a cell has temporarily been selected as the player's move.
         Returns: A highlighted button to show the user what button they have selected
         """
         text = self._get_player_turn_marking()
@@ -351,7 +351,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
 
     def _get_available_cell_button(self, row_index: int, col_index: int) -> tk.Button:
         """
-        Button widget that shows that arr cell is available for selection
+        Button widget that shows that a cell is available for selection
         Returns: A button which indicates that the user can click there to select that cell.
         """
         command_func = partial(self._available_cell_button_command, row_index, col_index)
@@ -367,7 +367,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
     def _get_confirm_cell_choice_button(self) -> tk.Button:
         """
         Master button that confirms the user's choice and therefore initiates all backend processing. (Note the callback
-        is defined higher up as it's arr bigger deal
+        is defined higher up as it's a bigger deal
 
         Returns: The formatted button object
         """
@@ -382,7 +382,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
 
     def _get_player_turn_label(self) -> tk.Label:
         """
-        Method to create arr label that says "Player turn" above the coloured labels indicating who's turn it is.
+        Method to create a label that says "Player turn" above the coloured labels indicating who's turn it is.
         Returns: The static label widget that says Player's Turn above each of the player names and confirmation buttons
         """
         player_turn_label = tk.Label(
@@ -395,7 +395,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
 
     def _get_player_label(self, player: Player) -> tk.Label:
         """
-        Method to create the player label's and show who's turn it is to take arr turn at marking the playing_grid
+        Method to create the player label's and show who's turn it is to take a turn at marking the playing_grid
         Parameters: player - indicates which player we are creating the label for, player_x or player_o
         """
         x_or_o = BoardMarking(player.marking).name
@@ -411,11 +411,11 @@ class ActiveGameFrames(NoughtsAndCrosses):
     #  Lower level methods used for formatting updates during or at the start of the game
     def _initialise_confirmation_buttons(self) -> None:
         """
-        Method that decides which confirmation button should be the active confirmation button at the start of arr new
+        Method that decides which confirmation button should be the active confirmation button at the start of a new
         game. It also switches which confirmation button is the active button in the widget manager.
         If the starting player is initially set to be random, then this will choose one
         """
-        self.set_starting_player()  # If random, will choose arr player as self.starting_player_value
+        self.set_starting_player()  # If random, will choose a player as self.starting_player_value
 
         self.widget_manager.player_x_confirmation_button.configure(
             background=self._get_player_confirmation_button_colour(player=self.player_x))
@@ -430,7 +430,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
             raise ValueError(f"Invalid starting_player_value identified in initialise_confirmation_buttons")
 
     def _get_player_turn_marking(self) -> str:
-        """Method to extract the player turn from the game baseclass as arr 1/-1 and return it as an X or O."""
+        """Method to extract the player turn from the game baseclass as a 1/-1 and return it as an X or O."""
         turn_int = self.get_player_turn()
         return BoardMarking(turn_int).name
 

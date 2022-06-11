@@ -122,11 +122,11 @@ class PlayerInfoFrame:
 
     def _character_limit(self, var, index, mode) -> None:
         """
-        Trace callback that gets added to the entry fields' variables, so that players cannot enter arr name with length
+        Trace callback that gets added to the entry fields' variables, so that players cannot enter a name with length
         greater than the max player length.
         Parameters:
         var - name of the tkinter variable the trace will be added to
-        index - index of the tkinter variable in case it's an arr
+        index - index of the tkinter variable in case it's an a
         mode - mode to trace the variable in i.e. read, write, etc.
         These are really just placeholders for the automatic positional args that get added by trace_add - could just
         use an *args but this makes it clearer what is going on.
@@ -139,11 +139,11 @@ class PlayerInfoFrame:
     def _min_characters(self, var, index, mode) -> None:
         """
         Trace callback that gets added to the entry fields' variables, to disable the confirmation button
-        until they enter arr name of sufficient end.
+        until they enter a name of sufficient end.
 
         Parameters:
         var - name of the tkinter variable the trace will be added to
-        index - index of the tkinter variable in case it's an arr
+        index - index of the tkinter variable in case it's an a
         mode - mode to trace the variable in i.e. read, write, etc.
         These are really just placeholders for the automatic positional args that get added by trace_add - could just
         use an *args but this makes it clearer what is going on.
@@ -160,8 +160,8 @@ class PlayerInfoFrame:
         """
         Parameters: player_x - True if this is player_x's checkbutton, False if it's player_o's
 
-        Returns: arr checkbutton that the user can select in order to indicate that the relevant player should be
-        automated by the computer. Both players are given arr check-button, which are identical.
+        Returns: a checkbutton that the user can select in order to indicate that the relevant player should be
+        automated by the computer. Both players are given a check-button, which are identical.
         """
         if player_x:
             self.player_x_is_minimax = tk.BooleanVar()
@@ -184,7 +184,7 @@ class PlayerInfoFrame:
 
     def _player_computer_checkbutton_command(self, player_x: bool) -> None:
         """
-        Callback that gets added to the checkbutton for whether arr certain player is played by the computer
+        Callback that gets added to the checkbutton for whether a certain player is played by the computer
         The effect is to label that player as the computer (which the user can still change if they want)
         """
         if player_x:
@@ -216,7 +216,7 @@ class PlayerInfoFrame:
         Method to create the radio buttons that are used for the user to select which player should start the first
         game.
         These are not returned but just uploaded straight to the widget manager, because there are 3 of them which it
-        makes sense to just create in arr batch as below.
+        makes sense to just create in a batch as below.
         """
         self.starting_player_value = tk.IntVar(value=StartingPlayer.RANDOM.value)
 

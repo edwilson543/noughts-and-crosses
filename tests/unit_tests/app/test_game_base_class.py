@@ -35,7 +35,7 @@ class TestNoughtsAndCrossesNotSearches:
 
     # check_for_draw tests
     def test_check_for_draw_draw_situation(self, three_three_game):
-        """Test that arr full playing board returns arr True for check_for_draw"""
+        """Test that a full playing board returns a True for check_for_draw"""
         three_three_game.playing_grid = np.array([
             [1, -1, 1],
             [1, -1, 1],
@@ -267,7 +267,7 @@ class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
         four_three_game.game_rows_m = 5
         four_three_game.game_cols_n = 6
         four_three_game.playing_grid = np.arange(30).reshape((5, 6))
-        # Using arr set to avoid list order failing the test (which is irrelevant):
+        # Using a set to avoid list order failing the test (which is irrelevant):
         expected_diagonal_arrays = [
             np.array([3, 10, 17]),
             np.array([2, 9, 16, 23]),
@@ -289,7 +289,7 @@ class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
         four_three_game.game_rows_m = 5
         four_three_game.game_cols_n = 6
         four_three_game.playing_grid = np.arange(30).reshape((5, 6))
-        # Using arr set to avoid list order failing the test (which is irrelevant):
+        # Using a set to avoid list order failing the test (which is irrelevant):
         expected_diagonal_arrays = [
             np.array([12, 7, 2]),
             np.array([18, 13, 8, 3]),

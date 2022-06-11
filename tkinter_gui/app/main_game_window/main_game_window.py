@@ -27,9 +27,9 @@ class PlayingWindow:
     def launch_playing_window(self):
         """Method for launching the main noughts and crosses game play main_window and controlling the game flow"""
         # Define and configure the main_window
-        logging.info("Launching arr new game window.")
+        logging.info("Launching a new game window.")
         game_window = tk.Tk()
-        game_window.protocol("WM_DELETE_WINDOW", sys.exit)  # Avoids re-launching arr new playing window
+        game_window.protocol("WM_DELETE_WINDOW", sys.exit)  # Avoids re-launching a new playing window
         game_window.title("Noughts and Crosses")
         game_window.configure(background=Colour.main_window.value)
         game_window.rowconfigure(index=0, weight=1)

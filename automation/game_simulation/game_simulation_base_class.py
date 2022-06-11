@@ -15,6 +15,7 @@ from automation.minimax.minimax_ai import NoughtsAndCrossesMinimax
 from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
 from game.constants.game_constants import StartingPlayer, BoardMarking
 from root_directory import ROOT_PATH
+from utils import np_array_to_tuple
 
 
 class GameSimulator(NoughtsAndCrossesMinimax):
@@ -57,7 +58,8 @@ class GameSimulator(NoughtsAndCrossesMinimax):
             self.set_starting_player(starting_player_value=StartingPlayer.RANDOM.value)
             if self.collect_data:
                 self.simulation_dataframe.loc[
-                    simulation_number, SimulationColumnName.STARTING_PLAYER.name] = self.starting_player_value
+                    simulation_number, SimulationColumnName.STARTING_PLAYER.name] = StartingPlayer(
+                    self.starting_player_value).name
 
             moves_made = 0
             while True:  # player o and player x successively makes moves until the game is won or drawn
@@ -70,7 +72,7 @@ class GameSimulator(NoughtsAndCrossesMinimax):
 
                 if self.collect_data:
                     self._add_board_status_to_simulation_dataframe(
-                        moves_made=moves_made, simulation_number=simulation_number)
+                        last_move=marking_index, moves_made=moves_made, simulation_number=simulation_number)
 
                 # If there has been a draw or a win, store this information and simulated the next game
                 win, _ = self.win_check_and_location_search(last_played_index=marking_index, get_win_location=False)
@@ -85,7 +87,8 @@ class GameSimulator(NoughtsAndCrossesMinimax):
                             simulation_number, SimulationColumnName.WINNING_PLAYER.name] = "DRAW"
                     self.reset_game_board()
                     break
-        self._save_simulation_dataframe_to_file()
+        if self.collect_data:
+            self._save_simulation_dataframe_to_file()
 
     # Methods used to generate the player moves when running the simulations
     def _get_player_x_move(self) -> np.ndarray:
@@ -112,8 +115,8 @@ class GameSimulator(NoughtsAndCrossesMinimax):
 
     def _get_random_move(self):
         """
-        Method to generate arr random move on the playing grid.
-        Note that the _get_available_cell_indices method already includes arr random shuffle, so we can just index of
+        Method to generate a random move on the playing grid.
+        Note that the _get_available_cell_indices method already includes a random shuffle, so we can just index of
         the first element in this list.
         """
         random_options: List[np.ndarray] = self._get_available_cell_indices(playing_grid=self.playing_grid)
@@ -125,16 +128,23 @@ class GameSimulator(NoughtsAndCrossesMinimax):
         if self.collect_data:
             possible_moves = self.game_rows_m * self.game_cols_n
             columns = [SimulationColumnName.STARTING_PLAYER.name, SimulationColumnName.WINNING_PLAYER.name] + \
+                      [f"{SimulationColumnName.BOARD_STATUS.name}_{move_number + 1}" for move_number in
+                       range(0, possible_moves)] + \
                       [f"{SimulationColumnName.MOVE.name}_{move_number + 1}" for move_number in
                        range(0, possible_moves)]
             index = pd.RangeIndex(0, self.number_of_simulations)
             simulation_dataframe = pd.DataFrame(columns=columns, index=index, dtype=str)
             return simulation_dataframe
 
-    def _add_board_status_to_simulation_dataframe(self, moves_made: int, simulation_number: int) -> None:
+    def _add_board_status_to_simulation_dataframe(self, last_move: np.ndarray, moves_made: int,
+                                                  simulation_number: int) -> None:
         """Method to add the current status of the board to the simulation dataframe, in the correct place"""
-        col_index = f"{SimulationColumnName.MOVE.name}_{moves_made}"
-        self.simulation_dataframe.loc[simulation_number, col_index] = self._encode_board_as_string()
+        board_status_col_index = f"{SimulationColumnName.BOARD_STATUS.name}_{moves_made}"
+        self.simulation_dataframe.loc[simulation_number, board_status_col_index] = np_array_to_tuple(self.playing_grid)
+
+        last_move_col_index = f"{SimulationColumnName.MOVE.name}_{moves_made}"
+        self.simulation_dataframe.loc[simulation_number, last_move_col_index] = np_array_to_tuple(self.playing_grid)
+        # TODO - easiest way to encode and decode the board -
 
     def _add_winning_player_to_simulation_dataframe(self, simulation_number: int) -> None:
         """Method to add the winning player to the dataframe, in the case that we no there is a winner."""
@@ -154,14 +164,7 @@ class GameSimulator(NoughtsAndCrossesMinimax):
             file_path.mkdir(parents=True)
 
         file_name = self.get_output_file_prefix() + self.collected_data_file_suffix + ".csv"
-        self.simulation_dataframe.to_csv(file_path / file_name)
-
-    def _encode_board_as_string(self) -> str:
-        """Method that converts the numpy array board into a human readable string"""
-        element_wise_int_to_str_func = np.vectorize(lambda mark: BoardMarking(mark).name if mark != 0 else "-")
-        np_array_of_strings = element_wise_int_to_str_func(self.playing_grid)
-        array_string = np.array2string(np_array_of_strings)
-        return array_string
+        self.simulation_dataframe.to_csv(file_path / file_name, index=False, na_rep="GAME_WON")
 
     # Methods producing strings detailing metadata related to simulation
     def get_output_file_prefix(self) -> str:

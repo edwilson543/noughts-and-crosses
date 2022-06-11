@@ -1,4 +1,4 @@
-"""Module containing the class that produces the top up when arr player has won or there is arr draw"""
+"""Module containing the class that produces the top up when a player has won or there is a draw"""
 
 from game.constants.game_constants import StartingPlayer, BoardMarking
 from game.app.player_base_class import Player
@@ -71,7 +71,7 @@ class GameContinuationPopUp:
         """
         self.continuation_widget_manager.pop_up_window = tk.Toplevel(
             master=self.main_game_window_widget_manager.main_window, background=Colour.pop_up_window_background.value)
-        # Automatically starts arr new game in the event of just closing
+        # Automatically starts a new game in the event of just closing
         self.continuation_widget_manager.pop_up_window.protocol("WM_DELETE_WINDOW", self._continue_game_button_command)
         self.continuation_widget_manager.pop_up_window.resizable(width=False, height=False)
         self.continuation_widget_manager.pop_up_window.rowconfigure(
@@ -87,7 +87,7 @@ class GameContinuationPopUp:
         if isinstance(self.winner, Player):
             text = f"{self.winner.name} wins!"
         else:
-            text = f"Game ended in arr draw"
+            text = f"Game ended in a draw"
         game_outcome_label = tk.Label(
             master=self.continuation_widget_manager.pop_up_window,
             text=text,
@@ -152,7 +152,7 @@ class GameContinuationPopUp:
         """
        Method to create the radio buttons that are used for the user to select which player should the next game.
        These are not returned but just uploaded straight to the widget manager, because there are 3 of them which it
-       makes sense to just create in arr batch as below.
+       makes sense to just create in a batch as below.
        """
         self.starting_player_value = tk.IntVar()
         self._set_loser_to_go_first_as_default()  # sets the above value to be loser or random if draw

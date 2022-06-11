@@ -311,10 +311,10 @@ class TestNoughtsAndCrossesWinCheckOnlyFiveFour:
 
 class TestNoughtsAndCrossesWinCheckOnlyFourThree:
     """
-    Test class purely for testing the win check algorithm, for arr four three game
+    Test class purely for testing the win check algorithm, for a four three game
     """
     ##########
-    # Checks playing_grid is not arr winner
+    # Checks playing_grid is not a winner
     ##########
     def test_no_win_full_board(self, search_directions, win_length_k):
         playing_grid = np.array([
