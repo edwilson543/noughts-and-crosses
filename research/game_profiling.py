@@ -1,4 +1,10 @@
-"""Module to profile all back-end game play code using cProfile"""
+"""
+Module to run simulations where the aim is to profile all back-end game play code using cProfile.
+Note this is separated from the simulation use case to collect data for 2 reasons:
+1) Extra set-up is needed with cProfile and report manipulation versus just running the collections
+2) Saving the data is slow and not that interesting from a speeding-up point of view, the purpose of the profiling is
+to look at making the search and minimax more efficient.
+"""
 
 # Standard library imports
 import cProfile
@@ -53,8 +59,8 @@ class GameProfiler:
             game_rows_m=game_rows_m,
             game_cols_n=game_cols_n,
             win_length_k=win_length_k,
-            player_x=Player(name="NOT RELEVANT", marking=BoardMarking.X),
-            player_o=Player(name="NOT RELEVANT", marking=BoardMarking.O)
+            player_x=Player(name="NOT_RELEVANT", marking=BoardMarking.X),
+            player_o=Player(name="NOT_RELEVANT", marking=BoardMarking.O)
         )
         self.simulation_definition = GameSimulator(
             setup_parameters=self.game_parameters,

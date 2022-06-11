@@ -44,6 +44,7 @@ class TestGameSimulationBaseClass:
         actual_columns = three_three_game_simulator._construct_empty_simulation_dataframe().columns
         assert all(expected_columns == actual_columns)
 
+    # TODO - pending decision on what the best way to store the board string is
     # def test_encode_string_to_board(self, three_three_game_simulator):
     #     """Test that the correct string representation of the board is produced"""
     #     three_three_game_simulator.playing_grid = np.array([

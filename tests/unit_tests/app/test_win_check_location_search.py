@@ -36,6 +36,7 @@ def search_directions():
     """Returns the (2D) search directions parameter to be used in the win check function"""
     return [np.array([1, 0]), np.array([0, 1]), np.array([1, -1]), np.array([1, 1])]
 
+
 @pytest.fixture(scope="module")
 def win_length_k():
     """Returns the wind length to be used in the win check function"""
