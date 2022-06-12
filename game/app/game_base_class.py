@@ -182,25 +182,53 @@ class NoughtsAndCrosses:
         self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n))
 
     # Lower level methods
-    def _get_search_directions(self) -> List[np.ndarray]:
+    def _get_search_directions(self, playing_grid: np.ndarray = None, array_list: List[np.ndarray] = None,
+                               dimension: int = None) -> List[np.ndarray]:
         """
-        Method that returns the directions the search algorithm should look in around the last played index for
-        a win
+        Method that recursively returns the directions the search algorithm should look for a win in around the last
+        played index.
+        Starting with the one-dimensional array np.array([1]), we extend this to [1, 0], [1, 1] and [1, -1], also
+        adding in [0, 1]. We then repeat the same process for each of these vectors at the next dimension, again
+        adding the [0, 0, ..., 0, 1] vector.
+
+        Parameters:
+        ----------
+        playing_grid: The playing grid we are searching for a win
+        array_list: The list of search arrays in the lower dimension we are passing to the recursion to get the search
+        direction in the higher dimension.
+        dimension: The dimension we have just produced the search directions for, once this reaches the dimension of
+        the playing grid, we stop the recursion
+
+        Note that whenever we create a new array, it is essential here to specify dtype=int, otherwise indexing fails
+        in the win search when we try to use float indexes.
         """
-        # Note this is just a placeholder method
-        return [np.array([1, 0]), np.array([0, 1]), np.array([1, -1]), np.array([1, 1])]
-        # TODO generate the list for n-dimensions computationally - initial idea below
-        # spanning_set: list = []
-        #
-        # playing_grid_dimension = np.ndim(self.playing_grid)
-        # for dimension in range(0, playing_grid_dimension):
-        #     unit_vector = np.zeros(playing_grid_dimension)
-        #     unit_vector[dimension] = 1
-        #     spanning_set.append(unit_vector)
-        #
-        # search_directions = spanning_set
-        # for unit_vectors in spanning_set:
-        # Need to create the sum and difference of each combination of unit vectors
+        if playing_grid is None:
+            playing_grid = self.playing_grid
+
+        if dimension is None:
+            dimension = 0
+            return self._get_search_directions(playing_grid=playing_grid,
+                                               array_list=[np.array([1], dtype=int)], dimension=dimension + 1)
+        elif dimension == np.ndim(playing_grid):
+            return array_list
+        else:
+            new_array_list = []
+            for arr in array_list:
+                same_array_in_higher_d = np.concatenate((arr, np.array([0], dtype=int)))
+                new_array_list.append(same_array_in_higher_d)
+
+                new_array_one = np.concatenate((arr, np.array([1])))
+                new_array_list.append(new_array_one)
+
+                new_array_minus_one = np.concatenate((arr, np.array([-1])))
+                new_array_list.append(new_array_minus_one)
+
+            # Also add on the nth dimensional unit vector
+            unit_array_nth_dim = np.zeros(dimension + 1, dtype=int)
+            unit_array_nth_dim[dimension] = 1
+            new_array_list.append(unit_array_nth_dim)
+            return self._get_search_directions(playing_grid=playing_grid,
+                                               array_list=new_array_list, dimension=dimension + 1)
 
     def _encode_board_as_string(self) -> str:
         """Method that converts the numpy array board into a human readable string"""

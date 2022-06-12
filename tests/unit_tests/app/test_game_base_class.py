@@ -2,6 +2,7 @@
 
 # Standard library imports
 import pytest
+from typing import List
 
 # Third party imports
 import numpy as np
@@ -124,6 +125,43 @@ class TestNoughtsAndCrossesNotSearches:
         win, _ = three_three_game.win_check_and_location_search(
             last_played_index=np.array([2, 2]), get_win_location=False)
         assert win
+
+    def test_get_search_directions_two_dimensions(self, three_three_game):
+        """Method to check that we can get the correct search direction in two dimensions."""
+        expected_directions: List = [np.array([1, 0]), np.array([0, 1]), np.array([1, -1]), np.array([1, 1])]
+        actual_directions: List = three_three_game._get_search_directions()
+
+        # We want to test these lists are the same but note numpy arrays don't readily support __eq__
+        for expected_array in expected_directions:  # Do the check below for each of the arrays
+            expected_array_found = 0
+            for actual_array in actual_directions:
+                expected_array_found += np.all(actual_array == expected_array)
+            assert expected_array_found  # This will be equal to 1 (True) if the array has been found
+
+    def test_get_search_directions_three_dimensions(self, three_three_game):
+        """
+        Method to check that we can get the correct search direction in two dimensions.
+        Note that this is an n-dimensional method, defined within the NoughtAndCrosses base class - because this base
+        class currently uses a static 2D board, and it is not a static method, we need to test the 3D+ case using the
+        unideal fix of calling the method on the (2D) three_three_game and passing in a 3D playing grid.
+
+        Note also that the n-dimensional functionality here is mainly for a bit of fun.
+        """
+        expected_directions: List = [np.array([1, 0, 0]), np.array([1, 0, 1]), np.array([1, 0, -1]),
+                                     np.array([1, 1, 0]), np.array([1, 1, 1]), np.array([1, 1, -1]),
+                                     np.array([1, -1, 0]), np.array([1, -1, 1]), np.array([1, -1, -1]),
+                                     np.array([0, 1, 0]), np.array([0, 1, 1]), np.array([0, 1, -1]),
+                                     np.array([0, 0, 1])]
+
+        three_dim_game_grid = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])  # we just need any old 3D array
+        actual_directions: List = three_three_game._get_search_directions(playing_grid=three_dim_game_grid)
+
+        # Using the methodology from the unit test above:
+        for expected_array in expected_directions:
+            expected_array_found = 0
+            for actual_array in actual_directions:
+                expected_array_found += np.all(actual_array == expected_array)
+            assert expected_array_found
 
 
 ##########
