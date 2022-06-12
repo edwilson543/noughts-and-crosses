@@ -6,13 +6,13 @@ best one that speeds it up.
 # Standard library imports
 from collections import OrderedDict
 from functools import lru_cache, update_wrapper, wraps
-from typing import Tuple, List
+from typing import Tuple, List, Callable
 
 # Third party imports
 import numpy as np
 
 # Local application imports
-from utils import np_array_to_tuple
+from utils import np_array_to_tuple, get_symmetry_set_of_tuples_from_array
 
 
 ##########
@@ -38,13 +38,15 @@ class LRUCacheWinSearch:
 
     def __init__(self,
                  hash_key_kwargs: set,
-                 maxsize: int = None):
+                 maxsize: int = None,
+                 use_symmetry: bool = False):
         self.hash_key_kwargs = hash_key_kwargs
         self.cache_maxsize = maxsize
+        self.use_symmetry = use_symmetry
         self.win_search_func = None
         self.cache = OrderedDict({})
 
-    def __call__(self, win_search_func=None, *args, **kwargs):
+    def __call__(self, win_search_func: Callable = None, *args, **kwargs):
         """
         Because this is a decorator class, we need to make it callable.
         Due to the decorator arguments, we need the if/elif below, rather than just to always return the search_return.
@@ -93,7 +95,6 @@ class LRUCacheWinSearch:
         if self.cache_maxsize is not None and len(self.cache) > self.cache_maxsize:
             self.cache.popitem(last=False)  # last=False specifies the LRU item in this case
 
-    # @staticmethod
     def _create_hash_key_from_kwargs(self, *args, **kwargs) -> Tuple:
         """
         Method to get the kwargs that we want to use as keys for the cache, make them hashable, and generate one
@@ -106,11 +107,18 @@ class LRUCacheWinSearch:
         """
         if self.hash_key_kwargs is not None:
             hash_key_tuple = tuple(np_array_to_tuple(kwargs[key_kwarg]) if
-                             (key_kwarg in kwargs and key_kwarg in self.hash_key_kwargs) else
-                             kwargs[key_kwarg] for key_kwarg in self.hash_key_kwargs)
+                                   isinstance(kwargs[key_kwarg], np.ndarray) else
+                                   kwargs[key_kwarg] for key_kwarg in self.hash_key_kwargs)
             return hash_key_tuple
         else:
             raise KeyError("No kwargs were specified to construct the hash key for the lru cache from.")
+
+    def _create_list_of_hash_keys_from_kwargs(self, *args, **kwargs) -> Tuple[Tuple]:
+        """
+        Method to create a list of hash keys from kwargs that can be used to then cache the symmetry set of a given
+        playing grid.
+        """
+        pass
 
 
 ##########
