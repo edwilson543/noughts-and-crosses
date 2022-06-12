@@ -4,7 +4,7 @@
 import numpy as np
 
 # Local application imports
-from utils import np_array_to_tuple, get_array_symmetry_set_of_tuples
+from utils import np_array_to_tuple, get_symmetry_set_of_tuples_from_array
 
 
 class TestArrayToTuple:
@@ -34,7 +34,7 @@ class TestGetArraySymmetrySet:
             [0, 0, 0]
         ])
         expected_symmetry_set = {((0, 0, 0), (0, 1, 0), (0, 0, 0))}
-        actual_symmetry_set = get_array_symmetry_set_of_tuples(array=playing_grid)
+        actual_symmetry_set = get_symmetry_set_of_tuples_from_array(array=playing_grid)
         assert expected_symmetry_set == actual_symmetry_set
 
     def test_get_array_symmetry_set_four_unique_tuples(self):
@@ -47,7 +47,7 @@ class TestGetArraySymmetrySet:
                                  ((0, 0, 1), (0, 1, 0), (0, 0, 0)),
                                  ((0, 0, 0), (0, 1, 0), (1, 0, 0)),
                                  ((0, 0, 0), (0, 1, 0), (0, 0, 1))}
-        actual_symmetry_set = get_array_symmetry_set_of_tuples(array=playing_grid)
+        actual_symmetry_set = get_symmetry_set_of_tuples_from_array(array=playing_grid)
         assert actual_symmetry_set == expected_symmetry_set
 
     def test_get_array_symmetry_set_eight_tuples(self):
@@ -65,7 +65,7 @@ class TestGetArraySymmetrySet:
                                  ((-1, 0, 0), (0, 0, 0), (0, 1, 1)),  # 180 degree rotation
                                  ((0, 0, -1), (1, 0, 0), (1, 0, 0)),  # 270 degree rotation
                                  }
-        actual_symmetry_set = get_array_symmetry_set_of_tuples(array=playing_grid)
+        actual_symmetry_set = get_symmetry_set_of_tuples_from_array(array=playing_grid)
         assert actual_symmetry_set == expected_symmetry_set
 
     def test_non_square_symmetry_set_all_of_same_shape(self):
@@ -75,6 +75,6 @@ class TestGetArraySymmetrySet:
             [1, -1, 0, 0],
             [0, 0, 0, -1]
         ])
-        symmetry_set = get_array_symmetry_set_of_tuples(playing_grid)
+        symmetry_set = get_symmetry_set_of_tuples_from_array(playing_grid)
         for tup in symmetry_set:
             assert np.array(tup).shape == (3, 4)
