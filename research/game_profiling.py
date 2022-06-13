@@ -29,7 +29,7 @@ columns = 3
 win_length = 3
 
 # Simulation parameters
-number_of_complete_games_to_simulate = 1
+number_of_complete_games_to_simulate = 10
 player_x_simulated_as = PlayerOptions.MINIMAX
 player_o_simulated_as = PlayerOptions.RANDOM
 
