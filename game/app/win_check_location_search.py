@@ -8,7 +8,7 @@ import numpy as np
 from game.app.win_check_cache_decorators import LRUCacheWinSearch
 
 
-@LRUCacheWinSearch(hash_key_kwargs={"playing_grid", "get_win_location"}, maxsize=1000000, use_symmetry=False)
+@LRUCacheWinSearch(hash_key_kwargs={"playing_grid", "get_win_location"}, maxsize=1000000, use_symmetry=True)
 def win_check_and_location_search(playing_grid: np.ndarray, last_played_index: np.ndarray, get_win_location: bool,
                                   search_directions: List[np.ndarray], win_length_k: int) -> (bool, List[Tuple[int]]):
     """
@@ -62,7 +62,7 @@ def win_check_and_location_search(playing_grid: np.ndarray, last_played_index: n
         elif winning_streak_found and get_win_location:
             win_streak_start_index = np.where(streak_lengths == win_length_k)
             win_streak_start_int: int = np.array(win_streak_start_index).item(0)
-            # .item() avoids issue with remaining_dimensions - it extracts the scalar value, regardless of a remaining_dimensions
+            # .item() avoids issue with dimensions - it extracts the scalar value, regardless of dimension
             win_streak_location_indexes: list = valid_indexes_to_search[
                                                 win_streak_start_int:win_streak_start_int + win_length_k]
             return winning_streak_found, win_streak_location_indexes

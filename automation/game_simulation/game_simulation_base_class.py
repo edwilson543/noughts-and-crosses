@@ -104,10 +104,10 @@ class GameSimulator(NoughtsAndCrossesMinimax):
 
     def _get_player_o_move(self) -> np.array:
         """Method to get the moved played by player o on their turn"""
-        if self.player_x_as == PlayerOptions.MINIMAX:
+        if self.player_o_as == PlayerOptions.MINIMAX:
             _, move = self.get_minimax_move()
             return move
-        elif self.player_x_as == PlayerOptions.RANDOM:
+        elif self.player_o_as == PlayerOptions.RANDOM:
             return self._get_random_move()
         else:
             raise ValueError(f"player_o_as simulation player's moves are not defined."

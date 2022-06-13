@@ -29,7 +29,7 @@ columns = 3
 win_length = 3
 
 # Simulation parameters
-number_of_complete_games_to_simulate = 10
+number_of_complete_games_to_simulate = 1
 player_x_simulated_as = PlayerOptions.MINIMAX
 player_o_simulated_as = PlayerOptions.RANDOM
 
@@ -37,7 +37,7 @@ player_o_simulated_as = PlayerOptions.RANDOM
 print_report_to_terminal = True
 number_of_rows_to_print = 10
 save_report_to_file = True
-saved_report_file_suffix = "_LRU_cache_WITH_symmetry_jit"  # Note 'suffix' because simulation metadata auto included. Extension too.
+saved_report_file_suffix = "_LRU_cache_with_symm"  # Note 'suffix' because simulation metadata auto included. Extension too.
 ####################
 
 

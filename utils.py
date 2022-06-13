@@ -5,7 +5,6 @@ from typing import Tuple, Set
 
 # Third party imports
 import numpy as np
-from numba import jit
 
 
 def np_array_to_tuple(array: np.ndarray | Tuple, remaining_dimensions: int = None) -> Tuple:
@@ -21,7 +20,7 @@ def np_array_to_tuple(array: np.ndarray | Tuple, remaining_dimensions: int = Non
         return tuple(np_array_to_tuple(subarray, remaining_dimensions - 1) for subarray in array)
 
 
-@jit  # TODO profile code with this on/off
+# Have ruled out using @jit here by profiling with/without
 def get_symmetry_set_of_tuples_from_array(array: np.ndarray) -> Set[Tuple]:
     """
     Method to get the arrays that are rotationally and reflectively symmetric to the passed array, and then convert

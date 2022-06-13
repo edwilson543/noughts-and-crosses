@@ -82,8 +82,8 @@ class LRUCacheWinSearch:
             search_return_value = self.win_search_func(*args, **kwargs)  # Must directly call function and cache
             if self.use_symmetry:
                 hash_key_list = self._create_hash_key_list_for_symmetry_set_from_kwargs(*args, **kwargs)
-                for hash_key in hash_key_list:
-                    self._cache_return_value(hash_key=hash_key, return_value=search_return_value)
+                for symm_hash_key in hash_key_list:
+                    self._cache_return_value(hash_key=symm_hash_key, return_value=search_return_value)
             else:
                 self._cache_return_value(hash_key=hash_key, return_value=search_return_value)
             return search_return_value
