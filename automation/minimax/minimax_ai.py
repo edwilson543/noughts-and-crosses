@@ -84,17 +84,15 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         else:  # This is the first call to minimax from the active game state, so there is no last_played_index/col
             game_has_been_won = False
 
-        game_has_been_drawn = self.check_for_draw(playing_grid=playing_grid)
-
         # Evaluate the board in a terminal state from the perspective of the maximising player
         if game_has_been_won:
             winning_player = self.get_winning_player(winning_game=game_has_been_won, playing_grid=playing_grid)
-            score = self._evaluate_board_to_maximising_player(
+            score = self._evaluate_terminal_board_to_maximising_player(
                 playing_grid=playing_grid, search_depth=search_depth, winning_player=winning_player)
             return score, None
-        elif game_has_been_drawn:
-            score = self._evaluate_board_to_maximising_player(
-                playing_grid=playing_grid, search_depth=search_depth, draw=game_has_been_drawn)
+        elif self.check_for_draw(playing_grid=playing_grid):
+            score = self._evaluate_terminal_board_to_maximising_player(
+                playing_grid=playing_grid, search_depth=search_depth, draw=True)
             return score, None
 
         # Can evaluate in the case of maximum search depth here  # TODO
@@ -136,8 +134,9 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                     break  # No need to consider game branch any further, maximiser will just avoid it
             return min_score, best_move
 
-    def _evaluate_board_to_maximising_player(self, playing_grid: np.ndarray, search_depth: int,
-                                             winning_player: Player | None = None, draw: bool | None = None) -> int:
+    def _evaluate_terminal_board_to_maximising_player(self, playing_grid: np.ndarray, search_depth: int,
+                                                      winning_player: Player | None = None,
+                                                      draw: bool | None = None) -> int:
         """
         Static evaluation function for a playing_grid at the bottom of the minimax search tree, from the perspective
         of the maximising player.
@@ -174,6 +173,10 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
             # Could test the relative speed of determining whether draws will be reached ahead of a full board
         else:
             raise ValueError("Attempted to evaluate a playing_grid scenario that was not terminal.")
+
+    def _evaluate_max_search_depth_board_to_maximising_player(self, playing_grid: np.ndarray,
+                                                              search_depth: int,) -> int:
+        pass
 
     @staticmethod
     def _get_available_cell_indices(playing_grid: np.array) -> List[np.ndarray]:
