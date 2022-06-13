@@ -9,8 +9,9 @@ from game.app.win_check_cache_decorators import LRUCacheWinSearch
 
 
 @LRUCacheWinSearch(hash_key_kwargs={"playing_grid", "get_win_location"}, maxsize=1000000, use_symmetry=True)
-def win_check_and_location_search(playing_grid: np.ndarray, last_played_index: np.ndarray, get_win_location: bool,
-                                  search_directions: List[np.ndarray], win_length_k: int) -> (bool, List[Tuple[int]]):
+def win_check_and_location_search(playing_grid: np.ndarray, last_played_index: np.ndarray,
+                                  get_win_location: bool, search_directions: List[np.ndarray],
+                                  win_length_k: int) -> Tuple[bool, List[Tuple[int]] | None]:
     """
     Method to determine whether or not there is a win and the LOCATION of the win.
     get_win_location controls whether we are interested in the win_location or not. Note that having a separate

@@ -64,7 +64,7 @@ class NoughtsAndCrosses:
                              " that is not in the StartingPlayer Enum. "
                              f"self.starting_player_value: {self.starting_player_value}")
 
-    def get_player_turn(self, playing_grid: np.array = None) -> BoardMarking:
+    def get_player_turn(self, playing_grid: np.ndarray = None) -> BoardMarking:
         """
         Method to determine who's turn it is to mark the playing_grid, using sum of the playing_grid 1s/-1s.
         If the sum is zero then both player's have had an equal number of turns, and therefore it's the starting
@@ -81,7 +81,7 @@ class NoughtsAndCrosses:
         else:
             return BoardMarking(self.starting_player_value).value
 
-    def mark_board(self, marking_index: np.ndarray, playing_grid: np.array = None) -> None:
+    def mark_board(self, marking_index: np.ndarray, playing_grid: np.ndarray = None) -> None:
         """
         Method to make a new entry on the game playing_grid. Note that there is no opportunity to mark out of
         turn, because the get_player_turn method is called within this method.
@@ -102,7 +102,7 @@ class NoughtsAndCrosses:
             raise ValueError(f"mark_board attempted to mark non-empty cell at {marking_index}.")
 
     def win_check_and_location_search(self, last_played_index: np.ndarray, get_win_location: bool,
-                                      playing_grid: np.ndarray = None) -> (bool, List[Tuple[int]]):
+                                      playing_grid: np.ndarray = None) -> Tuple[bool, List[Tuple[int]] | None]:
         """
         Method to determine whether or not there is a win and the LOCATION of the win.
         This method just calls the win_check_and_location function is it located in its own module. See the docstring
@@ -120,7 +120,7 @@ class NoughtsAndCrosses:
         ----------
         bool - T/F depending on whether or not there is a win
         List[Tuple[int]] - A list of the indexes corresponding to the winning streak (only if get_win_location is
-        set to True)
+        set to True, otherwise None)
 
         Other information:
         ----------
@@ -271,7 +271,7 @@ class NoughtsAndCrosses:
         north_east_win = self._search_array_list_for_win(
             array_list=self._get_north_east_diagonal_arrays(playing_grid=playing_grid))
 
-        return row_win + col_win + south_east_win + north_east_win
+        return bool(row_win + col_win + south_east_win + north_east_win)
 
     #  Methods called in _winning_board_search
     def _search_array_list_for_win(self, array_list: list[np.ndarray]) -> bool:

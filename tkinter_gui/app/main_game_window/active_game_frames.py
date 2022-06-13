@@ -28,7 +28,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
     def __init__(self,
                  setup_parameters: NoughtsAndCrossesEssentialParameters,
                  draw_count: int = 0,
-                 active_unconfirmed_cell: (int, int) = None,
+                 active_unconfirmed_cell: Tuple[int, int] = None,
                  widget_manager=MainWindowWidgetManager(),
                  game_continuation_top_level: GameContinuationPopUp = None,
                  winner_text: str = None):
