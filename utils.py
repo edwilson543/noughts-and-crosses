@@ -20,13 +20,15 @@ def np_array_to_tuple(array: np.ndarray | Tuple, remaining_dimensions: int = Non
     else:
         return tuple(np_array_to_tuple(subarray, remaining_dimensions - 1) for subarray in array)
 
-# @jit  # TODO profile code with this on/off
+
+@jit  # TODO profile code with this on/off
 def get_symmetry_set_of_tuples_from_array(array: np.ndarray) -> Set[Tuple]:
     """
     Method to get the arrays that are rotationally and reflectively symmetric to the passed array, and then convert
     this into a set of tuples. Note that this function only works in 2D i.e. for matrices (although could be easily
     extended, currently not for performance). This could use a recursion along the lines of the search directions
     method.
+    Note that a set is used so that we only get the unique tuples.
     """
     if np.ndim(array) != 2:
         raise ValueError(f"Attempted to generate a symmetry set for array: {array} that is not 2-dimensional, "

@@ -6,7 +6,7 @@ best one that speeds it up.
 # Standard library imports
 from collections import OrderedDict
 from functools import lru_cache, update_wrapper, wraps
-from typing import Tuple, List, Callable
+from typing import Tuple, List, Callable, Set
 
 # Third party imports
 import numpy as np
@@ -79,8 +79,13 @@ class LRUCacheWinSearch:
             self.cache.move_to_end(hash_key)  # Now the most recently used
             return self.cache[hash_key]
         else:
-            search_return_value = self.win_search_func(*args, **kwargs)
-            self._cache_return_value(hash_key=hash_key, return_value=search_return_value)
+            search_return_value = self.win_search_func(*args, **kwargs)  # Must directly call function and cache
+            if self.use_symmetry:
+                hash_key_list = self._create_hash_key_list_for_symmetry_set_from_kwargs(*args, **kwargs)
+                for hash_key in hash_key_list:
+                    self._cache_return_value(hash_key=hash_key, return_value=search_return_value)
+            else:
+                self._cache_return_value(hash_key=hash_key, return_value=search_return_value)
             return search_return_value
 
     def _cache_return_value(self, hash_key: Tuple[Tuple, bool], return_value: (bool, List[Tuple[int]])) -> None:
@@ -113,12 +118,22 @@ class LRUCacheWinSearch:
         else:
             raise KeyError("No kwargs were specified to construct the hash key for the lru cache from.")
 
-    def _create_list_of_hash_keys_from_kwargs(self, *args, **kwargs) -> Tuple[Tuple]:
+    def _create_hash_key_list_for_symmetry_set_from_kwargs(self, *args, **kwargs) -> List[Tuple]:
         """
-        Method to create a list of hash keys from kwargs that can be used to then cache the symmetry set of a given
-        playing grid.
+        Method to create a list of hash keys from kwargs for each tuple in the symmetry set of a given playing grid.
+        These can then be used to cache all of these different tuples against the same return value.
         """
-        pass
+        if "playing_grid" not in kwargs:
+            raise KeyError("Attempted to call _create_list_of_hash_keys_from_kwargs with kwargs that do not"
+                           f"include 'playing_grid. kwargs: {kwargs}")
+        else:
+            playing_grid: np.ndarray = kwargs["playing_grid"]
+            symmetry_set: Set[Tuple] = get_symmetry_set_of_tuples_from_array(array=playing_grid)
+            hash_key_list = []
+            for symmetric_tup in symmetry_set:
+                kwargs["playing_grid"] = symmetric_tup
+                hash_key_list.append(self._create_hash_key_from_kwargs(*args, **kwargs))
+            return hash_key_list
 
 
 ##########
@@ -135,6 +150,9 @@ def lru_cache_hashable(maxsize: int):
     just converts back any tuples to np.arrays and calls the decorated function.
 
     Parameters: cache_maxsize (maintained from the lru_cache decorator)
+
+    Note the major downside of this cache is it creates unique cache entries for calls to the search function which
+    only differ by the last_played_index.
     """
 
     def lru_cache_hashable_decorator(func):
