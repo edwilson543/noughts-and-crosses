@@ -1,6 +1,7 @@
 """Utility functions used in various places across the application."""
 
 # Standard library imports
+from functools import lru_cache, wraps
 from typing import Tuple, Set
 
 # Third party imports
@@ -53,3 +54,52 @@ def get_symmetry_set_of_tuples_from_array(array: np.ndarray) -> Set[Tuple]:
         symmetry_set.update([south_east_reflection_tuple, south_west_reflection_tuple, rot_90_tuple, rot_270_tuple])
 
     return symmetry_set
+
+
+##########
+# A modified version of the built-in functools lru_cache, which allows for hashable arguments
+##########
+def lru_cache_hashable(_func=None, maxsize: int = None):
+    """
+    Decorator that can be used to cache functions taking numpy arrays as argument.
+    The standard lru_cache only works on functions with hashable arguments and returns (cache entries are stored in a
+    dict). The decorator therefore:
+    1) When the function is called, converts any numpy arrays to tuples (lru_cache_hashable_wrapper) by modifying
+    *args and **kwargs. *args and **kwargs are now hashable
+    2) Calls another function (cached_wrapper) using these *args and **kwargs which is itself cached. The cached_wrapper
+    just converts back any tuples to np.arrays and calls the decorated function.
+
+    Parameters:
+    _funcs: The decorated function in the case that maxsize is None, otherwise is not used
+    maxsize (maintained from the lru_cache decorator)
+
+    Note the major downside of this cache is it creates unique cache entries for calls to the search function which
+    only differ by the last_played_index.
+    """
+
+    def lru_cache_hashable_decorator(func, *args, **kwargs):
+        @lru_cache(maxsize=maxsize)
+        def cached_wrapper(*hashable_args,
+                           **hashable_kwargs):  # the lru_cache only works on functions with hashable args and returns
+            unhashable_args = tuple(np.array(arg) if type(arg) == tuple else arg for arg in hashable_args)
+            unhashable_kwargs = {key: np.array(kwarg) if type(kwarg) == tuple else kwarg for key, kwarg in
+                                 hashable_kwargs.items()}
+            return func(*unhashable_args, **unhashable_kwargs)
+
+        @wraps(func)
+        def lru_cache_hashable_wrapper(*unhashable_args, **unhashable_kwargs):
+            hashable_args = tuple(np_array_to_tuple(arg) if type(arg) == np.ndarray else arg for arg in unhashable_args)
+            hashable_kwargs = {key: np_array_to_tuple(kwarg) if type(kwarg) == np.ndarray else kwarg for key, kwarg in
+                               unhashable_kwargs.items()}
+            return cached_wrapper(*hashable_args, **hashable_kwargs)
+
+        # copy lru_cache attributes over too
+        lru_cache_hashable_wrapper.cache_info = cached_wrapper.cache_info
+        lru_cache_hashable_wrapper.cache_clear = cached_wrapper.cache_clear
+
+        return lru_cache_hashable_wrapper
+
+    if maxsize is not None:
+        return lru_cache_hashable_decorator
+    else:  # We need to call the first inner function
+        return lru_cache_hashable_decorator(_func)
