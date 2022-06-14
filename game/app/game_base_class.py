@@ -97,9 +97,9 @@ class NoughtsAndCrosses:
         """
         if playing_grid is None:
             playing_grid = self.playing_grid
+            self.previous_mark_index = marking_index
         if playing_grid[tuple(marking_index)] == 0:
             marking = self.get_player_turn(playing_grid=playing_grid)
-            self.previous_mark_index = marking
             playing_grid[tuple(marking_index)] = marking
         else:
             raise ValueError(f"mark_board attempted to mark non-empty cell at {marking_index}.")

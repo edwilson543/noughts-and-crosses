@@ -14,3 +14,4 @@ class TerminalScore(Enum):
     DRAW = 0
     MAX_LOSS = -1000
     NON_TERMINAL = -500
+    # TODO add a block score
