@@ -39,7 +39,7 @@ class NoughtsAndCrosses:
         self.player_o = setup_parameters.player_o
         self.starting_player_value = setup_parameters.starting_player_value
         self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n), dtype=int)
-        self.search_directions = self._get_search_directions()
+        self.search_directions = self._get_search_directions(playing_grid=self.playing_grid)
 
     ##########
     # Methods that are a part of the core game play flow
@@ -182,7 +182,8 @@ class NoughtsAndCrosses:
         self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n))
 
     # Lower level methods
-    def _get_search_directions(self, playing_grid: np.ndarray = None, array_list: List[np.ndarray] = None,
+    @staticmethod
+    def _get_search_directions(playing_grid: np.ndarray, array_list: List[np.ndarray] = None,
                                dimension: int = None) -> List[np.ndarray]:
         """
         Method that recursively returns the directions the search algorithm should look for a win in around the last
@@ -202,13 +203,10 @@ class NoughtsAndCrosses:
         Note that whenever we create a new array, it is essential here to specify dtype=int, otherwise indexing fails
         in the win search when we try to use float indexes.
         """
-        if playing_grid is None:
-            playing_grid = self.playing_grid
-
         if dimension is None:
             dimension = 0
-            return self._get_search_directions(playing_grid=playing_grid,
-                                               array_list=[np.array([1], dtype=int)], dimension=dimension + 1)
+            return NoughtsAndCrosses._get_search_directions(
+                playing_grid=playing_grid, array_list=[np.array([1], dtype=int)], dimension=dimension + 1)
         elif dimension == np.ndim(playing_grid):
             return array_list
         else:
@@ -227,8 +225,8 @@ class NoughtsAndCrosses:
             unit_array_nth_dim = np.zeros(dimension + 1, dtype=int)
             unit_array_nth_dim[dimension] = 1
             new_array_list.append(unit_array_nth_dim)
-            return self._get_search_directions(playing_grid=playing_grid,
-                                               array_list=new_array_list, dimension=dimension + 1)
+            return NoughtsAndCrosses._get_search_directions(
+                playing_grid=playing_grid, array_list=new_array_list, dimension=dimension + 1)
 
     def _encode_board_as_string(self) -> str:
         """Method that converts the numpy array board into a human readable string"""
