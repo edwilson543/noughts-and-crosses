@@ -3,6 +3,7 @@
 # Standard library imports
 from time import sleep
 import tkinter as tk
+from typing import Tuple
 
 # Local application imports
 from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
@@ -19,7 +20,7 @@ class ActiveGameFramesMinimax(ActiveGameFrames, NoughtsAndCrossesMinimax):
     def __init__(self,
                  setup_parameters: NoughtsAndCrossesEssentialParameters,
                  draw_count: int = 0,
-                 active_unconfirmed_cell: (int, int) = None,
+                 active_unconfirmed_cell: Tuple[int, int] = None,
                  widget_manager=MainWindowWidgetManager(),
                  player_x_is_minimax: bool = False,
                  player_o_is_minimax: bool = False):
