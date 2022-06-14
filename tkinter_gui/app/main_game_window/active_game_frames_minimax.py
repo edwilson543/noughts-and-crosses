@@ -75,7 +75,7 @@ class ActiveGameFramesMinimax(ActiveGameFrames, NoughtsAndCrossesMinimax):
         AI makes the next move and all relevant updates are made.
         """
         self._switch_off_all_available_cell_buttons()
-        _, move = super().get_minimax_move()
+        _, move = super().get_minimax_move_iterative_deepening()
         sleep(PauseDuration.computer_turn.value)
         super()._available_cell_button_command(row_index=move[0], col_index=move[1])  # simulate cell selection
         self._confirmation_buttons_command()  # Confirm ai player's choice on the game board

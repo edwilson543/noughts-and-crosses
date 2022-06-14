@@ -94,7 +94,7 @@ class GameSimulator(NoughtsAndCrossesMinimax):
     def _get_player_x_move(self) -> np.ndarray:
         """Method to get the moved played by player x on their turn"""
         if self.player_x_as == PlayerOptions.MINIMAX:
-            _, move = self.get_minimax_move()
+            _, move = self.get_minimax_move_iterative_deepening()
             return move
         elif self.player_x_as == PlayerOptions.RANDOM:
             return self._get_random_move()
@@ -105,7 +105,7 @@ class GameSimulator(NoughtsAndCrossesMinimax):
     def _get_player_o_move(self) -> np.array:
         """Method to get the moved played by player o on their turn"""
         if self.player_o_as == PlayerOptions.MINIMAX:
-            _, move = self.get_minimax_move()
+            _, move = self.get_minimax_move_iterative_deepening()
             return move
         elif self.player_o_as == PlayerOptions.RANDOM:
             return self._get_random_move()

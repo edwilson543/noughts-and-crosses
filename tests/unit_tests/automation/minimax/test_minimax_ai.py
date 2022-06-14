@@ -48,7 +48,7 @@ class TestMinimaxThreeThreeThree:
             [0, 0, 0],
             [BoardMarking.O.value, BoardMarking.O.value, 0]
         ])
-        score, minimax_move = new_game_with_minimax_player.get_minimax_move()
+        score, minimax_move = new_game_with_minimax_player.get_minimax_move_iterative_deepening()
         assert score == TerminalScore.MAX_WIN.value - 1  # -1 to reflect a search depth of 1 to find the win
         assert np.all(minimax_move == np.array([2, 2]))
 
@@ -60,7 +60,7 @@ class TestMinimaxThreeThreeThree:
             [0, 0, 0],
             [BoardMarking.O.value, BoardMarking.X.value, 0]
         ])
-        score, minimax_move = new_game_with_minimax_player.get_minimax_move()
+        score, minimax_move = new_game_with_minimax_player.get_minimax_move_iterative_deepening()
         assert score == TerminalScore.MAX_WIN.value - 1  # -1 to reflect a search depth of 1 to find the win
         assert np.all(minimax_move == np.array([1, 1]))
 
@@ -72,7 +72,7 @@ class TestMinimaxThreeThreeThree:
             [0, 0, BoardMarking.X.value],
             [BoardMarking.X.value, BoardMarking.O.value, 0]
         ])
-        _, minimax_move = new_game_with_minimax_player.get_minimax_move()
+        _, minimax_move = new_game_with_minimax_player.get_minimax_move_iterative_deepening()
         assert np.all(minimax_move == np.array([1, 0]))
 
     def test_minimax_makes_blocking_move_south_east_diagonal(self, new_game_with_minimax_player):
@@ -83,5 +83,5 @@ class TestMinimaxThreeThreeThree:
             [0, BoardMarking.X.value, BoardMarking.O.value],
             [0, BoardMarking.O.value, 0]
         ])
-        _, minimax_move = new_game_with_minimax_player.get_minimax_move()
+        _, minimax_move = new_game_with_minimax_player.get_minimax_move_iterative_deepening()
         assert np.all(minimax_move == np.array([2, 2]))

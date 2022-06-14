@@ -13,3 +13,4 @@ class TerminalScore(Enum):
     MAX_WIN = 1000
     DRAW = 0
     MAX_LOSS = -1000
+    EARLY_ABORT = -500
