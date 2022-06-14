@@ -43,12 +43,13 @@ class ActiveGameFramesMinimax(ActiveGameFrames, NoughtsAndCrossesMinimax):
         Method to override (extend) what happens when the confirmation button is clicked.
         We need this to not just confirm the human user's go, but to initiate the ai player to make their go.
         Note that if there is no ai player, then no functionality us added.
+
+        Note that the first if is a fix for the fact that when a game involving minimax is completed, and the game was
+        terminated subsequent to minimax's go, before starting the next game the elifs below (previously if/elif) are
+        called, because they did not know the game was over and a new game is starting. Perhaps a better way... # TODO
         """
         super()._confirmation_buttons_command()  # First do everything the super class version does
         if self._whole_board_search() or self.check_for_draw():
-            # TODO this is a fix for the fact that when a game involving minimax is completed, and the game was
-            #  terminated after minimax's go, before starting the next game, the elifs below (previously if/elif) were
-            #  called, because they did not know the game was over and a new game was starting. Perhaps a better way
             return
         elif (self.get_player_turn() == BoardMarking.O.value) and self.player_o_is_minimax:
             self._minimax_player_makes_next_move()
