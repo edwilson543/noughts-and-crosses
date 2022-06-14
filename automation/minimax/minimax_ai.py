@@ -1,6 +1,7 @@
 """"Subclass of the noughts and crosses game that implements the minimax algorithm"""
 
 # Standard library imports
+import functools
 import time
 from typing import List, Tuple
 from random import shuffle
@@ -14,7 +15,7 @@ from automation.minimax.terminal_board_scores import TerminalScore
 from automation.minimax.iterative_deepening_constants import IterativeDeepening
 from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
 from game.app.player_base_class import Player
-
+from utils import lru_cache_hashable
 
 # Could use caching here as for the win_search - would want to cache on playing_grid, search_depth,
 # maximisers_move. Could then also use symmetry high up in the search
@@ -121,11 +122,11 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         if game_has_been_won:
             winning_player = self.get_winning_player(winning_game=game_has_been_won, playing_grid=playing_grid)
             score = self._evaluate_terminal_board_to_maximising_player(
-                playing_grid=playing_grid, search_depth=search_depth, winning_player=winning_player)
+                search_depth=search_depth, winning_player=winning_player)
             return score, None
         elif self.check_for_draw(playing_grid=playing_grid):
             score = self._evaluate_terminal_board_to_maximising_player(
-                playing_grid=playing_grid, search_depth=search_depth, draw=True)
+                search_depth=search_depth, draw=True)
             return score, None
 
         # Check whether our iterative deepening criteria have been exhausted:
@@ -179,7 +180,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                     break  # No need to consider game branch any further, maximiser will just avoid it
             return min_score, best_move
 
-    def _evaluate_terminal_board_to_maximising_player(self, playing_grid: np.ndarray, search_depth: int,
+    def _evaluate_terminal_board_to_maximising_player(self, search_depth: int,
                                                       winning_player: Player | None = None,
                                                       draw: bool | None = None) -> int:
         """
@@ -203,17 +204,16 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         draw: whether or not the board is in a draw state
 
         Notes: the maximising player is taken as the current player's turn - minimax in this app is only ever called
-        for the current player's turn.
+        for the current player's turn. Hence we just call get_player_turn with no playing_grid argument, because we
+        want to know the turn of the player in the live game.
         """
         if (winning_player is not None) and \
-                winning_player.marking.value == self.get_player_turn():  # If end state winner is player AI wants to win
-            # Note that we don't use the playing_grid_copy, because we want the turn of the player on the actual grid,
-            # not on the copy grid
+                winning_player.marking.value == self.get_player_turn():
             return TerminalScore.MAX_WIN.value - search_depth
         elif (winning_player is not None) and \
-                winning_player.marking.value == - self.get_player_turn():
+                winning_player.marking.value == - self.get_player_turn():  # Note minus here (i.e. minimax would lose)
             return TerminalScore.MAX_LOSS.value + search_depth
-        elif self.check_for_draw(playing_grid=playing_grid):
+        elif draw:
             return TerminalScore.DRAW.value - search_depth
             # Could test the relative speed of determining whether draws will be reached ahead of a full board
         else:
@@ -228,16 +228,41 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         # TODO can think of something more clever to do here
         return TerminalScore.NON_TERMINAL.value - search_depth
 
-    @staticmethod
-    def _get_available_cell_indices(playing_grid: np.array) -> List[np.ndarray]:
+    def _get_available_cell_indices(self, playing_grid: np.ndarray,
+                                    last_played_index: np.ndarray | None = None) -> List[np.ndarray]:
         """
         Method that looks at where the cells on the playing_grid are unmarked and returns a list (in a random order) of
         the index of each empty cell. This is the iterator for the minimax method.
 
-        Parameters: playing_grid - this method is called on copies of the playing board, not just the playing board
+        Parameters:
+        playing_grid: this method is called on copies of the playing board, not just the playing board
+        last_played_index: where the previous mark was made. Note that this serves the purpose of prioritising which
+        available cells to search first - those closest to the player's move
 
         Returns: List of the indexes which are available, as numpy arrays.
+
+        Notes: tested speed of the key function in the sorted() below using different options, including a lambda.
+        The cached partial function currently implemented was the fastest of those tested. A partial function is used
+        because the key must be callable. An alternative is to use an inner wrapper in the _available_cell_prioritiser,
+        and then return this, but this was also slower.
         """
         available_cell_index_list = [index for index in np.argwhere(playing_grid == 0)]
-        shuffle(available_cell_index_list)
-        return available_cell_index_list
+        if last_played_index is None:  # This is the first move of the game
+            shuffle(available_cell_index_list)  # TODO check how much time is spent shuffling in the log
+            return available_cell_index_list
+        else:  # Order the list so that we search in order of distance from the last played index
+            prioritised_list = sorted(available_cell_index_list,
+                                      key=functools.partial(self._available_cell_prioritiser, last_played_index))
+            return prioritised_list
+
+    @staticmethod
+    @lru_cache_hashable(maxsize=100000)  # Can be infinite but specified to avoid memory blow up
+    def _available_cell_prioritiser(last_played_index: np.ndarray, available_index: np.ndarray) -> float:
+        """
+        Method to define an order that can be used to sort a list of available empty cells in order of which
+        should be searched first.
+        This is important as minimax is now against the clock.
+        """
+        return np.linalg.norm(last_played_index - available_index)
+
+    # TODO specify the cache max sizes somewhere globally, to avoid memory overallocation
