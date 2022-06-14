@@ -37,14 +37,12 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         """
         Method that calls get_minimax_move_at_max_search_depth at iteratively deeper maximum search depths, until
         the maximum search time has elapsed.
+        Returns: as for get_minimax_move_at_max_search_depth
         """
         search_start_time = time.perf_counter()
         current_max_score = - math.inf
         current_best_move = None
         for iterative_search_depth in range(1, IterativeDeepening.max_search_depth.value + 1):
-            print(f"\nMax search depth: {iterative_search_depth}")
-            print(f"Current max score: {current_max_score}")
-            print(f"current best move: {current_best_move}")
             max_score, best_move = self.get_minimax_move_at_max_search_depth(
                 search_start_time=search_start_time, max_search_depth=iterative_search_depth)
             if max_score > current_max_score:  # Could call max to set the score, need a condition for setting move
@@ -70,17 +68,25 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         """
         Parameters:
         ----------
+        max_search_depth: The search depth at which the call to this method must stop searching any further and return
+        the best move currently assessed.
+
+        search_start_time: The time when the call to get_minimax_move_iterative_deepening() was first made - this is
+        passed so the search stops if max time has elapsed. This is checked both within each depth (by this method)
+        and when changing depth (the iterative_deeepening call to this method, above)
+
         last_played_index/last_played_col: The row / column that the last board marking was made in. This is included
-        so that the win search algorithm (_quick_win_search) only searches the relevant part of the board, speeding
-        things up a fair bit. These are defaulted because the minimax only evaluates moves it makes itself, so never
-        takes in an external 'last played move' - such a parameter may be a future way to speed it up though.
+        so that the win search algorithm only searches the relevant part of the board, speeding
+        things up a fair bit. These are defaulted because minimax here only evaluates moves it makes itself, so never
+        takes in an external 'last played move' - such a parameter may be a future way to speed it up by only
+        considering the most relevant part of the game board.
 
         playing_grid: The playing grid that is being searched. Note that we can't just used the instance attribute
         playing_grid as this gets altered throughout the searching by testing different game trees.
 
         search_depth: The depth at which we are searching relative to the current status of the playing_grid
 
-        maximisers_move: T/F depending on whether we are call this function to maximise or minimise the value
+        maximisers_move: T/F depending on whether the call to this method is to maximise or minimise the score
 
         alpha: The best (highest) value the maximiser can already guarantee at the given search depth or above.
         There is therefore no point searching further into game trees where the maximiser CANNOT force a higher value
@@ -95,13 +101,13 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         is pruned if the maximiser can guarantee a higher value (alpha >= beta).
         Default of +inf (first call) so it can only be improved on.
 
-        Returns: (int, np.a)
+        Returns: Tuple[int, np.ndarray]
         __________
         int -  In this case the recursion has reached a board of terminal state, this is the score of that board to the
         maximising player (score). These values are then passed up the game tree, to determine what move the maximiser
         should take, hence an int (min_score/max_score) is returned for each recursion
 
-        np.a - when the board has not reached maximum depth - it returns the move leading to the optimal score,
+        np.ndarray - when the board has not reached maximum depth - it returns the move leading to the optimal score,
         assuming the maximiser always maximises and the minimiser always minimises the static evaluation function.
         This is the best move for whichever player's turn is next.
         """
@@ -147,7 +153,6 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
             for move_option in self._get_available_cell_indices(playing_grid=playing_grid):
                 playing_grid_copy = playing_grid.copy()
                 self.mark_board(marking_index=move_option, playing_grid=playing_grid_copy)
-                # print(f"Playing grid checked: {playing_grid}")
                 potential_new_max, _ = self.get_minimax_move_at_max_search_depth(  # call minimax recursively
                     search_start_time=search_start_time, max_search_depth=max_search_depth,
                     last_played_index=move_option, playing_grid=playing_grid_copy,
@@ -228,7 +233,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         to end because the maximum search depth is reached, or the maximum search time has elapsed.
         """
         # TODO can think of something more clever to do here
-        return TerminalScore.EARLY_ABORT.value - search_depth
+        return TerminalScore.NON_TERMINAL.value - search_depth
 
     @staticmethod
     def _get_available_cell_indices(playing_grid: np.array) -> List[np.ndarray]:
