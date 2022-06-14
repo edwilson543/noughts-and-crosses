@@ -20,7 +20,7 @@ class TestMinimaxThreeThreeThree:
         return Player(name="Minimax", marking=BoardMarking.O)
 
     @pytest.fixture(scope="class")
-    def new_game_parameters(self, human_player, minimax_player):
+    def three_three_game_parameters(self, human_player, minimax_player):
         """
         A starting player is included so that we aren't missing a non-default arg, however is specified throughout
         testing. Note that if a board configuration is manually specified which implies a starting player different
@@ -35,53 +35,53 @@ class TestMinimaxThreeThreeThree:
             starting_player_value=StartingPlayer.PLAYER_O.value)
 
     @pytest.fixture(scope="function")
-    def new_game_with_minimax_player(self, new_game_parameters):
+    def three_three_game_with_minimax_player(self, three_three_game_parameters):
         return NoughtsAndCrossesMinimax(
-            setup_parameters=new_game_parameters,
+            setup_parameters=three_three_game_parameters,
         )
 
-    def test_minimax_gets_winning_move_bottom_right_row(self, new_game_with_minimax_player):
+    def test_minimax_gets_winning_move_bottom_right_row(self, three_three_game_with_minimax_player):
         """Test that minimax can win in one move when presented opportunity (bottom row win)"""
-        new_game_with_minimax_player.starting_player_value = StartingPlayer.PLAYER_O.value
-        new_game_with_minimax_player.playing_grid = np.array([
+        three_three_game_with_minimax_player.starting_player_value = StartingPlayer.PLAYER_O.value
+        three_three_game_with_minimax_player.playing_grid = np.array([
             [BoardMarking.X.value, 0, BoardMarking.X.value],
             [0, 0, 0],
             [BoardMarking.O.value, BoardMarking.O.value, 0]
         ])
-        score, minimax_move = new_game_with_minimax_player.get_minimax_move_iterative_deepening()
+        score, minimax_move = three_three_game_with_minimax_player.get_minimax_move_iterative_deepening()
         assert score == TerminalScore.MAX_WIN.value - 1  # -1 to reflect a search depth of 1 to find the win
         assert np.all(minimax_move == np.array([2, 2]))
 
-    def test_minimax_gets_winning_move_north_east_diagonal(self, new_game_with_minimax_player):
+    def test_minimax_gets_winning_move_north_east_diagonal(self, three_three_game_with_minimax_player):
         """Test that minimax can win in one move when presented opportunity (north east diagonal win)"""
-        new_game_with_minimax_player.starting_player_value = StartingPlayer.PLAYER_O.value
-        new_game_with_minimax_player.playing_grid = np.array([
+        three_three_game_with_minimax_player.starting_player_value = StartingPlayer.PLAYER_O.value
+        three_three_game_with_minimax_player.playing_grid = np.array([
             [BoardMarking.X.value, 0, BoardMarking.O.value],
             [0, 0, 0],
             [BoardMarking.O.value, BoardMarking.X.value, 0]
         ])
-        score, minimax_move = new_game_with_minimax_player.get_minimax_move_iterative_deepening()
+        score, minimax_move = three_three_game_with_minimax_player.get_minimax_move_iterative_deepening()
         assert score == TerminalScore.MAX_WIN.value - 1  # -1 to reflect a search depth of 1 to find the win
         assert np.all(minimax_move == np.array([1, 1]))
 
-    def test_minimax_makes_blocking_move_middle_left_vertical(self, new_game_with_minimax_player):
+    def test_minimax_makes_blocking_move_middle_left_vertical(self, three_three_game_with_minimax_player):
         """Test that minimax can win in one move when presented opportunity"""
-        new_game_with_minimax_player.starting_player_value = StartingPlayer.PLAYER_X.value
-        new_game_with_minimax_player.playing_grid = np.array([
+        three_three_game_with_minimax_player.starting_player_value = StartingPlayer.PLAYER_X.value
+        three_three_game_with_minimax_player.playing_grid = np.array([
             [BoardMarking.X.value, 0, BoardMarking.O.value],
             [0, 0, BoardMarking.X.value],
             [BoardMarking.X.value, BoardMarking.O.value, 0]
         ])
-        _, minimax_move = new_game_with_minimax_player.get_minimax_move_iterative_deepening()
+        _, minimax_move = three_three_game_with_minimax_player.get_minimax_move_iterative_deepening()
         assert np.all(minimax_move == np.array([1, 0]))
 
-    def test_minimax_makes_blocking_move_south_east_diagonal(self, new_game_with_minimax_player):
+    def test_minimax_makes_blocking_move_south_east_diagonal(self, three_three_game_with_minimax_player):
         """Test that minimax can win in one move when presented opportunity"""
-        new_game_with_minimax_player.starting_player_value = StartingPlayer.PLAYER_O.value
-        new_game_with_minimax_player.playing_grid = np.array([
+        three_three_game_with_minimax_player.starting_player_value = StartingPlayer.PLAYER_O.value
+        three_three_game_with_minimax_player.playing_grid = np.array([
             [BoardMarking.X.value, 0, 0],
             [0, BoardMarking.X.value, BoardMarking.O.value],
             [0, BoardMarking.O.value, 0]
         ])
-        _, minimax_move = new_game_with_minimax_player.get_minimax_move_iterative_deepening()
+        _, minimax_move = three_three_game_with_minimax_player.get_minimax_move_iterative_deepening()
         assert np.all(minimax_move == np.array([2, 2]))

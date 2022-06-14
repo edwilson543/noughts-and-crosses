@@ -6,5 +6,5 @@ from enum import Enum
 
 class IterativeDeepening(Enum):
     """Enum defining the parameters necessary to implement iterative deepening."""
-    max_search_depth = 5
-    max_search_seconds = 100
+    max_search_depth = 10  # Note 0 is counted as the first search depth
+    max_search_seconds = 1

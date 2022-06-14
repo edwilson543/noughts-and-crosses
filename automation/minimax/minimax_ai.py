@@ -16,15 +16,8 @@ from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssenti
 from game.app.player_base_class import Player
 
 
-# CURRENTLY minimax is slow for games bigger than 3x3, even with the alpha beta pruning.
-# TODO Investigate the below ideas to speed it up
-# Introduce a max search depth
-# Profile the algorithm with cProfile, set up and automatic game runner which doesn't use the GUI
-# Investigate whether implementing caching could help
-# Leverage symmetry early on in the game - symmetric branches are strategically equivalent, so if we've already tested
-# one, don't need to check rest of equivalence class. (This could come immediately after marking the grid copy).
-# This could be done by tracking number of played turns, and switching off after this. Again, profile it.
-# Evaluate boards which aren't in an end-state, say by the number of streak of length win_length -1
+# Could use caching here as for the win_search - would want to cache on playing_grid, search_depth,
+# maximisers_move. Could then also use symmetry high up in the search
 
 
 class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
@@ -73,7 +66,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
 
         search_start_time: The time when the call to get_minimax_move_iterative_deepening() was first made - this is
         passed so the search stops if max time has elapsed. This is checked both within each depth (by this method)
-        and when changing depth (the iterative_deeepening call to this method, above)
+        and when changing depth (the iterative_deepening call to this method, above)
 
         last_played_index/last_played_col: The row / column that the last board marking was made in. This is included
         so that the win search algorithm only searches the relevant part of the board, speeding
