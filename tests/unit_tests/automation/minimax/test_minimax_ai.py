@@ -117,11 +117,10 @@ class TestMinimaxAncillaryMethodsThreeThree:
             [0, BoardMarking.X.value, BoardMarking.O.value],
             [0, BoardMarking.O.value, 0]
         ])
-        last_played_index = np.array([0, 0])
+        three_three_game_with_minimax_player.previous_mark_index = np.array([0, 0])
         actual_ordered_list: List[np.ndarray] = \
             three_three_game_with_minimax_player._get_available_cell_indices(
                 playing_grid=three_three_game_with_minimax_player.playing_grid,
-                last_played_index=last_played_index
             )
         expected_ordered_list = [np.array([1, 0]), np.array([2, 0]), np.array([2, 2])]
         for cell_number, expected_array in enumerate(expected_ordered_list):

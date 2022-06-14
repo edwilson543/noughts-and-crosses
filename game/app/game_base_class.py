@@ -38,8 +38,9 @@ class NoughtsAndCrosses:
         self.player_x = setup_parameters.player_x
         self.player_o = setup_parameters.player_o
         self.starting_player_value = setup_parameters.starting_player_value
-        self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n), dtype=int)
-        self.search_directions = self._get_search_directions(playing_grid=self.playing_grid)
+        self.previous_mark_index: None | np.ndarray = None
+        self.playing_grid: np.ndarray = np.zeros(shape=(self.game_rows_m, self.game_cols_n), dtype=int)
+        self.search_directions: List[np.ndarray] = self._get_search_directions(playing_grid=self.playing_grid)
 
     ##########
     # Methods that are a part of the core game play flow
@@ -91,12 +92,14 @@ class NoughtsAndCrosses:
         Returns:
         None
         Outcomes:
-        If the cell is empty, a mark is made, else a value error is raised
+        If the cell is empty, a mark is made, else a value error is raised.
+        The previous marking is then stored as the self.previous_mark_index attribute
         """
         if playing_grid is None:
             playing_grid = self.playing_grid
         if playing_grid[tuple(marking_index)] == 0:
             marking = self.get_player_turn(playing_grid=playing_grid)
+            self.previous_mark_index = marking
             playing_grid[tuple(marking_index)] = marking
         else:
             raise ValueError(f"mark_board attempted to mark non-empty cell at {marking_index}.")
@@ -178,7 +181,11 @@ class NoughtsAndCrosses:
         return draw
 
     def reset_game_board(self) -> None:
-        """Method to reset the game playing_grid - replaces all entries in the playing_grid with a zero"""
+        """
+        Method to reset the game playing_grid - replaces all entries in the playing_grid with a zero, and sets the
+        previous_mark_index to be None.
+        """
+        self.previous_mark_index = None
         self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n))
 
     # Lower level methods

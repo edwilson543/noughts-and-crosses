@@ -228,8 +228,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         # TODO can think of something more clever to do here
         return TerminalScore.NON_TERMINAL.value - search_depth
 
-    def _get_available_cell_indices(self, playing_grid: np.ndarray,
-                                    last_played_index: np.ndarray | None = None) -> List[np.ndarray]:
+    def _get_available_cell_indices(self, playing_grid: np.ndarray) -> List[np.ndarray]:
         """
         Method that looks at where the cells on the playing_grid are unmarked and returns a list (in a random order) of
         the index of each empty cell. This is the iterator for the minimax method.
@@ -247,12 +246,12 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         and then return this, but this was also slower.
         """
         available_cell_index_list = [index for index in np.argwhere(playing_grid == 0)]
-        if last_played_index is None:  # This is the first move of the game
+        if self.previous_mark_index is None:  # This is the first move of the game
             shuffle(available_cell_index_list)  # TODO check how much time is spent shuffling in the log
             return available_cell_index_list
         else:  # Order the list so that we search in order of distance from the last played index
             prioritised_list = sorted(available_cell_index_list,
-                                      key=functools.partial(self._available_cell_prioritiser, last_played_index))
+                                      key=functools.partial(self._available_cell_prioritiser, self.previous_mark_index))
             return prioritised_list
 
     @staticmethod
