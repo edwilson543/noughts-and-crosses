@@ -37,26 +37,18 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         current_max_score = - math.inf
         current_best_move = None
         for iterative_search_depth in range(1, IterativeDeepening.max_search_depth.value + 1):
-            print(f"\nReached depth: {iterative_search_depth}")
-            print(f"Current best move: {current_best_move}, current max score: {current_max_score}")
             max_score, best_move = self.get_minimax_move_at_max_search_depth(
                 search_start_time=search_start_time, max_search_depth=iterative_search_depth)
             if max_score > current_max_score:  # Could call max to set the score, need a condition for setting move
                 current_best_move = best_move
                 current_max_score = max_score
-                print(f"Set new max score: {current_max_score}")
-                print(f"set new best move: {best_move}")
             if time.perf_counter() - search_start_time > IterativeDeepening.max_search_seconds.value:
-                print("Timed out")
-                print(f"Final move: {current_best_move}")
                 return current_max_score, current_best_move
             if max_score > TerminalScore.DRAW.value:
                 # TODO improve on this
                 # If this is the case, at the current depth we found a win, so we won't find a better score at a further
                 # depth, because of the simple scoring function that is: winning_score - search_depth
-                print("Found a win")
                 return current_max_score, current_best_move
-        print("Full search")
         return current_max_score, current_best_move
 
     def get_minimax_move_at_max_search_depth(self,

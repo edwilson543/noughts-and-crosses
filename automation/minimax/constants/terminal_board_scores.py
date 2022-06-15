@@ -10,8 +10,8 @@ class TerminalScore(Enum):
     Note that we don't just use 1 and -1 because we want to penalise search depth - depth is subtracted
     from a winning score and added to a losing score, because we want to find the quickest/loss in either scenario.
     """
-    MAX_WIN = 1000
+    MAX_WIN = 10000
     DRAW = 0
-    MAX_LOSS = -1000
+    MAX_LOSS = -10000
     NON_TERMINAL = -500
     # TODO add a block score
