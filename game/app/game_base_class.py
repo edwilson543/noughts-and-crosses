@@ -9,7 +9,7 @@ import numpy as np
 from game.app.player_base_class import Player
 from game.constants.game_constants import BoardMarking, StartingPlayer, BoardString
 from game.app.win_check_location_search import win_check_and_location_search
-
+from utils import np_array_to_tuple
 
 @dataclass(frozen=False)
 class NoughtsAndCrossesEssentialParameters:
@@ -38,9 +38,9 @@ class NoughtsAndCrosses:
         self.player_x = setup_parameters.player_x
         self.player_o = setup_parameters.player_o
         self.starting_player_value = setup_parameters.starting_player_value
-        self.previous_mark_index: None | np.ndarray = None
         self.playing_grid: np.ndarray = np.zeros(shape=(self.game_rows_m, self.game_cols_n), dtype=int)
         self.search_directions: List[np.ndarray] = self._get_search_directions(playing_grid=self.playing_grid)
+        self.previous_mark_index: None | np.ndarray = None
 
     ##########
     # Methods that are a part of the core game play flow
@@ -98,9 +98,9 @@ class NoughtsAndCrosses:
         if playing_grid is None:
             playing_grid = self.playing_grid
             self.previous_mark_index = marking_index
-        if playing_grid[tuple(marking_index)] == 0:
+        if playing_grid[np_array_to_tuple(marking_index)] == 0:
             marking = self.get_player_turn(playing_grid=playing_grid)
-            playing_grid[tuple(marking_index)] = marking
+            playing_grid[np_array_to_tuple(marking_index)] = marking
         else:
             raise ValueError(f"mark_board attempted to mark non-empty cell at {marking_index}.")
 
@@ -182,8 +182,9 @@ class NoughtsAndCrosses:
 
     def reset_game_board(self) -> None:
         """
-        Method to reset the game playing_grid - replaces all entries in the playing_grid with a zero, and sets the
-        previous_mark_index to be None.
+        Method to reset the game playing_grid - replaces all entries in the playing_grid with a zero.
+        All other instance variables are set to their initial state, including the previous_marking_index, and
+        resetting which rows/cols/diagonals have been played.
         """
         self.previous_mark_index = None
         self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n))
@@ -250,6 +251,7 @@ class NoughtsAndCrosses:
     ##########
     # This is a whole board search, i.e. is naive to where the last move was played, and thus is only used
     # when this information is not available
+    # TODO update this to only check non empty rows / cols - use the non_empty array list and test it
     ##########
     def _whole_board_search(self, playing_grid: np.ndarray = None) -> bool:
         """
@@ -262,6 +264,8 @@ class NoughtsAndCrosses:
         Returns:
         bool: True if a player has won, else false
         win_orientation: The orientation of a winning streak, if any
+
+        Notes: This is ~ O(n) slower than the win_check_and_location_search above
         """
         win_orientation = None
         if playing_grid is None:
