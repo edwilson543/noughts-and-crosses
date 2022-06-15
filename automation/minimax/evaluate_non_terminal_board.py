@@ -5,16 +5,14 @@ With the introduction of iterative deepening and a time out, the vast majority o
 an early evaluation (i.e. a non-terminal board), and so a scoring system is needed that indicates how favourable
 a board is for later in the game.
 
-This could ultimately use a transposition table derived from previous games.
+This could ultimately use a transposition table derived from previous games, but is calculated on the fly for now.
 """
-
-# Standard library imports
-from typing import Tuple, List, Set
 
 # Third party imports
 import numpy as np
 
 # Local application imports
+from automation.minimax.constants.terminal_board_scores import TerminalScore
 from game.app.win_check_cache_decorators import LRUCacheWinSearch
 from game.app.game_base_class import NoughtsAndCrosses
 from game.constants.game_constants import BoardMarking
@@ -35,8 +33,9 @@ def evaluate_non_terminal_board(playing_grid: np.ndarray,
     playing_grid - the board we are searching for a win
     win_length - the length of winning streak in the active game. This is used to determine the favourability of certain
     configurations.
-    player_turn_value - the player who's turn it is in the game - if the board is configured favourably for the player_turn_value
-    then a high score is returned, vice-versa, a low score is returned
+    player_turn_value - the player who has JUST MADE THEIR MOVE in the game
+    i.e. the player from who's perspective we are scoring the board. If the board is favourable to the player,
+    then a high score is returned, else a low score is returned
     """
     array_list = NoughtsAndCrosses.get_non_empty_array_list(playing_grid=playing_grid, win_length_k=win_length_k)
     total_score = sum(_score_individual_array(array=array, win_length_k=win_length_k,
@@ -55,7 +54,9 @@ def _score_individual_array(array: np.ndarray, win_length_k: int, player_turn_va
     convolved_array = np.convolve(array, np.ones(win_length_k, dtype=int), mode="valid")
     convolved_array_active_player = convolved_array * player_turn_value  # Now a high +ve score is good for the active
     # player and a low -ve score is bad, because player turn value is 1 or -1
-
-    scores_active_player = np.sum(convolved_array_active_player ** 3)
-    # Cubed to reflect the non-linear increase in favourability of a streak of longer length, and squaring loses sign
-    return scores_active_player
+    if min(convolved_array_active_player) == - (win_length_k - 1):  # opposition is one away from a win
+        return TerminalScore.ONE_MOVE_FROM_LOSS.value
+    else:
+        scores_active_player = np.sum(convolved_array_active_player ** 3)
+        # Cubed to reflect the non-linear increase in favourability of a longer streak, (and squaring loses sign)
+        return scores_active_player
