@@ -1,5 +1,5 @@
 # Standard library imports
-from typing import List, Tuple
+from typing import List, Tuple, Set
 from dataclasses import dataclass
 
 # Third party imports
@@ -8,8 +8,9 @@ import numpy as np
 # Local application imports
 from game.app.player_base_class import Player
 from game.constants.game_constants import BoardMarking, StartingPlayer, BoardString
-from game.app.win_check_location_search import win_check_and_location_search
+from game.app.win_check_location_search_n_dim import win_check_and_location_search
 from utils import np_array_to_tuple
+
 
 @dataclass(frozen=False)
 class NoughtsAndCrossesEssentialParameters:
@@ -108,29 +109,7 @@ class NoughtsAndCrosses:
                                       playing_grid: np.ndarray = None) -> Tuple[bool, List[Tuple[int]] | None]:
         """
         Method to determine whether or not there is a win and the LOCATION of the win.
-        This method just calls the win_check_and_location function is it located in its own module. See the docstring
-        of that function for more information.
-
-        Parameters: ---------- last_played_index - where the last move on the board was made, to restrict the search
-        area, represented by a numpy a
-
-        get_win_location - if this is True then the method returns the win locations as well, if it's false then the
-        only return is a bool for whether or not the board exhibits a win
-
-        playing_grid - the board we are searching for a win
-
-        Returns:
-        ----------
-        bool - T/F depending on whether or not there is a win
-        List[Tuple[int]] - A list of the indexes corresponding to the winning streak (only if get_win_location is
-        set to True, otherwise None)
-
-        Other information:
-        ----------
-        This method only searches the intersection of the self.win_length - 1 boundary around the last move with the
-        board, making it much faster than searching the entire board for a win.
-        Determining the location of the win adds extra processing, increasing the runtime of the search, therefore when
-        the win location is NOT needed (e.g. in the minimax algorithm), the get_win_location should be set to False.
+        See docstring for win_check_and_location_search.
         """
         if playing_grid is None:
             playing_grid = self.playing_grid
@@ -251,9 +230,8 @@ class NoughtsAndCrosses:
     ##########
     # This is a whole board search, i.e. is naive to where the last move was played, and thus is only used
     # when this information is not available
-    # TODO update this to only check non empty rows / cols - use the non_empty array list and test it
     ##########
-    def _whole_board_search(self, playing_grid: np.ndarray = None) -> bool:
+    def _whole_board_search(self) -> bool:
         """
         Method to check whether or not the playing_grid has reached a winning state.
         Note that the search will stop as soon as a win is found (i.e. not check subsequent arrays in the list).
@@ -265,66 +243,22 @@ class NoughtsAndCrosses:
         bool: True if a player has won, else false
         win_orientation: The orientation of a winning streak, if any
 
-        Notes: This is ~ O(n) slower than the win_check_and_location_search above
+        Notes: This is ~ O(n^2) slower than the win_check_and_location_search above. The speed however is highly
+        dependent of the state of the board - the emptier the board, the quicker this is.
         """
-        win_orientation = None
-        if playing_grid is None:
-            playing_grid = self.playing_grid
-
-        row_win = self._search_array_list_for_win(
-            array_list=self._get_row_arrays(playing_grid=playing_grid))
-        col_win = self._search_array_list_for_win(
-            array_list=self._get_col_arrays(playing_grid=playing_grid))
-        south_east_win = self._search_array_list_for_win(
-            array_list=self._get_south_east_diagonal_arrays(playing_grid=playing_grid))
-        north_east_win = self._search_array_list_for_win(
-            array_list=self._get_north_east_diagonal_arrays(playing_grid=playing_grid))
-
-        return bool(row_win + col_win + south_east_win + north_east_win)
-
-    #  Methods called in _winning_board_search
-    def _search_array_list_for_win(self, array_list: list[np.ndarray]) -> bool:
-        """
-        Searches a list of numpy arrays for an a of consecutive markings (1s or -1s), representing a win.
-
-        Each section of length self.win_length is convoluted with an a of ones of length self.win_length.
-        i.e. the sum of each section of each a of length self.win_length is taken, because the playing_grid is
-        1s and -1s.
-        The algorithm then checks if the sum of any sections is at least the required winning streak length.
-        """
+        array_list = self.get_non_empty_array_list(playing_grid=self.playing_grid, win_length_k=self.win_length_k)
         for array in array_list:
             convoluted_array = np.convolve(array, np.ones(self.win_length_k, dtype=int), mode="valid")
             # "valid" kwarg means only where the np.ones a fully overlaps with the row gets calculated
             max_consecutive = max(abs(convoluted_array))
             if max_consecutive == self.win_length_k:
-                return True  # Diagonals contains a winning a
-        return False  # The algorithm has looped over all south-east diagonals and not found any winning boards
+                return True  # Array contains a winning streak
+        return False  # No wins were found
 
-    def _get_row_arrays(self, playing_grid: np.ndarray = None) -> list[np.ndarray]:
+    @staticmethod
+    def get_non_empty_array_list(playing_grid: np.ndarray, win_length_k: int) -> list[np.ndarray]:
         """
-        Parameters: playing_grid, so that this can be re-used for minimax
-        Returns: a list of the row arrays on the playing grid
-        """
-        if playing_grid is None:
-            playing_grid = self.playing_grid
-        row_array_list = [playing_grid[row_index] for row_index in range(0, self.game_rows_m)]
-        return row_array_list
-
-    def _get_col_arrays(self, playing_grid: np.ndarray = None) -> list[np.ndarray]:
-        """
-        Parameters: playing_grid, so that this can be re-used for minimax
-        Returns: a list of the row arrays on the playing grid
-        """
-        if playing_grid is None:
-            playing_grid = self.playing_grid
-        col_array_list = [playing_grid[:, col_index] for col_index in range(0, self.game_cols_n)]
-        return col_array_list
-
-    def _get_south_east_diagonal_arrays(self, playing_grid: np.ndarray = None) -> list[np.ndarray]:
-        """
-        Method to extract the south_east diagonals of sufficient length from the playing grid
-        The first element in the diagonal_offset_list is the diagonals in the lower triangle and leading diagonal (of
-        at least length self.win_length), the second element is those in the upper triangle
+        Method to extract the rows, columns and diagonals that are non-empty from the playing grid
 
         Parameters:
         __________
@@ -336,28 +270,29 @@ class NoughtsAndCrosses:
         i.e. south east diagonal arrays too short to contain a winning streak are intentionally excluded, to avoid
         being searched unnecessarily.
         """
-        if playing_grid is None:
-            playing_grid = self.playing_grid
-        diagonal_offset_list = list(range(-(self.game_rows_m - self.win_length_k), 0)) + list(
-            range(0, self.game_cols_n - self.win_length_k + 1))
-        diagonal_array_list = [np.diagonal(playing_grid, offset) for offset in diagonal_offset_list]
-        return diagonal_array_list
+        # Get the indexes of the non-empty cells
+        non_empty_cells: np.ndarray = np.argwhere(playing_grid != 0)
 
-    def _get_north_east_diagonal_arrays(self, playing_grid: np.ndarray = None) -> list[np.ndarray]:
-        """
-        Method to extract the north_east diagonals of sufficient length from the playing grid
+        # Non empty rows
+        non_empty_row_indexes: Set[int] = {index[0] for index in non_empty_cells}
+        row_array_list = [playing_grid[row_index] for row_index in non_empty_row_indexes]
 
-        Parameters:
-        ----------
-        Takes the south-east diagonals of the playing_grid flipped upside down - does reverse the order of the arrays
-        in that the bottom row becomes the top, but otherwise does not affect the length of a win.
+        # Non empty columns
+        non_empty_col_indexes: Set[int] = {index[1] for index in non_empty_cells}
+        col_array_list = [playing_grid[:, col_index] for col_index in non_empty_col_indexes]
 
-        Returns:
-        __________
-        A list of the north east diagonal arrays on the playing grid, of length at least self.win_length.
-        Note they are north east because the playing_grid has been flipped upside down, so reading along a 1D a
-        generated by this method would represent travelling north east on the playing grid.
-        """
-        if playing_grid is None:
-            playing_grid = self.playing_grid
-        return self._get_south_east_diagonal_arrays(playing_grid=np.flipud(playing_grid))
+        # Non empty south east diagonal arrays long enough to contain a win
+        non_empty_south_east_offsets: Set[int] = {(index[1] - index[0]) for index in non_empty_cells}
+        full_south_east_list = [np.diagonal(playing_grid, offset) for offset in non_empty_south_east_offsets]
+        valid_south_east_diagonals = [diagonal_array for diagonal_array in full_south_east_list if
+                                      len(diagonal_array) >= win_length_k]
+
+        # Non empty south west diagonal arrays long enough to contain a win
+        n_cols = playing_grid.shape[1]  # We flip the playing_grid left-to-right so also need to flip the col index lr
+        non_empty_south_west_offsets: Set[int] = {((n_cols - index[1] - 1) - index[0]) for index in non_empty_cells}
+        full_south_west_list = [np.fliplr(playing_grid).diagonal(offset=offset) for
+                                offset in non_empty_south_west_offsets]
+        valid_south_west_diagonals = [diagonal_array for diagonal_array in full_south_west_list if
+                                      len(diagonal_array) >= win_length_k]
+
+        return row_array_list + col_array_list + valid_south_east_diagonals + valid_south_west_diagonals

@@ -165,8 +165,7 @@ class TestNoughtsAndCrossesNotSearches:
 ##########
 class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
     """
-    Test class for the (old) whole board search algorithm of the NoughtsAndCrosses class (_winning_board_search)
-    (Chiefly its component methods).
+    Test class for the whole board search algorithm of the NoughtsAndCrosses class, and ancillary methods.
     """
 
     @pytest.fixture(scope="class")
@@ -294,15 +293,40 @@ class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
         assert win
 
     ##########
-    # Tests to see output of decomposing diagonals
+    # Tests for the get_non_empty_array_list method
     ##########
-    def test_south_east_diagonal_list(self, four_three_game):
+    @pytest.fixture(scope="class")
+    def five_six_game_parameters(self):
+        return NoughtsAndCrossesEssentialParameters(
+            game_rows_m=5,
+            game_cols_n=6,
+            win_length_k=3,
+            starting_player_value=StartingPlayer.PLAYER_X.value)
+
+    @pytest.fixture(scope="function")
+    def five_six_game(self, five_six_game_parameters):
+        return NoughtsAndCrosses(setup_parameters=five_six_game_parameters)
+
+    def test_get_non_empty_array_list(self, five_six_game):
         """Tests whether the get_south_east_diagonal_list method is working"""
-        four_three_game.game_rows_m = 5
-        four_three_game.game_cols_n = 6
-        four_three_game.playing_grid = np.arange(30).reshape((5, 6))
+        five_six_game.playing_grid = np.arange(30).reshape((5, 6))
         # Using a set to avoid list order failing the test (which is irrelevant):
-        expected_diagonal_arrays = [
+        expected_row_arrays = [
+            np.array([0, 1, 2, 3, 4, 5]),
+            np.array([6, 7, 8, 9, 10, 11]),
+            np.array([12, 13, 14, 15, 16, 17]),
+            np.array([18, 19, 20, 21, 22, 23]),
+            np.array([24, 25, 26, 27, 28, 29]),
+        ]
+        expected_column_arrays = [
+            np.array([0, 6, 12, 18, 24]),
+            np.array([1, 7, 13, 19, 25]),
+            np.array([2, 8, 14, 20, 26]),
+            np.array([3, 9, 15, 21, 27]),
+            np.array([4, 10, 16, 22, 28]),
+            np.array([5, 11, 17, 23, 29])
+        ]
+        expected_south_east_diagonal_arrays = [
             np.array([3, 10, 17]),
             np.array([2, 9, 16, 23]),
             np.array([1, 8, 15, 22, 29]),
@@ -310,31 +334,20 @@ class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
             np.array([6, 13, 20, 27]),
             np.array([12, 19, 26])
         ]
-        actual_diagonal_arrays: list = four_three_game._get_south_east_diagonal_arrays(
-            playing_grid=four_three_game.playing_grid)
-        for act_array in actual_diagonal_arrays:
-            validity = False
-            for exp_array in expected_diagonal_arrays:
-                validity += np.all(act_array == exp_array)
-            assert validity
-
-    def test_north_west_diagonal_list(self, four_three_game):
-        """Tests whether the get_south_east_diagonal_list method is working"""
-        four_three_game.game_rows_m = 5
-        four_three_game.game_cols_n = 6
-        four_three_game.playing_grid = np.arange(30).reshape((5, 6))
-        # Using a set to avoid list order failing the test (which is irrelevant):
-        expected_diagonal_arrays = [
-            np.array([12, 7, 2]),
-            np.array([18, 13, 8, 3]),
-            np.array([24, 19, 14, 9, 4]),
-            np.array([25, 20, 15, 10, 5]),
-            np.array([26, 21, 16, 11]),
-            np.array([27, 22, 17])
+        expected_south_west_diagonal_arrays = [
+            np.array([2, 7, 12]),
+            np.array([3, 8, 13, 18]),
+            np.array([4, 9, 14, 19, 24]),
+            np.array([5, 10, 15, 20, 25]),
+            np.array([11, 16, 21, 26]),
+            np.array([17, 22, 27])
         ]
-        actual_diagonal_arrays: list = four_three_game._get_north_east_diagonal_arrays()
-        for act_array in actual_diagonal_arrays:
+        all_expected_arrays = expected_row_arrays + expected_column_arrays + expected_south_east_diagonal_arrays + \
+            expected_south_west_diagonal_arrays
+        all_actual_arrays: list = five_six_game.get_non_empty_array_list(
+            playing_grid=five_six_game.playing_grid, win_length_k=five_six_game.win_length_k)
+        for exp_array in all_expected_arrays:
             validity = False
-            for exp_array in expected_diagonal_arrays:
-                validity += np.all(act_array == exp_array)
+            for act_array in all_actual_arrays:
+                validity += np.all(exp_array == act_array)
             assert validity
