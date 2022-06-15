@@ -11,8 +11,8 @@ import math
 import numpy as np
 
 # Local application imports
-from automation.minimax.terminal_board_scores import TerminalScore
-from automation.minimax.iterative_deepening_constants import IterativeDeepening
+from automation.minimax.constants.terminal_board_scores import TerminalScore
+from automation.minimax.constants.iterative_deepening_constants import IterativeDeepening
 from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
 from game.app.player_base_class import Player
 from utils import lru_cache_hashable

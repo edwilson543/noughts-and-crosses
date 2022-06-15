@@ -9,7 +9,7 @@ import numpy as np
 
 # Local application imports
 from automation.minimax.minimax_ai import NoughtsAndCrossesMinimax
-from automation.minimax.terminal_board_scores import TerminalScore
+from automation.minimax.constants.terminal_board_scores import TerminalScore
 from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
 from game.app.player_base_class import Player
 from game.constants.game_constants import BoardMarking, StartingPlayer
