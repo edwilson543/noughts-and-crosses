@@ -10,4 +10,3 @@ class IterativeDeepening(Enum):
     max_search_seconds = 2
     max_branch_factor = 24  # The max number of cells to check at each depth
     # Otherwise we just run out of time searching every cell at search depth 1, 2, ...
-    # TODO

@@ -37,16 +37,18 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         current_max_score = - math.inf
         current_best_move = None
         for iterative_search_depth in range(1, IterativeDeepening.max_search_depth.value + 1):
+            print(f"\nReached depth: {iterative_search_depth}")
+            print(f"Current best move: {current_best_move}, current max score: {current_max_score}")
             max_score, best_move = self.get_minimax_move_at_max_search_depth(
                 search_start_time=search_start_time, max_search_depth=iterative_search_depth)
-            print(max_score, best_move)
-            print(f"Reached depth: {iterative_search_depth}")
             if max_score > current_max_score:  # Could call max to set the score, need a condition for setting move
                 current_best_move = best_move
                 current_max_score = max_score
-            print("Set new max score")
+                print(f"Set new max score: {current_max_score}")
+                print(f"set new best move: {best_move}")
             if time.perf_counter() - search_start_time > IterativeDeepening.max_search_seconds.value:
                 print("Timed out")
+                print(f"Final move: {current_best_move}")
                 return current_max_score, current_best_move
             if max_score > TerminalScore.DRAW.value:
                 # TODO improve on this
@@ -241,15 +243,17 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
 
     def _get_available_cell_indices(self, playing_grid: np.ndarray, last_index: np.ndarray = None) -> List[np.ndarray]:
         """
-        Method that looks at where the cells on the playing_grid are unmarked and returns a list (in a random order) of
-        the index of each empty cell. This is the iterator for the minimax method.
+        Method that looks at where the cells on the playing_grid are unmarked and returns a list of the index of each
+        empty cell. This is the iterator for the minimax method.
+        If the game has already started, the list is prioritised according to proximity to the previous move.
+        A max branching factor is already introduced, which is used to slice the head off the list and only return this
 
         Parameters:
         playing_grid: this method is called on copies of the playing board, not just the playing board
         last_played_index: where the previous mark was made. Note that this serves the purpose of prioritising which
         available cells to search first - those closest to the player's move
 
-        Returns: List of the indexes which are available, as numpy arrays.
+        Returns: List of the indexes which are available, as numpy arrays, up to the max branching factor.
 
         Notes: tested speed of the key function in the sorted() below using different options, including a lambda.
         The cached partial function currently implemented was the fastest of those tested. A partial function is used
@@ -257,17 +261,17 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         and then return this, but this was also slower.
         """
         available_cell_index_list = [index for index in np.argwhere(playing_grid == 0)]
+        shuffle(available_cell_index_list)
         if self.previous_mark_index is None:  # This is the first move of the game
-            shuffle(available_cell_index_list)
-            return available_cell_index_list
+            return available_cell_index_list[:IterativeDeepening.max_branch_factor.value]
         elif last_index is None:  # This is a primary minimax call to minimax
             prioritised_list = sorted(available_cell_index_list,
                                       key=functools.partial(self._available_cell_prioritiser, self.previous_mark_index))
-            return prioritised_list
+            return prioritised_list[:IterativeDeepening.max_branch_factor.value]
         else:  # Order the list so that we search in order of distance from the last played index
             prioritised_list = sorted(available_cell_index_list,
                                       key=functools.partial(self._available_cell_prioritiser, last_index))
-            return prioritised_list
+            return prioritised_list[:IterativeDeepening.max_branch_factor.value]
 
     @staticmethod
     @lru_cache_hashable(maxsize=100000)  # Can be infinite but specified to avoid memory blow up
