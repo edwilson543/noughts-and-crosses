@@ -37,7 +37,7 @@ player_o_simulated_as = PlayerOptions.RANDOM
 print_report_to_terminal = True
 number_of_rows_to_print = 10
 save_report_to_file = True
-saved_report_file_suffix = "_iterative_deepening_high_search_depth"  # Note 'suffix' because simulation metadata auto included. Extension too.
+saved_report_file_suffix = "_iterative_deepening_scoring_func"  # Note 'suffix' because simulation metadata auto included. Extension too.
 ####################
 
 
