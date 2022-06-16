@@ -45,10 +45,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                 current_max_score = max_score
             if time.perf_counter() - search_start_time > IterativeDeepening.max_search_seconds.value:
                 return current_max_score, current_best_move
-            if max_score > TerminalScore.DRAW.value:
-                # TODO improve on this
-                # If this is the case, at the current depth we found a win, so we won't find a better score at a further
-                # depth, because of the simple scoring function that is: winning_score - search_depth
+            if max_score > TerminalScore.CUT_OFF_SCORE_TO_STOP_SEARCHING.value:
                 return current_max_score, current_best_move
         return current_max_score, current_best_move
 
