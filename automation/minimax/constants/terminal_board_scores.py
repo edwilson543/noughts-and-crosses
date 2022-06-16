@@ -16,8 +16,11 @@ class TerminalScore(Enum):
 
     Note that here 'MAX' refers to the score from the perspective of the maximising player.
     """
-    MAX_WIN = 100000
+    # Scores for evaluating a terminal board
+    MAX_WIN = 10000
     DRAW = 0
-    MAX_LOSS = -100000
-    ONE_MOVE_FROM_LOSS = - 90000  # Score for leaving the board in a state where the opposition can win in one move
+    MAX_LOSS = -10000
+
+    # Scores for evaluating a non-terminal board
+    ONE_MOVE_FROM_LOSS = - 9000  # Score for leaving the board in a state where the opposition can win in one move
     NON_TERMINAL = -5000  # TODO delete this

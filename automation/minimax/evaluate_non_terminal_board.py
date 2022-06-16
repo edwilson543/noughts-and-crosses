@@ -51,6 +51,8 @@ def _score_individual_array(array: np.ndarray, win_length_k: int, player_turn_va
 
     This is not perfect but gives some indication.
     """
+    # TODO should really incorporate search depth somewhere here
+
     convolved_array = np.convolve(array, np.ones(win_length_k, dtype=int), mode="valid")
     convolved_array_active_player = convolved_array * player_turn_value  # Now a high +ve score is good for the active
     # player and a low -ve score is bad, because player turn value is 1 or -1
