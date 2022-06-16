@@ -5,14 +5,14 @@ best one that speeds it up.
 
 # Standard library imports
 from collections import OrderedDict
-from functools import lru_cache, update_wrapper, wraps
-from typing import Tuple, List
+from functools import update_wrapper
+from typing import Tuple, List, Callable, Set, Union
 
 # Third party imports
 import numpy as np
 
 # Local application imports
-from utils import np_array_to_tuple
+from utils import np_array_to_tuple, get_symmetry_set_of_tuples_from_array
 
 
 ##########
@@ -38,13 +38,15 @@ class LRUCacheWinSearch:
 
     def __init__(self,
                  hash_key_kwargs: set,
-                 maxsize: int = None):
+                 maxsize: int = None,
+                 use_symmetry: bool = False):
         self.hash_key_kwargs = hash_key_kwargs
         self.cache_maxsize = maxsize
-        self.win_search_func = None
-        self.cache = OrderedDict({})
+        self.use_symmetry = use_symmetry
+        self.win_search_func: Union[None, Callable] = None  # PyCharm linter doesn't like None | Callable
+        self.cache: OrderedDict = OrderedDict({})
 
-    def __call__(self, win_search_func=None, *args, **kwargs):
+    def __call__(self, win_search_func: Callable = None, *args, **kwargs):
         """
         Because this is a decorator class, we need to make it callable.
         Due to the decorator arguments, we need the if/elif below, rather than just to always return the search_return.
@@ -66,19 +68,29 @@ class LRUCacheWinSearch:
         elif win_search_func is None and self.win_search_func is not None:
             return self._get_search_return_value(*args, **kwargs)
 
-    def _get_search_return_value(self, *args, **kwargs) -> (bool, List[Tuple[int]]):
+    def _get_search_return_value(self, *args, **kwargs) -> Tuple[bool, List[Tuple[int]] | None]:
         """
         Method to retrieve a value from the cache if available, or call the search function and then cache the
         return if it is not available.
-        Returns: Equivalent to the win_check_and_location_search method
+        Note that if self.use_symmetry is set to True, then all arrays symmetrically equivalent to the
+        passed playing grid are automatically cached against the same return value, when "get_win_location" is not True,
+        otherwise using symmetry is invalid.
+
+        Parameters/Returns: As for the win_check_and_location_search method
         """
         hash_key = self._create_hash_key_from_kwargs(*args, **kwargs)
         if hash_key in self.cache:
             self.cache.move_to_end(hash_key)  # Now the most recently used
             return self.cache[hash_key]
-        else:
+        else:  # Must directly call function and cache
             search_return_value = self.win_search_func(*args, **kwargs)
-            self._cache_return_value(hash_key=hash_key, return_value=search_return_value)
+            if self.use_symmetry and not kwargs["get_win_location"]:
+                # note the not kwargs["get_win_location"] is to avoid symmetry returning the wrong win location
+                hash_key_list = self._create_hash_key_list_for_symmetry_set_from_kwargs(*args, **kwargs)
+                for symm_hash_key in hash_key_list:
+                    self._cache_return_value(hash_key=symm_hash_key, return_value=search_return_value)
+            else:
+                self._cache_return_value(hash_key=hash_key, return_value=search_return_value)
             return search_return_value
 
     def _cache_return_value(self, hash_key: Tuple[Tuple, bool], return_value: (bool, List[Tuple[int]])) -> None:
@@ -86,14 +98,11 @@ class LRUCacheWinSearch:
         Method to cache the passed return_value with the passed hash_key, and if the maximum size of the cache
         is exceeded, remove the least recently used item. Note that return_value becomes the most recently used item.
         """
-        #  TODO a clever thing here would be to add the symmetric equivalence class of the board - may or may not
-        # speed it up though
         self.cache[hash_key] = return_value
         self.cache.move_to_end(key=hash_key)  # Now the most recently used
         if self.cache_maxsize is not None and len(self.cache) > self.cache_maxsize:
             self.cache.popitem(last=False)  # last=False specifies the LRU item in this case
 
-    # @staticmethod
     def _create_hash_key_from_kwargs(self, *args, **kwargs) -> Tuple:
         """
         Method to get the kwargs that we want to use as keys for the cache, make them hashable, and generate one
@@ -106,49 +115,31 @@ class LRUCacheWinSearch:
         """
         if self.hash_key_kwargs is not None:
             hash_key_tuple = tuple(np_array_to_tuple(kwargs[key_kwarg]) if
-                             (key_kwarg in kwargs and key_kwarg in self.hash_key_kwargs) else
-                             kwargs[key_kwarg] for key_kwarg in self.hash_key_kwargs)
+                                   isinstance(kwargs[key_kwarg], np.ndarray) else
+                                   kwargs[key_kwarg] for key_kwarg in self.hash_key_kwargs)
             return hash_key_tuple
         else:
             raise KeyError("No kwargs were specified to construct the hash key for the lru cache from.")
 
+    def _create_hash_key_list_for_symmetry_set_from_kwargs(self, *args, **kwargs) -> List[Tuple]:
+        """
+        Method to create a list of hash keys from kwargs for each tuple in the symmetry set of a given playing grid.
+        These can then be used to cache all of these different tuples against the same return value.
 
-##########
-# Option 2 - a modified version of the built-in functools lru_cache
-##########
-def lru_cache_hashable(maxsize: int):
-    """
-    Decorator that can be used to cache functions taking numpy arrays as argument.
-    The standard lru_cache only works on functions with hashable arguments and returns (cache entries are stored in a
-    dict). The decorator therefore:
-    1) When the function is called, converts any numpy arrays to tuples (lru_cache_hashable_wrapper) by modifying
-    *args and **kwargs. *args and **kwargs are now hashable
-    2) Calls another function (cached_wrapper) using these *args and **kwargs which is itself cached. The cached_wrapper
-    just converts back any tuples to np.arrays and calls the decorated function.
-
-    Parameters: cache_maxsize (maintained from the lru_cache decorator)
-    """
-
-    def lru_cache_hashable_decorator(func):
-        @lru_cache(maxsize=maxsize)
-        def cached_wrapper(*hashable_args,
-                           **hashable_kwargs):  # the lru_cache only works on functions with hashable args and returns
-            unhashable_args = tuple(np.array(arg) if type(arg) == tuple else arg for arg in hashable_args)
-            unhashable_kwargs = {key: np.array(kwarg) if type(kwarg) == tuple else kwarg for key, kwarg in
-                                 hashable_kwargs.items()}
-            return func(*unhashable_args, **unhashable_kwargs)
-
-        @wraps(func)
-        def lru_cache_hashable_wrapper(*unhashable_args, **unhashable_kwargs):
-            hashable_args = tuple(np_array_to_tuple(arg) if type(arg) == np.ndarray else arg for arg in unhashable_args)
-            hashable_kwargs = {key: np_array_to_tuple(kwarg) if type(kwarg) == np.ndarray else kwarg for key, kwarg in
-                               unhashable_kwargs.items()}
-            return cached_wrapper(*hashable_args, **hashable_kwargs)
-
-        # copy lru_cache attributes over too
-        lru_cache_hashable_wrapper.cache_info = cached_wrapper.cache_info
-        lru_cache_hashable_wrapper.cache_clear = cached_wrapper.cache_clear
-
-        return lru_cache_hashable_wrapper
-
-    return lru_cache_hashable_decorator
+        Returns: A list of hash_keys based on the hash_key_kwargs instance attribute.
+        """
+        if "playing_grid" not in kwargs:
+            raise KeyError("Attempted to call _create_list_of_hash_keys_from_kwargs with kwargs that do not"
+                           f"include 'playing_grid'. kwargs: {kwargs}")
+        if "get_win_location" not in kwargs:
+            raise KeyError("Attempted to call _create_list_of_hash_keys_from_kwargs with kwargs that do not"
+                           f"include 'get_win_location'. kwargs: {kwargs}")
+        else:
+            playing_grid: np.ndarray = kwargs["playing_grid"]
+            symmetry_set: Set[Tuple] = get_symmetry_set_of_tuples_from_array(array=playing_grid)
+            hash_key_list = []
+            for symmetric_tup in symmetry_set:
+                kwargs["playing_grid"] = symmetric_tup
+                hash_key = self._create_hash_key_from_kwargs(*args, **kwargs)
+                hash_key_list.append(hash_key)
+            return hash_key_list

@@ -29,7 +29,7 @@ columns = 3
 win_length = 3
 
 # Simulation parameters
-number_of_complete_games_to_simulate = 5
+number_of_complete_games_to_simulate = 10
 player_x_simulated_as = PlayerOptions.MINIMAX
 player_o_simulated_as = PlayerOptions.RANDOM
 
@@ -37,7 +37,7 @@ player_o_simulated_as = PlayerOptions.RANDOM
 print_report_to_terminal = True
 number_of_rows_to_print = 10
 save_report_to_file = True
-saved_report_file_suffix = "_Custom_LRUCache"  # Note 'suffix' because simulation metadata auto included. Extension too.
+saved_report_file_suffix = "_iterative_deepening_scoring_func"  # Note 'suffix' because simulation metadata auto included. Extension too.
 ####################
 
 

@@ -88,13 +88,14 @@ class GameSimulator(NoughtsAndCrossesMinimax):
                     self.reset_game_board()
                     break
         if self.collect_data:
+            self._print_simulation_outcome_to_terminal()
             self._save_simulation_dataframe_to_file()
 
     # Methods used to generate the player moves when running the simulations
     def _get_player_x_move(self) -> np.ndarray:
         """Method to get the moved played by player x on their turn"""
         if self.player_x_as == PlayerOptions.MINIMAX:
-            _, move = self.get_minimax_move()
+            _, move = self.get_minimax_move_iterative_deepening()
             return move
         elif self.player_x_as == PlayerOptions.RANDOM:
             return self._get_random_move()
@@ -104,10 +105,10 @@ class GameSimulator(NoughtsAndCrossesMinimax):
 
     def _get_player_o_move(self) -> np.array:
         """Method to get the moved played by player o on their turn"""
-        if self.player_x_as == PlayerOptions.MINIMAX:
-            _, move = self.get_minimax_move()
+        if self.player_o_as == PlayerOptions.MINIMAX:
+            _, move = self.get_minimax_move_iterative_deepening()
             return move
-        elif self.player_x_as == PlayerOptions.RANDOM:
+        elif self.player_o_as == PlayerOptions.RANDOM:
             return self._get_random_move()
         else:
             raise ValueError(f"player_o_as simulation player's moves are not defined."
@@ -148,13 +149,13 @@ class GameSimulator(NoughtsAndCrossesMinimax):
 
     def _add_winning_player_to_simulation_dataframe(self, simulation_number: int) -> None:
         """Method to add the winning player to the dataframe, in the case that we no there is a winner."""
-        last_played_value = self.get_player_turn()
+        last_played_value = - self.get_player_turn()
         if BoardMarking(last_played_value) == BoardMarking.X:
             self.simulation_dataframe.loc[
-                simulation_number, SimulationColumnName.WINNING_PLAYER.name] = BoardMarking.X.name
+                simulation_number, SimulationColumnName.WINNING_PLAYER.name] = self.player_x_as.name
         else:
             self.simulation_dataframe.loc[
-                simulation_number, SimulationColumnName.WINNING_PLAYER.name] = BoardMarking.O.name
+                simulation_number, SimulationColumnName.WINNING_PLAYER.name] = self.player_o_as.name
 
     def _save_simulation_dataframe_to_file(self):
         """Method to save the simulation file in the given path."""
@@ -165,6 +166,11 @@ class GameSimulator(NoughtsAndCrossesMinimax):
 
         file_name = self.get_output_file_prefix() + self.collected_data_file_suffix + ".csv"
         self.simulation_dataframe.to_csv(file_path / file_name, index=False, na_rep="GAME_WON")
+
+    def _print_simulation_outcome_to_terminal(self):
+        """Method to print a summary of who won how many games to the terminal."""
+        win_counts = self.simulation_dataframe[SimulationColumnName.WINNING_PLAYER.name].value_counts(ascending=False)
+        print(f"Summary of games won by each player during simulations:\n {win_counts}")
 
     # Methods producing strings detailing metadata related to simulation
     def get_output_file_prefix(self) -> str:
