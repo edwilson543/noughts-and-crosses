@@ -67,6 +67,7 @@ class GameProfiler:
             number_of_simulations=number_of_simulations,
             player_x_as=PlayerOptions.MINIMAX,
             player_o_as=PlayerOptions.RANDOM,
+            print_game_outcomes=False,
             collect_data=False
         )
         self.print_report = print_report

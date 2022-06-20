@@ -1,9 +1,6 @@
 # Standard library imports
 import pytest
 
-# Third party imports
-import numpy as np
-
 # Local application imports
 from automation.game_simulation.game_simulation_base_class import GameSimulator
 from automation.game_simulation.game_simulation_constants import PlayerOptions, SimulationColumnName
@@ -30,6 +27,7 @@ def three_three_game_simulator(three_three_game_parameters):
         number_of_simulations=10,
         player_x_as=PlayerOptions.RANDOM,
         player_o_as=PlayerOptions.RANDOM,
+        print_game_outcomes=False,
         collect_data=True,
     )
 
@@ -40,10 +38,12 @@ class TestGameSimulationBaseClass:
         move = SimulationColumnName.MOVE.name
         board_status = SimulationColumnName.BOARD_STATUS.name
         expected_columns = [SimulationColumnName.STARTING_PLAYER.name, SimulationColumnName.WINNING_PLAYER.name] + \
-            [f"{board_status}_1", f"{board_status}_2", f"{board_status}_3", f"{board_status}_4", f"{board_status}_5",
-             f"{board_status}_6", f"{board_status}_7", f"{board_status}_8", f"{board_status}_9"] + \
-        [f"{move}_1", f"{move}_2", f"{move}_3", f"{move}_4", f"{move}_5", f"{move}_6", f"{move}_7", f"{move}_8",
-         f"{move}_9"]
+                           [f"{board_status}_1", f"{board_status}_2", f"{board_status}_3", f"{board_status}_4",
+                            f"{board_status}_5",
+                            f"{board_status}_6", f"{board_status}_7", f"{board_status}_8", f"{board_status}_9"] + \
+                           [f"{move}_1", f"{move}_2", f"{move}_3", f"{move}_4", f"{move}_5", f"{move}_6", f"{move}_7",
+                            f"{move}_8",
+                            f"{move}_9"]
         actual_columns = three_three_game_simulator._construct_empty_simulation_dataframe().columns
         assert all(expected_columns == actual_columns)
 
@@ -58,4 +58,3 @@ class TestGameSimulationBaseClass:
     #     expected_string = "[['X' 'O' '-']\n['-' '-' '-']\n['-' '-' '-']]"
     #     actual_string = three_three_game_simulator._encode_board_as_string()
     #     assert expected_string == actual_string
-

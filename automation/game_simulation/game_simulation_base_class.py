@@ -25,6 +25,7 @@ class GameSimulator(NoughtsAndCrossesMinimax):
 
     Instance attributes:
     __________
+    setup_parameters: The parameters used to define the game of noughts and crosses that are being played
     number_of_simulations: The number of games that will be simulated to completion between the two players
     player_x_as/player_o_as: The automatic players X and O will be simulated as
     collect_data: True/False depending on whether we want to store the simulated games
@@ -37,6 +38,7 @@ class GameSimulator(NoughtsAndCrossesMinimax):
                  number_of_simulations: int,
                  player_x_as: PlayerOptions,
                  player_o_as: PlayerOptions,
+                 print_game_outcomes: bool,
                  collect_data: bool,
                  collected_data_path: Path = ROOT_PATH / "research" / "game_simulation_data",
                  collected_data_file_suffix: str = None):
@@ -44,6 +46,7 @@ class GameSimulator(NoughtsAndCrossesMinimax):
         self.number_of_simulations = number_of_simulations
         self.player_x_as = player_x_as
         self.player_o_as = player_o_as
+        self.print_game_outcomes = print_game_outcomes
         self.collect_data = collect_data
         self.collected_data_path = collected_data_path
         self.collected_data_file_suffix = collected_data_file_suffix
@@ -88,8 +91,9 @@ class GameSimulator(NoughtsAndCrossesMinimax):
                     self.reset_game_board()
                     break
         if self.collect_data:
-            self._print_simulation_outcome_to_terminal()
             self._save_simulation_dataframe_to_file()
+        if self.print_game_outcomes:
+            self._print_simulation_outcome_to_terminal()
 
     # Methods used to generate the player moves when running the simulations
     def _get_player_x_move(self) -> np.ndarray:
@@ -103,7 +107,7 @@ class GameSimulator(NoughtsAndCrossesMinimax):
             raise ValueError(f"player_x_as simulation player's moves are not defined."
                              f"self.player_x_as: {self.player_x_as}")
 
-    def _get_player_o_move(self) -> np.array:
+    def _get_player_o_move(self) -> np.ndarray:
         """Method to get the moved played by player o on their turn"""
         if self.player_o_as == PlayerOptions.MINIMAX:
             _, move = self.get_minimax_move_iterative_deepening()
@@ -145,7 +149,6 @@ class GameSimulator(NoughtsAndCrossesMinimax):
 
         last_move_col_index = f"{SimulationColumnName.MOVE.name}_{moves_made}"
         self.simulation_dataframe.loc[simulation_number, last_move_col_index] = np_array_to_tuple(self.playing_grid)
-        # TODO - easiest way to encode and decode the board -
 
     def _add_winning_player_to_simulation_dataframe(self, simulation_number: int) -> None:
         """Method to add the winning player to the dataframe, in the case that we no there is a winner."""
