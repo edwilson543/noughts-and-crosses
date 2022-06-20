@@ -18,7 +18,7 @@ from game.constants.game_constants import BoardMarking
 from utils import lru_cache_hashable
 
 
-@lru_cache_hashable
+@lru_cache_hashable(maxsize=1000000)
 def evaluate_non_terminal_board(playing_grid: np.ndarray,
                                 win_length_k: int,
                                 search_depth: int,
