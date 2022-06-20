@@ -215,18 +215,6 @@ class NoughtsAndCrosses:
             return NoughtsAndCrosses._get_search_directions(
                 playing_grid=playing_grid, array_list=new_array_list, dimension=dimension + 1)
 
-    def _encode_board_as_string(self) -> str:
-        """Method that converts the numpy array board into a human readable string"""
-        element_wise_int_to_str_func = np.vectorize(
-            lambda mark: BoardMarking(mark).name if mark != 0 else BoardString.EMPTY.value)
-        np_array_of_strings = element_wise_int_to_str_func(self.playing_grid)
-        array_string = np.array2string(np_array_of_strings, separator=BoardString.SEPARATOR.value)
-        return array_string
-
-    @staticmethod
-    def _decode_board_from_string(string_rep: str) -> np.ndarray:
-        pass
-
     ##########
     # This is a whole board search, i.e. is naive to where the last move was played, and thus is only used
     # when this information is not available

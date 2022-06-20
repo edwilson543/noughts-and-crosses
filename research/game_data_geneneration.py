@@ -31,6 +31,7 @@ player_x_simulated_as = PlayerOptions.MINIMAX
 player_o_simulated_as = PlayerOptions.RANDOM
 
 # Reporting parameters
+print_game_outcomes = True
 data_file_suffix = "_sim_str"  # Note 'suffix' because simulation metadata auto included. Extension too.
 data_file_path = ROOT_PATH / "research" / "game_simulation_data"
 ####################
@@ -48,6 +49,7 @@ if __name__ == "__main__":
         number_of_simulations=number_of_complete_games_to_simulate,
         player_x_as=player_x_simulated_as,
         player_o_as=player_o_simulated_as,
+        print_game_outcomes=print_game_outcomes,
         collect_data=True,
         collected_data_path=data_file_path,
         collected_data_file_suffix=data_file_suffix,
