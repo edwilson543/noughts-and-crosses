@@ -28,9 +28,11 @@ class GameSimulator(NoughtsAndCrossesMinimax):
     setup_parameters: The parameters used to define the game of noughts and crosses that are being played
     number_of_simulations: The number of games that will be simulated to completion between the two players
     player_x_as/player_o_as: The automatic players X and O will be simulated as
+    print_game_outcomes: Whether or not how many games each player wins gets printed to the terminal
     collect_data: True/False depending on whether we want to store the simulated games
-    setup_parameters: The parameters of the game we are simulating
-    draw_count: The count of the number of draws for the game we are simulating
+    collect_data_path: The path where the collected data will be saved (plus an additional /date)
+    collect_data_file_suffix: The suffix to the file where the data is being saved (plus an m_n_k prefix)
+    simulation_dataframe: The dataframe used to store the moves, board status and outcomes of individual games
     """
 
     def __init__(self,
@@ -53,7 +55,7 @@ class GameSimulator(NoughtsAndCrossesMinimax):
         self.simulation_dataframe: pd.DataFrame = self._construct_empty_simulation_dataframe()
 
     def run_simulations(self):
-        """Method to call to run the simulations of the game play"""
+        """Method that gets called to run the simulations of the game play"""
 
         # Potentially some setup methods
         for simulation_number in range(0, self.number_of_simulations):
@@ -118,11 +120,12 @@ class GameSimulator(NoughtsAndCrossesMinimax):
             raise ValueError(f"player_o_as simulation player's moves are not defined."
                              f"self.player_x_as: {self.player_x_as}")
 
-    def _get_random_move(self):
+    def _get_random_move(self) -> np.ndarray:
         """
         Method to generate a random move on the playing grid.
-        Note that the _get_available_cell_indices method already includes a random shuffle, so we can just index of
+        Note that the _get_available_cell_indices method already includes a random shuffle, so we can just index out
         the first element in this list.
+        Note also that despite it returning a sliced list, because it is randomly sliced, this does not matter
         """
         random_options: List[np.ndarray] = self._get_available_cell_indices(playing_grid=self.playing_grid)
         return random_options[0]
@@ -151,7 +154,7 @@ class GameSimulator(NoughtsAndCrossesMinimax):
         self.simulation_dataframe.loc[simulation_number, last_move_col_index] = np_array_to_tuple(self.playing_grid)
 
     def _add_winning_player_to_simulation_dataframe(self, simulation_number: int) -> None:
-        """Method to add the winning player to the dataframe, in the case that we no there is a winner."""
+        """Method to add the winning player to the dataframe, in the case that we know there is a winner."""
         last_played_value = - self.get_player_turn()
         if BoardMarking(last_played_value) == BoardMarking.X:
             self.simulation_dataframe.loc[
@@ -160,7 +163,7 @@ class GameSimulator(NoughtsAndCrossesMinimax):
             self.simulation_dataframe.loc[
                 simulation_number, SimulationColumnName.WINNING_PLAYER.name] = self.player_o_as.name
 
-    def _save_simulation_dataframe_to_file(self):
+    def _save_simulation_dataframe_to_file(self) -> None:
         """Method to save the simulation file in the given path."""
         date_directory_name = datetime.now().strftime("%Y_%m_%d")
         file_path: Path = self.collected_data_path / date_directory_name
@@ -170,14 +173,14 @@ class GameSimulator(NoughtsAndCrossesMinimax):
         file_name = self.get_output_file_prefix() + self.collected_data_file_suffix + ".csv"
         self.simulation_dataframe.to_csv(file_path / file_name, index=False, na_rep="GAME_WON")
 
-    def _print_simulation_outcome_to_terminal(self):
+    def _print_simulation_outcome_to_terminal(self) -> None:
         """Method to print a summary of who won how many games to the terminal."""
         win_counts = self.simulation_dataframe[SimulationColumnName.WINNING_PLAYER.name].value_counts(ascending=False)
         print(f"Summary of games won by each player during simulations:\n {win_counts}")
 
     # Methods producing strings detailing metadata related to simulation
     def get_output_file_prefix(self) -> str:
-        """Method to create a string of the form: 3_3_3_MINIMAX_RANDOM as a prefix for data files"""
+        """Method to create a string of the form: 3_3_3_MINIMAX_RANDOM as a prefix for saved data files"""
         text = f"{self.game_rows_m}_{self.game_cols_n}_{self.win_length_k}_{self.player_x_as.name}_" \
                f"{self.player_o_as.name}"
         return text

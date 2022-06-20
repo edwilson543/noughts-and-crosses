@@ -225,8 +225,6 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         Method to evaluate the playing board from the maximiser's perspective, when the algorithm has been forced
         to end because the maximum search depth is reached, or the maximum search time has elapsed.
         """
-        # TODO should really incorporate search depth somewhere here.
-
         player_turn_value = self.get_player_turn()
         score = evaluate_non_terminal_board(
             playing_grid=playing_grid, win_length_k=self.win_length_k,
