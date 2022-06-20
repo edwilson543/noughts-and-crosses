@@ -18,9 +18,10 @@ class TestEvaluateNonTerminalBoard:
                                  [0, BoardMarking.O.value, 0],
                                  [0, 0, BoardMarking.O.value]])
         actual_score = evaluate_non_terminal_board(
-            playing_grid=playing_grid, win_length_k=3, player_turn_value=BoardMarking.X.value
+            playing_grid=playing_grid, win_length_k=3,
+            search_depth=1, player_turn_value=BoardMarking.X.value
         )
-        expected_score = 4  # (8 + 1 - 1 - 1 - 1 - 1 - 1)
+        expected_score = 4 - 1  # (8 + 1 - 1 - 1 - 1 - 1 - 1) - search_depth
         assert actual_score == expected_score
 
     def test_score_quite_bad_for_player_o(self):
@@ -28,9 +29,10 @@ class TestEvaluateNonTerminalBoard:
                                  [0, BoardMarking.O.value, 0],
                                  [0, 0, BoardMarking.O.value]])
         actual_score = evaluate_non_terminal_board(
-            playing_grid=playing_grid, win_length_k=3, player_turn_value=BoardMarking.O.value
+            playing_grid=playing_grid, win_length_k=3,
+            search_depth=3, player_turn_value=BoardMarking.O.value
         )
-        expected_score = TerminalScore.ONE_MOVE_FROM_LOSS.value + 4  # -(1 -1 -1 -1 -1 -1)
+        expected_score = TerminalScore.ONE_MOVE_FROM_LOSS.value + 4 + 3  # -(1 -1 -1 -1 -1 -1) + search_depth
         assert actual_score == expected_score
 
     def test_score_symmetric_board_both_players_could_win(self):
@@ -42,9 +44,10 @@ class TestEvaluateNonTerminalBoard:
                                 [BoardMarking.X.value, 0, BoardMarking.O.value],
                                 [0, BoardMarking.O.value, BoardMarking.O.value]])
         actual_score = evaluate_non_terminal_board(
-            playing_grid=playing_grid, win_length_k=3, player_turn_value=BoardMarking.X.value
+            playing_grid=playing_grid, win_length_k=3,
+            search_depth=2, player_turn_value=BoardMarking.X.value
         )
-        expected_score = 2 * TerminalScore.ONE_MOVE_FROM_LOSS.value + 16  # +16 for the streaks X has
+        expected_score = 2 * TerminalScore.ONE_MOVE_FROM_LOSS.value + 16 + 2  # +16 for the streaks X has + search_depth
         assert actual_score == expected_score
 
 
