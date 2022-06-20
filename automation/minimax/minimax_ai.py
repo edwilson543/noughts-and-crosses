@@ -131,10 +131,12 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         # Check whether our iterative deepening criteria have been exhausted:
         elif time.perf_counter() - search_start_time > IterativeDeepening.max_search_seconds.value:
             # Although this exit criteria is also included in the iterative loop, a given depth may also take too long
-            score = self._evaluate_non_terminal_board_to_maximising_player(playing_grid=playing_grid)
+            score = self._evaluate_non_terminal_board_to_maximising_player(
+                playing_grid=playing_grid, search_depth=search_depth)
             return score, None
         elif search_depth == max_search_depth:
-            score = self._evaluate_non_terminal_board_to_maximising_player(playing_grid=playing_grid)
+            score = self._evaluate_non_terminal_board_to_maximising_player(
+                playing_grid=playing_grid, search_depth=search_depth)
             return score, None
 
         # Otherwise, we need to evaluate the max/min score attainable and associated move
@@ -218,7 +220,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         else:
             raise ValueError("Attempted to evaluate a playing_grid scenario that was not terminal.")
 
-    def _evaluate_non_terminal_board_to_maximising_player(self, playing_grid: np.ndarray) -> int:
+    def _evaluate_non_terminal_board_to_maximising_player(self, playing_grid: np.ndarray, search_depth: int) -> int:
         """
         Method to evaluate the playing board from the maximiser's perspective, when the algorithm has been forced
         to end because the maximum search depth is reached, or the maximum search time has elapsed.
@@ -227,7 +229,8 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
 
         player_turn_value = self.get_player_turn()
         score = evaluate_non_terminal_board(
-            playing_grid=playing_grid, win_length_k=self.win_length_k, player_turn_value=player_turn_value
+            playing_grid=playing_grid, win_length_k=self.win_length_k,
+            search_depth=search_depth, player_turn_value=player_turn_value
         )
         return score
 
