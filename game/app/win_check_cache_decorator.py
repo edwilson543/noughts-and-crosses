@@ -1,10 +1,10 @@
 """
-Module to define different decorators that can be used for caching the win search, with the aim of finding the
-best one that speeds it up.
+Module to define the decorator that is used for caching the win search.
 """
 
 # Standard library imports
 from collections import OrderedDict
+from enum import Enum
 from functools import update_wrapper
 from typing import Tuple, List, Callable, Set, Union
 
@@ -15,14 +15,14 @@ import numpy as np
 from utils import np_array_to_tuple, get_symmetry_set_of_tuples_from_array
 
 
-##########
-# Option 1 - a custom class decorator implementing a lru_cache
-##########
+class WinSearchKwarg(Enum):
+    PLAYING_GRID = "playing_grid"
+    GET_WIN_LOCATION = "get_win_location"
 
 
 class LRUCacheWinSearch:
     """
-    Decorator class to implement a tailor made lru cache for the win search method.
+    (Callable) decorator class to implement a tailor made lru cache for the win search method above.
     The idea is to only include the playing_grid and get_win_locations arguments in the hash keys of the cache, as these
     are the only arguments that affect the return value. In particular, the last_played_index does NOT affect the return
     value.
@@ -31,16 +31,15 @@ class LRUCacheWinSearch:
 
     Decorator parameters:
     ----------
-    hash_key_kwargs: a set of the keys joined in a tuple that the hash key should be created out of (REQUIRED)
     maxsize: the maximum number of return values of the decorated function stored in the cache (OPTIONAL, defaults
-    to infinity in effect.)
+    to infinity in effect)
+    use_symmetry: True means that each time the win search is called, we also cache it's symmetric equivalence class,
+    (OPTIONAL, defaults to False)
     """
 
     def __init__(self,
-                 hash_key_kwargs: set,
                  maxsize: int = None,
                  use_symmetry: bool = False):
-        self.hash_key_kwargs = hash_key_kwargs
         self.cache_maxsize = maxsize
         self.use_symmetry = use_symmetry
         self.win_search_func: Union[None, Callable] = None  # PyCharm linter doesn't like None | Callable
@@ -48,12 +47,12 @@ class LRUCacheWinSearch:
 
     def __call__(self, win_search_func: Callable = None, *args, **kwargs):
         """
-        Because this is a decorator class, we need to make it callable.
+        Because this is a decorator class, we need to make it callable by implementing __call__.
+
         Due to the decorator arguments, we need the if/elif below, rather than just to always return the search_return.
-        The if executes in the case where a maxsize argument has been passed to the decorator and therefore an instance
-        of the class has already been created, at the point at which we call the decorator on the search function. This
-        returns an instance of the class (which as a decorator in effect replaces the search function), and because it
-        now has a self.win_search_func, when called the second elif will be True.
+        The if executes at the first call when the decorator parameters have just been passed. An instance of the
+        class has thus already been created at the point at which we decorate the search function.
+
         The second elif essentially reflects the normal calling of the win check and location search, but with the
         added functionality of caching.
 
@@ -84,7 +83,7 @@ class LRUCacheWinSearch:
             return self.cache[hash_key]
         else:  # Must directly call function and cache
             search_return_value = self.win_search_func(*args, **kwargs)
-            if self.use_symmetry and not kwargs["get_win_location"]:
+            if self.use_symmetry and not kwargs[WinSearchKwarg.GET_WIN_LOCATION.value]:
                 # note the not kwargs["get_win_location"] is to avoid symmetry returning the wrong win location
                 hash_key_list = self._create_hash_key_list_for_symmetry_set_from_kwargs(*args, **kwargs)
                 for symm_hash_key in hash_key_list:
@@ -103,43 +102,63 @@ class LRUCacheWinSearch:
         if self.cache_maxsize is not None and len(self.cache) > self.cache_maxsize:
             self.cache.popitem(last=False)  # last=False specifies the LRU item in this case
 
-    def _create_hash_key_from_kwargs(self, *args, **kwargs) -> Tuple:
+    @staticmethod
+    def _create_hash_key_from_kwargs(*args, **kwargs) -> Tuple:
         """
-        Method to get the kwargs that we want to use as keys for the cache, make them hashable, and generate one
-        key we want to use for the cache.
+        Method to get the kwargs that we want to use as keys for the cache, make them hashable, and generate a key
+        to use for the cache.
         The flexibility to define this method is the core reason for defining a custom class to implement a lru_cache
         rather than just using the built-in functools lru_cache decorator.
-        Note that the get_win_location is included in the tuple so that we can still get a unique return value depending
+        Note that get_win_location is included in the tuple so that we can still get a unique return value depending
         on whether get_win_location is set to True or False - otherwise when using minimax in the GUI the cache would
         return no win location, as minimax uses get_win_location=False and GUI uses get_win_location=True.
+
+        Returns: the hash key that will correspond to the call to the search function using *args and **kwargs.
         """
-        if self.hash_key_kwargs is not None:
-            hash_key_tuple = tuple(np_array_to_tuple(kwargs[key_kwarg]) if
-                                   isinstance(kwargs[key_kwarg], np.ndarray) else
-                                   kwargs[key_kwarg] for key_kwarg in self.hash_key_kwargs)
+        try:
+            playing_grid = kwargs[WinSearchKwarg.PLAYING_GRID.value]
+            get_win_location = kwargs[WinSearchKwarg.GET_WIN_LOCATION.value]
+        except KeyError:
+            raise KeyError("Attempted to call _create_hash_keys_from_kwargs with kwargs that do not"
+                           f"include {WinSearchKwarg.PLAYING_GRID.value} or "
+                           f"{WinSearchKwarg.GET_WIN_LOCATION.value}. kwargs: {kwargs}")
+
+        if isinstance(playing_grid, np.ndarray):
+            hash_key_tuple = tuple((np_array_to_tuple(playing_grid), get_win_location))
             return hash_key_tuple
         else:
-            raise KeyError("No kwargs were specified to construct the hash key for the lru cache from.")
+            hash_key_tuple = tuple((playing_grid, get_win_location))
+            return hash_key_tuple
 
-    def _create_hash_key_list_for_symmetry_set_from_kwargs(self, *args, **kwargs) -> List[Tuple]:
+    @classmethod
+    def _create_hash_key_list_for_symmetry_set_from_kwargs(cls, *args, **kwargs) -> List[Tuple]:
         """
         Method to create a list of hash keys from kwargs for each tuple in the symmetry set of a given playing grid.
         These can then be used to cache all of these different tuples against the same return value.
 
-        Returns: A list of hash_keys based on the hash_key_kwargs instance attribute.
+        Returns: A list of hash keys - one for each tuple in the symmetry set.
         """
-        if "playing_grid" not in kwargs:
-            raise KeyError("Attempted to call _create_list_of_hash_keys_from_kwargs with kwargs that do not"
-                           f"include 'playing_grid'. kwargs: {kwargs}")
-        if "get_win_location" not in kwargs:
-            raise KeyError("Attempted to call _create_list_of_hash_keys_from_kwargs with kwargs that do not"
-                           f"include 'get_win_location'. kwargs: {kwargs}")
+        if WinSearchKwarg.PLAYING_GRID.value not in kwargs:
+            raise KeyError("Attempted to call _create_hash_key_list_for_symmetry_set_from_kwargs with kwargs that do "
+                           f"not include {WinSearchKwarg.PLAYING_GRID.value}. kwargs: {kwargs}")
+        if WinSearchKwarg.GET_WIN_LOCATION.value not in kwargs:
+            raise KeyError("Attempted to call _create_hash_key_list_for_symmetry_set_from_kwargs with kwargs that do "
+                           f"not include {WinSearchKwarg.GET_WIN_LOCATION.value}. kwargs: {kwargs}")
         else:
-            playing_grid: np.ndarray = kwargs["playing_grid"]
+            playing_grid: np.ndarray = kwargs[WinSearchKwarg.PLAYING_GRID.value]
             symmetry_set: Set[Tuple] = get_symmetry_set_of_tuples_from_array(array=playing_grid)
-            hash_key_list = []
-            for symmetric_tup in symmetry_set:
-                kwargs["playing_grid"] = symmetric_tup
-                hash_key = self._create_hash_key_from_kwargs(*args, **kwargs)
-                hash_key_list.append(hash_key)
+            hash_key_list = [cls._create_hash_key_for_symmetric_equivalent_tuple(symmetric_tuple, *args, **kwargs) for
+                             symmetric_tuple in symmetry_set]
             return hash_key_list
+
+    @classmethod
+    def _create_hash_key_for_symmetric_equivalent_tuple(cls, symmetric_tuple: Tuple, *args, **kwargs) -> Tuple:
+        """
+        Method to create a hash key for a tuple that is symmetrically equivalent to the playing grid - the
+        playing_grid is extracted from the kwargs and then replaced with the symmetric_tuple, before creating the
+        hash key.
+        """
+        # replace the playing grid in kwargs with the symmetric equivalent
+        kwargs[WinSearchKwarg.PLAYING_GRID.value] = symmetric_tuple
+        hash_key = cls._create_hash_key_from_kwargs(*args, **kwargs)
+        return hash_key

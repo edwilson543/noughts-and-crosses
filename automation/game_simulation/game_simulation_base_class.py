@@ -127,7 +127,8 @@ class GameSimulator(NoughtsAndCrossesMinimax):
         the first element in this list.
         Note also that despite it returning a sliced list, because it is randomly sliced, this does not matter
         """
-        random_options: List[np.ndarray] = self._get_available_cell_indices(playing_grid=self.playing_grid)
+        random_options: List[np.ndarray] = self._get_available_cell_indices(
+            playing_grid=self.playing_grid, search_depth=0)
         return random_options[0]
 
     # Methods relating to creating, populating and saving the data structure for collecting simulation data
