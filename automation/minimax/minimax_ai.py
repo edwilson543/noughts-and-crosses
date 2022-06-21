@@ -155,7 +155,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
             max_score = -math.inf  # Initialise as -inf so that the score can only be improved upon
             best_move = None
             for move_option in self._get_available_cell_indices(
-                    playing_grid=playing_grid, last_played_index=last_played_index):
+                    playing_grid=playing_grid, search_depth=search_depth, last_played_index=last_played_index):
                 playing_grid_copy = playing_grid.copy()
                 self.mark_board(marking_index=move_option, playing_grid=playing_grid_copy)
                 potential_new_max, _ = self.get_minimax_move_at_max_search_depth(  # call minimax recursively
@@ -176,7 +176,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
             min_score = math.inf  # Initialise as +inf so that score can only be improved upon
             best_move = None
             for move_option in self._get_available_cell_indices(
-                    playing_grid=playing_grid, last_played_index=last_played_index):
+                    playing_grid=playing_grid, search_depth=search_depth, last_played_index=last_played_index):
                 playing_grid_copy = playing_grid.copy()
                 self.mark_board(marking_index=move_option, playing_grid=playing_grid_copy)
                 potential_new_min, _ = self.get_minimax_move_at_max_search_depth(  # call minimax recursively
@@ -241,7 +241,9 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         )
         return score
 
-    def _get_available_cell_indices(self, playing_grid: np.ndarray,
+    def _get_available_cell_indices(self,
+                                    playing_grid: np.ndarray,
+                                    search_depth: int,
                                     last_played_index: np.ndarray = None) -> List[np.ndarray]:
         """
         Method that looks at where the cells on the playing_grid are unmarked and returns a list of the index of each
@@ -252,6 +254,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
 
         Parameters:
         playing_grid: this method is called on copies of the playing board, not just the live board
+        search_depth: the depth we are searching at (which the max branch factor depends on)
         last_played_index: where the previous mark was made. Note that this serves the purpose of prioritising which
         available cells to search first - those closest to the player's move
 
@@ -263,18 +266,19 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         because the key function must be callable. An alternative is to use an inner wrapper in the
         _available_cell_prioritiser, and then return this, but this was also slower.
         """
+        max_branch_factor = IterativeDeepening.get_max_branch_factor(search_depth=search_depth)
         available_cell_index_list = [index for index in np.argwhere(playing_grid == 0)]
         shuffle(available_cell_index_list)
         if self.previous_mark_index is None:  # This is the first move of the game
-            return available_cell_index_list[:IterativeDeepening.max_branch_factor.value]
+            return available_cell_index_list[:max_branch_factor]
         elif last_played_index is None:  # This is a primary minimax call to minimax
             prioritised_list = sorted(available_cell_index_list,
                                       key=functools.partial(self._available_cell_prioritiser, self.previous_mark_index))
-            return prioritised_list[:IterativeDeepening.max_branch_factor.value]
+            return prioritised_list[:max_branch_factor]
         else:  # Order the list so that we search in order of distance from the last played index
             prioritised_list = sorted(available_cell_index_list,
                                       key=functools.partial(self._available_cell_prioritiser, last_played_index))
-            return prioritised_list[:IterativeDeepening.max_branch_factor.value]
+            return prioritised_list[:max_branch_factor]
 
     @staticmethod
     @lru_cache_hashable(maxsize=100000)  # Can be infinite but specified to avoid memory blow up

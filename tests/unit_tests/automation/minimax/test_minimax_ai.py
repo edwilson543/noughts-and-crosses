@@ -120,7 +120,7 @@ class TestMinimaxAncillaryMethodsThreeThree:
         three_three_game_with_minimax_player.previous_mark_index = np.array([0, 0])
         actual_ordered_list: List[np.ndarray] = \
             three_three_game_with_minimax_player._get_available_cell_indices(
-                playing_grid=three_three_game_with_minimax_player.playing_grid,
+                playing_grid=three_three_game_with_minimax_player.playing_grid, search_depth=0
             )
         expected_ordered_list = [np.array([1, 0]), np.array([2, 0]), np.array([2, 2])]
         for cell_number, expected_array in enumerate(expected_ordered_list):
@@ -135,7 +135,7 @@ class TestMinimaxAncillaryMethodsThreeThree:
         ])
         actual_random_ordered_list: List[np.ndarray] = \
             three_three_game_with_minimax_player._get_available_cell_indices(
-                playing_grid=three_three_game_with_minimax_player.playing_grid
+                playing_grid=three_three_game_with_minimax_player.playing_grid, search_depth=0
             )
         expected_random_ordered_list = [np.array([2, 0]), np.array([2, 2]), np.array([1, 0])]  # Order does not matter
         for expected_cell in expected_random_ordered_list:  # assert cell in list does not work as cell is a numpy array
