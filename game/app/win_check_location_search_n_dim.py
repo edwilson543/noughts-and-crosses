@@ -1,3 +1,5 @@
+"""Module defining the main win checker and win location finder for the playing grid."""
+
 # Standard library imports
 from typing import Tuple, List
 
@@ -8,7 +10,7 @@ import numpy as np
 from game.app.win_check_cache_decorator import LRUCacheWinSearch
 
 
-@LRUCacheWinSearch(hash_key_kwargs={"playing_grid", "get_win_location"}, maxsize=1000000, use_symmetry=True)
+@LRUCacheWinSearch(maxsize=1000000, use_symmetry=True)
 def win_check_and_location_search(playing_grid: np.ndarray, last_played_index: np.ndarray,
                                   get_win_location: bool, search_directions: List[np.ndarray],
                                   win_length_k: int) -> Tuple[bool, List[Tuple[int]] | None]:
@@ -23,7 +25,7 @@ def win_check_and_location_search(playing_grid: np.ndarray, last_played_index: n
     playing_grid - the board we are searching for a win
 
     last_played_index - where the last move on the board was made, to restrict the search area, represented by a
-    numpy a
+    numpy array
 
     get_win_location - if this is True then the method returns the win locations as well, if it's false then the
     only return is a bool for whether or not the board exhibits a win
@@ -65,7 +67,7 @@ def win_check_and_location_search(playing_grid: np.ndarray, last_played_index: n
             win_streak_start_int: int = np.array(win_streak_start_index).item(0)
             # .item() avoids issue with dimensions - it extracts the scalar value, regardless of current_dimension
             win_streak_location_indexes: list = valid_indexes_to_search[
-                                                win_streak_start_int:win_streak_start_int + win_length_k]
+                                                win_streak_start_int: win_streak_start_int + win_length_k]
             return winning_streak_found, win_streak_location_indexes
     else:
         return False, None  # No win has been found, and thus no winning location
