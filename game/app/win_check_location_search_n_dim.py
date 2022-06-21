@@ -5,7 +5,7 @@ from typing import Tuple, List
 import numpy as np
 
 # Local application imports
-from game.app.win_check_cache_decorators import LRUCacheWinSearch
+from game.app.win_check_cache_decorator import LRUCacheWinSearch
 
 
 @LRUCacheWinSearch(hash_key_kwargs={"playing_grid", "get_win_location"}, maxsize=1000000, use_symmetry=True)
