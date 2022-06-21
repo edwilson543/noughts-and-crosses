@@ -1,5 +1,4 @@
 # Standard library imports
-from functools import partial
 from typing import List, Tuple, Set
 from dataclasses import dataclass
 
