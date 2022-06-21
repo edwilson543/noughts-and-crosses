@@ -49,7 +49,7 @@ class ActiveGameFramesMinimax(ActiveGameFrames, NoughtsAndCrossesMinimax):
         called, because they did not know the game was over and a new game is starting. Perhaps a better way... # TODO
         """
         super()._confirmation_buttons_command()  # First do everything the super class version does
-        if self._whole_board_search() or self.check_for_draw():
+        if self.whole_board_search() or self.check_for_draw():
             return
         elif (self.get_player_turn() == BoardMarking.O.value) and self.player_o_is_minimax:
             self._minimax_player_makes_next_move()

@@ -190,12 +190,12 @@ class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
             [1, 1, -1],
             [-1, 1, -1]
         ])
-        win = four_three_game._whole_board_search()
+        win = four_three_game.whole_board_search()
         assert not win
 
     def test_no_win_empty_board(self, four_three_game):
         four_three_game.playing_grid = np.zeros(shape=(4, 3))
-        win = four_three_game._whole_board_search()
+        win = four_three_game.whole_board_search()
         assert not win
 
     ##########
@@ -208,7 +208,7 @@ class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
             [0, -1, 0],
             [0, 0, 0]
         ])
-        win = four_three_game._whole_board_search()
+        win = four_three_game.whole_board_search()
         assert win
 
     def test_horizontal_win_middle(self, four_three_game):
@@ -218,7 +218,7 @@ class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
             [-1, -1, -1],
             [0, 0, 0]
         ])
-        win = four_three_game._whole_board_search()
+        win = four_three_game.whole_board_search()
         assert win
 
     ##########
@@ -231,7 +231,7 @@ class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
             [-1, 1, -1],
             [-1, 1, -1]
         ])
-        win = four_three_game._whole_board_search()
+        win = four_three_game.whole_board_search()
         assert win
 
     def test_vertical_win_top_right(self, four_three_game):
@@ -241,7 +241,7 @@ class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
             [-1, -1, 1],
             [1, -1, -1]
         ])
-        win = four_three_game._whole_board_search()
+        win = four_three_game.whole_board_search()
         assert win
 
     ##########
@@ -255,7 +255,7 @@ class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
             [-1, 0, -1],
             [1, -1, 0]
         ])
-        win = four_three_game._whole_board_search()
+        win = four_three_game.whole_board_search()
         assert win
 
     def test_south_east_win_lower_triangle_diag(self, four_three_game):
@@ -265,7 +265,7 @@ class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
             [-1, -1, 0],
             [0, -1, -1]
         ])
-        win = four_three_game._whole_board_search()
+        win = four_three_game.whole_board_search()
         assert win
 
     ##########
@@ -279,7 +279,7 @@ class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
             [-1, 0, -1],
             [0, -1, 0]
         ])
-        win = four_three_game._whole_board_search()
+        win = four_three_game.whole_board_search()
         assert win
 
     def test_north_east_win_lower_triangle_diag(self, four_three_game):
@@ -289,7 +289,7 @@ class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
             [0, -1, -1],
             [-1, -1, 0]
         ])
-        win = four_three_game._whole_board_search()
+        win = four_three_game.whole_board_search()
         assert win
 
     ##########

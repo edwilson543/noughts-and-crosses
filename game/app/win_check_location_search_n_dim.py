@@ -63,7 +63,7 @@ def win_check_and_location_search(playing_grid: np.ndarray, last_played_index: n
         elif winning_streak_found and get_win_location:
             win_streak_start_index = np.where(streak_lengths == win_length_k)
             win_streak_start_int: int = np.array(win_streak_start_index).item(0)
-            # .item() avoids issue with dimensions - it extracts the scalar value, regardless of dimension
+            # .item() avoids issue with dimensions - it extracts the scalar value, regardless of current_dimension
             win_streak_location_indexes: list = valid_indexes_to_search[
                                                 win_streak_start_int:win_streak_start_int + win_length_k]
             return winning_streak_found, win_streak_location_indexes
