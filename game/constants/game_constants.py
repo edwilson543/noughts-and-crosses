@@ -12,9 +12,3 @@ class StartingPlayer(Enum):
     PLAYER_X = 1
     RANDOM = 0
     PLAYER_O = -1
-
-
-class BoardString(Enum):
-    """Enum for the string representation of different board values and ancillaries."""
-    EMPTY = "-"
-    SEPARATOR = "|"
