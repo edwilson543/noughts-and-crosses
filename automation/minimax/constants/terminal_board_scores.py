@@ -23,4 +23,4 @@ class TerminalScore(Enum):
 
     # Scores for evaluating a non-terminal board
     ONE_MOVE_FROM_LOSS = - 9000  # Score for leaving the board in a state where the opposition can win in one move
-    CUT_OFF_SCORE_TO_STOP_SEARCHING = 50  # Score to stop searching at once this is achieved
+    CUT_OFF_SCORE_TO_STOP_SEARCHING = 1000  # Score to stop searching at once this is achieved
