@@ -323,7 +323,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         shuffle(available_cell_index_list)
         if self.previous_mark_index is None:  # This is the first move of the game
             return available_cell_index_list[:max_branch_factor]
-        elif last_played_index is None:  # This is a primary minimax call to minimax
+        elif last_played_index is None:  # This is a primary call to minimax
             prioritised_list = sorted(available_cell_index_list,
                                       key=functools.partial(self._available_cell_prioritiser, self.previous_mark_index))
             return prioritised_list[:max_branch_factor]
