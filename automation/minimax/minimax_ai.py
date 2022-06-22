@@ -152,45 +152,82 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
 
         # Otherwise, we need to evaluate the max/min score attainable and associated move
         elif maximisers_move:
-            max_score = -math.inf  # Initialise as -inf so that the score can only be improved upon
-            best_move = None
-            for move_option in self._get_available_cell_indices(
-                    playing_grid=playing_grid, search_depth=search_depth, last_played_index=last_played_index):
-                playing_grid_copy = playing_grid.copy()
-                self.mark_board(marking_index=move_option, playing_grid=playing_grid_copy)
-                potential_new_max, _ = self.get_minimax_move_at_max_search_depth(  # call minimax recursively
-                    search_start_time=search_start_time, max_search_depth=max_search_depth,
-                    last_played_index=move_option, playing_grid=playing_grid_copy,
-                    search_depth=search_depth + 1, maximisers_move=not maximisers_move,
-                    alpha=alpha, beta=beta)
-                # 'not maximisers_move' is to indicate that when minimax is next called, it's the other player's go
-                if potential_new_max > max_score:
-                    max_score = potential_new_max
-                    best_move = move_option
-                alpha = max(alpha, potential_new_max)
-                if beta <= alpha:
-                    break  # No need to consider this game branch any further, as minimiser will avoid it
+            available_cell_list = self._get_available_cell_indices(
+                playing_grid=playing_grid, search_depth=search_depth, last_played_index=last_played_index)
+            max_score, best_move = self._get_maximiser_score_and_move(available_cell_list=available_cell_list,
+                                                                      max_search_depth=max_search_depth,
+                                                                      search_start_time=search_start_time,
+                                                                      last_played_index=last_played_index,
+                                                                      playing_grid=playing_grid,
+                                                                      search_depth=search_depth, alpha=alpha, beta=beta)
             return max_score, best_move
 
         else:  # minimisers move - they want to pick the game tree that minimises the score to the maximiser
-            min_score = math.inf  # Initialise as +inf so that score can only be improved upon
-            best_move = None
-            for move_option in self._get_available_cell_indices(
-                    playing_grid=playing_grid, search_depth=search_depth, last_played_index=last_played_index):
-                playing_grid_copy = playing_grid.copy()
-                self.mark_board(marking_index=move_option, playing_grid=playing_grid_copy)
-                potential_new_min, _ = self.get_minimax_move_at_max_search_depth(  # call minimax recursively
-                    search_start_time=search_start_time, max_search_depth=max_search_depth,
-                    last_played_index=move_option, playing_grid=playing_grid_copy,
-                    search_depth=search_depth + 1, maximisers_move=not maximisers_move,
-                    alpha=alpha, beta=beta)
-                if potential_new_min < min_score:
-                    min_score = potential_new_min
-                    best_move = move_option
-                beta = min(beta, potential_new_min)
-                if beta <= alpha:
-                    break  # No need to consider game branch any further, maximiser will just avoid it
-            return min_score, best_move
+            available_cell_list = self._get_available_cell_indices(
+                playing_grid=playing_grid, search_depth=search_depth, last_played_index=last_played_index)
+            max_score, best_move = self._get_minimiser_score_and_move(available_cell_list=available_cell_list,
+                                                                      max_search_depth=max_search_depth,
+                                                                      search_start_time=search_start_time,
+                                                                      last_played_index=last_played_index,
+                                                                      playing_grid=playing_grid,
+                                                                      search_depth=search_depth, alpha=alpha, beta=beta)
+            return max_score, best_move
+
+    def _get_maximiser_score_and_move(self,
+                                      available_cell_list: List[np.ndarray],
+                                      max_search_depth: int,
+                                      search_start_time: float,
+                                      last_played_index: np.ndarray,
+                                      playing_grid: np.ndarray,
+                                      search_depth: int,
+                                      alpha: float | int,
+                                      beta: float | int) -> Tuple[int, np.ndarray | None]:
+        """Same parameters except for available_cell_list"""
+        max_score = -math.inf  # Initialise as -inf so that the score can only be improved upon
+        best_move = None
+        for move_option in available_cell_list:
+            playing_grid_copy = playing_grid.copy()
+            self.mark_board(marking_index=move_option, playing_grid=playing_grid_copy)
+            potential_new_max, _ = self.get_minimax_move_at_max_search_depth(  # call minimax recursively
+                search_start_time=search_start_time, max_search_depth=max_search_depth,
+                last_played_index=move_option, playing_grid=playing_grid_copy,
+                search_depth=search_depth + 1, maximisers_move=False,
+                alpha=alpha, beta=beta)
+            # 'not maximisers_move' is to indicate that when minimax is next called, it's the other player's go
+            if potential_new_max > max_score:
+                max_score = potential_new_max
+                best_move = move_option
+            alpha = max(alpha, potential_new_max)
+            if beta <= alpha:
+                break  # No need to consider this game branch any further, as minimiser will avoid it
+        return max_score, best_move
+
+    def _get_minimiser_score_and_move(self,
+                                      available_cell_list: List[np.ndarray],
+                                      max_search_depth: int,
+                                      search_start_time: float,
+                                      last_played_index: np.ndarray,
+                                      playing_grid: np.ndarray,
+                                      search_depth: int,
+                                      alpha: float | int,
+                                      beta: float | int) -> Tuple[int, np.ndarray | None]:
+        min_score = math.inf  # Initialise as +inf so that score can only be improved upon
+        best_move = None
+        for move_option in available_cell_list:
+            playing_grid_copy = playing_grid.copy()
+            self.mark_board(marking_index=move_option, playing_grid=playing_grid_copy)
+            potential_new_min, _ = self.get_minimax_move_at_max_search_depth(  # call minimax recursively
+                search_start_time=search_start_time, max_search_depth=max_search_depth,
+                last_played_index=move_option, playing_grid=playing_grid_copy,
+                search_depth=search_depth + 1, maximisers_move=True,
+                alpha=alpha, beta=beta)
+            if potential_new_min < min_score:
+                min_score = potential_new_min
+                best_move = move_option
+            beta = min(beta, potential_new_min)
+            if beta <= alpha:
+                break  # No need to consider game branch any further, maximiser will just avoid it
+        return min_score, best_move
 
     def _evaluate_terminal_board_to_maximising_player(self,
                                                       search_depth: int,
