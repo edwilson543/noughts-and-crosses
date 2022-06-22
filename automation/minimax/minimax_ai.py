@@ -19,8 +19,6 @@ from game.app.player_base_class import Player
 from utils import lru_cache_hashable
 
 
-# TODO look into using multi processing for splitting out the minimax move maker
-
 class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
     def __init__(self,
                  setup_parameters: NoughtsAndCrossesEssentialParameters):
