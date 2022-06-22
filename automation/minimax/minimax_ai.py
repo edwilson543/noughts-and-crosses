@@ -182,7 +182,14 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                                       search_depth: int,
                                       alpha: float | int,
                                       beta: float | int) -> Tuple[int, np.ndarray | None]:
-        """Same parameters except for available_cell_list"""
+        """
+        Method to get the maximum board score and thus best move from the maximiser's perspective, amongst the
+        options in the available_cell_list.
+        Parameters:
+        __________
+        As for get_minimax_move... except for:
+        available_cell_list: The list of different moves that the maximiser can consider at the given search depth.
+        """
         max_score = -math.inf  # Initialise as -inf so that the score can only be improved upon
         best_move = None
         for move_option in available_cell_list:
@@ -211,6 +218,14 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                                       search_depth: int,
                                       alpha: float | int,
                                       beta: float | int) -> Tuple[int, np.ndarray | None]:
+        """
+        Method to get the minimum board score and thus best move from the minimiser's perspective, amongst the
+        options in the available_cell_list.
+        Parameters:
+        __________
+        As for get_minimax_move... except for:
+        available_cell_list: The list of different moves that the minimiser can consider at the given search depth.
+        """
         min_score = math.inf  # Initialise as +inf so that score can only be improved upon
         best_move = None
         for move_option in available_cell_list:
