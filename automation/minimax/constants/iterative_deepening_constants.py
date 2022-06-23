@@ -19,7 +19,7 @@ class IterativeDeepening(Enum):
         Method that returns a maximum branch factor when minimax is searching at different depths.
         This is included so that minimax never leaves the board in a state where the other play can win immediately.
         """
-        if search_depth <= 1:
+        if search_depth == 0:
             return 961  # essentially no max branch factor (31**2)
         else:
             return 24  # 5x5 grid around the last played index

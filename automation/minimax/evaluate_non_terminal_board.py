@@ -7,6 +7,9 @@ This could use a transposition table derived from previous games, for opening mo
 now.
 """
 
+# Standard library imports
+from typing import List
+
 # Third party imports
 import numpy as np
 
@@ -23,8 +26,8 @@ def evaluate_non_terminal_board(playing_grid: np.ndarray,
                                 search_depth: int,
                                 player_turn_value: BoardMarking) -> int:
     """
-    Method to determine the score that should be assigned to a board, from the perspective of the maximising player.
-    The idea is to identify any streaks of significant length and assign a score to these.
+    Method to determine the streak that should be assigned to a board, from the perspective of the maximising player.
+    The idea is to identify any streaks of significant length and assign a streak to these.
 
     Parameters:
     ----------
@@ -34,20 +37,71 @@ def evaluate_non_terminal_board(playing_grid: np.ndarray,
     search_depth - The search depth at which the board we are scoring has been generated.
     player_turn_value - the player who has JUST MADE THEIR MOVE in the game
     i.e. the player from who's perspective we are scoring the board. If the board is favourable to that player,
-    then a high (positive) score is returned, else a low (negative) score is returned.
+    then a high (positive) streak is returned, else a low (negative) streak is returned.
     """
     array_list = NoughtsAndCrosses.get_non_empty_array_list(playing_grid=playing_grid, win_length_k=win_length_k)
-    total_score = sum(_score_individual_array(array=array, win_length_k=win_length_k,
-                                              player_turn_value=player_turn_value) for array in array_list)
+    streak_list: List[np.ndarray[complex]] = [_get_convolved_array(array=array, win_length_k=win_length_k,
+                                                                   player_turn_value=player_turn_value) for array in
+                                              array_list]
+    all_streaks: np.ndarray = np.hstack(streak_list)
+
+    max_active_player_streak = abs(max(np.real(all_streaks)))  # because active player's streaks are positive
+    max_other_player_streak = abs(min(np.real(all_streaks)))  # because other player's streaks are negative
+    maximiser_leading = max_active_player_streak > max_other_player_streak
+    #
+
+    # # TODO convolve with complex numbers instead of 0 - then we can tell whether a streak is empty or not
+    # # IT may make sense now to streak individual streaks again
+    #
+    # one_move_from_loss_count = (all_streaks== win_length_k - 1 + 1j).sum()
+    # three_move_from_loss_count = (all_streaks== win_length_k - 2 + 1j).sum()
+    #
+    # if one_move_from_loss_count > 0:
+    #     return TerminalScore.MAX_LOSS.value
+    #
+    # if (max_other_player_streak == win_length_k - 2)
+    #
+    # # if (max_other_player_streak == (win_length_k - 2)) and (win_length_k > 3) and (not maximiser_leading):
+    # #     return TerminalScore.ONE_MOVE_FROM_LOSS.value
+    # # elif max_other_player_streak == (win_length_k - 1):
+    # #     return TerminalScore.ONE_MOVE_FROM_LOSS.value
+    # n_rows = playing_grid.shape[0]
+    # n_cols = playing_grid.shape[1]
+    # winnable_at_either_end = win_length_k + 1 >= max(n_rows, n_cols)
+
+    total_score = np.sum(_score_individual_streak(streak=streak, win_length_k=win_length_k,
+                                                  maximiser_leading=maximiser_leading) for streak in all_streaks)
     if total_score > 0:
         return max(total_score - search_depth, 0)
     else:
         return min(total_score + search_depth, 0)
 
 
-def _score_individual_array(array: np.ndarray, win_length_k: int, player_turn_value: BoardMarking):
+def _score_individual_streak(streak: complex, win_length_k: int, maximiser_leading: bool) -> float:
     """
-    Method to determine the score to be associated with an individual array.
+    Method to assign a streak to an individual streak
+
+    Score e.g.s:
+    """
+    real_part = streak.real
+    imag_part = streak.imag
+    if abs(real_part) + abs(imag_part) < win_length_k:
+        # No streak can be achieved, because the number of empty cells is insufficient to complete a streak
+        return 0
+    elif real_part == -(win_length_k - 1):
+        return TerminalScore.ONE_MOVE_FROM_LOSS.value
+    elif (real_part == win_length_k - 1) and maximiser_leading:
+        return TerminalScore.ONE_FROM_WIN_MAXIMISER_LEADING.value
+    elif (win_length_k > 3) and (not maximiser_leading) and (real_part == -(win_length_k - 2)):
+        print("two moves from loss")
+        return TerminalScore.TWO_MOVES_FROM_LOSS.value
+    else:
+        return real_part ** 3
+
+
+def _get_convolved_array(array: np.ndarray, win_length_k: int, player_turn_value: BoardMarking):
+    """
+    Method to determine the streak to be associated with an individual array.
     We convolve with a ones array of length win_length_k - this gives an idea of whether an incomplete streak
     could be completed, noting that (1, 1, 1) . (1, 1, 0) = 2, where as (1, 1, 1) . (1, 1, -1) = 1.
 
@@ -58,12 +112,27 @@ def _score_individual_array(array: np.ndarray, win_length_k: int, player_turn_va
 
     Note that the scoring mechanism is clearly not perfect but gives some indication of a favourable board.
     """
-    convolved_array = np.convolve(array, np.ones(win_length_k, dtype=int), mode="valid")
-    convolved_array_active_player = convolved_array * player_turn_value  # Now a +ve score is good for the active
-    # player and a -ve score is bad, because player turn value is 1 or -1
-    if min(convolved_array_active_player) == - (win_length_k - 1):  # opposition is one away from a win
-        return TerminalScore.ONE_MOVE_FROM_LOSS.value
-    else:
-        scores_active_player = np.sum(convolved_array_active_player ** 3)
-        # Cubed to reflect the non-linear increase in favourability of a longer streak, (and squaring loses sign)
-        return scores_active_player
+    ##########
+    # TODO delete once replaced board 0s with is
+    complex_array = np.where(array == 0, 1j, array)
+    ##########
+
+    convolved_array = np.convolve(complex_array, np.ones(win_length_k, dtype=int), mode="valid")
+    convolved_array_active_player = convolved_array * player_turn_value  # Now a +ve streak is good for the active
+    # player and a -ve streak is bad, because player turn value is 1 or -1
+
+    return convolved_array_active_player
+
+    # # If the active player has a longer streak, we want to ignore the inactive player's streak
+    # abs_min_score = abs(min(convolved_array_active_player))
+    # abs_max_score = abs(max(convolved_array_active_player))
+    # maximiser_leading = abs_min_score < abs_max_score
+    #
+    # if (min(convolved_array_active_player) <= -(win_length_k - 2)) and (win_length_k > 3) and not maximiser_leading:
+    #     return TerminalScore.ONE_MOVE_FROM_LOSS.value
+    # elif min(convolved_array_active_player) <= - (win_length_k - 1):
+    #     return TerminalScore.ONE_MOVE_FROM_LOSS.value
+    # else:
+    #     scores_active_player = np.sum(convolved_array_active_player ** 3)
+    #     # Cubed to reflect the non-linear increase in favourability of a longer streak, (and squaring loses sign)
+    #     return scores_active_player
