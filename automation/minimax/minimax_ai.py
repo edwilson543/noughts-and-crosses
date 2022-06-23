@@ -192,7 +192,6 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                 search_start_time=search_start_time, max_search_depth=max_search_depth,
                 last_played_index=move_option, playing_grid=playing_grid_copy,search_depth=search_depth + 1,
                 maximisers_move=False, alpha=alpha, beta=beta)
-            print(f"Assessed move: {move_option} and gave it score: {potential_new_max}")
             if potential_new_max > max_score:
                 max_score = potential_new_max
                 best_move = move_option
