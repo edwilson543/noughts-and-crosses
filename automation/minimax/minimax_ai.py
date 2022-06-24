@@ -16,6 +16,7 @@ from automation.minimax.constants.terminal_board_scores import TerminalScore
 from automation.minimax.constants.iterative_deepening_constants import IterativeDeepening
 from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
 from game.app.player_base_class import Player
+from game.constants.game_constants import BoardMarking
 from utils import lru_cache_hashable
 
 
@@ -190,7 +191,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
             self.mark_board(marking_index=move_option, playing_grid=playing_grid_copy)
             potential_new_max, _ = self.get_minimax_move_at_max_search_depth(  # call minimax recursively
                 search_start_time=search_start_time, max_search_depth=max_search_depth,
-                last_played_index=move_option, playing_grid=playing_grid_copy,search_depth=search_depth + 1,
+                last_played_index=move_option, playing_grid=playing_grid_copy, search_depth=search_depth + 1,
                 maximisers_move=False, alpha=alpha, beta=beta)
             if potential_new_max > max_score:
                 max_score = potential_new_max
@@ -309,7 +310,8 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         _available_cell_prioritiser, and then return this, but this was also slower.
         """
         max_branch_factor = IterativeDeepening.get_max_branch_factor(search_depth=search_depth)
-        available_cell_index_list = [index for index in np.argwhere(playing_grid == 0)]
+        available_cell_index_list = [index for index in
+                                     np.argwhere(playing_grid == BoardMarking.EMPTY.value)]  # TODO compare with EMPTY
         shuffle(available_cell_index_list)
         if self.previous_mark_index is None:  # This is the first move of the game
             return available_cell_index_list[:max_branch_factor]
