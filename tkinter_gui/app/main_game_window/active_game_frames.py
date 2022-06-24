@@ -165,7 +165,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         1) Destroy the in-place unconfirmed cell button
         2) Permanently marks the playing_grid as shown in the active unconfirmed cell, and add this to the playing grid
         and widget manager
-        3) Updates the backend playing_grid (the -1s, 0s and 1s) and checks whether a player has won
+        3) Updates the backend playing_grid (the -1s, 1s and empty cells) and checks whether a player has won
         """
         self.widget_manager.playing_grid[self.active_unconfirmed_cell].destroy()
         occupied_cell_label = self._get_occupied_cell_label()
