@@ -8,7 +8,7 @@ import numpy as np
 # Local application imports
 from game.app.player_base_class import Player
 from game.constants.game_constants import BoardMarking, StartingPlayer
-from game.app.win_check_location_search_n_dim import win_check_and_location_search
+from game.app.win_check_location_search import win_check_and_location_search
 from utils import np_array_to_tuple
 
 
