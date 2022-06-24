@@ -5,6 +5,7 @@ class BoardMarking(Enum):
     """Enum for the different options to enter on the Noughts and Crosses playing_grid."""
     X = 1
     O = -1
+    EMPTY = 1j
 
 
 class StartingPlayer(Enum):

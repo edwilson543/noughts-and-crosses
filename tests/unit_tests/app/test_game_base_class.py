@@ -1,4 +1,10 @@
-"""Module to test everything in the game base class, except for search methods."""
+"""
+Module to test everything in the game base class, except for search methods.
+
+Note that when testing methods that interact with the playing_grid, 0 is commonly used for brevity to represent an
+empty cell, however the proper value is 1j (BoardMarking.EMPTY.value), which is used when a method directly compares
+a cell value with the BoardMarking.EMPTY.value. For e.g. convolutions of a potential winning, 0 has no effect.
+"""
 
 # Standard library imports
 import pytest
@@ -80,9 +86,9 @@ class TestNoughtsAndCrossesNotSearches:
         Note that this method also calls get_player_turn
         """
         three_three_game.playing_grid = np.array([
-            [BoardMarking.X.value, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0]
+            [BoardMarking.X.value, BoardMarking.EMPTY.value, BoardMarking.EMPTY.value],
+            [BoardMarking.EMPTY.value, BoardMarking.EMPTY.value, BoardMarking.EMPTY.value],
+            [BoardMarking.EMPTY.value, BoardMarking.EMPTY.value, BoardMarking.EMPTY.value]
         ])
         three_three_game.mark_board(marking_index=np.array([2, 2]))
         assert three_three_game.playing_grid[2, 2] == BoardMarking.O.value  # O because X has had one more go
@@ -93,9 +99,9 @@ class TestNoughtsAndCrossesNotSearches:
         Note that this method also calls get_player_turn
         """
         three_three_game.playing_grid = np.array([
-            [BoardMarking.X.value, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0]
+            [BoardMarking.X.value, BoardMarking.EMPTY.value, BoardMarking.EMPTY.value],
+            [BoardMarking.EMPTY.value, BoardMarking.EMPTY.value, BoardMarking.EMPTY.value],
+            [BoardMarking.EMPTY.value, BoardMarking.EMPTY.value, BoardMarking.EMPTY.value]
         ])
         with pytest.raises(ValueError):
             three_three_game.mark_board(marking_index=np.array([0, 0]))

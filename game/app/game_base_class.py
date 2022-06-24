@@ -37,7 +37,7 @@ class NoughtsAndCrosses:
         self.player_x = setup_parameters.player_x
         self.player_o = setup_parameters.player_o
         self.starting_player_value = setup_parameters.starting_player_value
-        self.playing_grid: np.ndarray = np.zeros(shape=(self.game_rows_m, self.game_cols_n), dtype=int)
+        self.playing_grid: np.ndarray = np.full(shape=(self.game_rows_m, self.game_cols_n), fill_value=1j)
         self.search_directions: List[np.ndarray] = self._get_search_directions(playing_grid=self.playing_grid)
         self.previous_mark_index: None | np.ndarray = None
 
@@ -81,7 +81,7 @@ class NoughtsAndCrosses:
         if playing_grid is None:
             playing_grid = self.playing_grid
 
-        board_status = playing_grid.sum()
+        board_status = playing_grid.sum().real
         if board_status != 0:  # The starting player has had one more turn than the other player
             return BoardMarking(- self.starting_player_value).value
         else:
@@ -104,7 +104,7 @@ class NoughtsAndCrosses:
             self.previous_mark_index = marking_index
 
         marking_index_tuple = np_array_to_tuple(marking_index)
-        if playing_grid[marking_index_tuple] == 0:
+        if playing_grid[marking_index_tuple] == BoardMarking.EMPTY.value:
             marking = self.get_player_turn(playing_grid=playing_grid)
             playing_grid[marking_index_tuple] = marking
         else:
@@ -160,16 +160,16 @@ class NoughtsAndCrosses:
         if playing_grid is None:
             playing_grid = self.playing_grid
 
-        draw = np.all(playing_grid != 0)
+        draw = np.all(playing_grid != BoardMarking.EMPTY.value)
         return draw
 
     def reset_game_board(self) -> None:
         """
-        Method to reset the game playing_grid - all entries in the playing_grid are replaced with a zero.
+        Method to reset the game playing_grid - all entries in the playing_grid are replaced with the empty cell value.
         The previous_marking_index is also set to its initial state of None.
         """
         self.previous_mark_index = None
-        self.playing_grid = np.zeros(shape=(self.game_rows_m, self.game_cols_n))
+        self.playing_grid = np.full(shape=(self.game_rows_m, self.game_cols_n), fill_value=1j)
 
     # Lower level methods
     @staticmethod
@@ -238,7 +238,8 @@ class NoughtsAndCrosses:
         for array in array_list:
             convoluted_array = np.convolve(array, np.ones(self.win_length_k, dtype=int), mode="valid")
             # "valid" kwarg means only where the np.ones array fully overlaps with the test array gets calculated
-            max_consecutive = max(abs(convoluted_array))
+            real_convoluted_array = np.real(convoluted_array)
+            max_consecutive = max(abs(real_convoluted_array))
             if max_consecutive == self.win_length_k:
                 return True  # A win has been found
         return False  # No wins were found after looping through all the arrays
@@ -260,10 +261,10 @@ class NoughtsAndCrosses:
         being searched unnecessarily.
 
         Notes: Tested the speed of using a filter and partial function to remove diagonals that are too short to
-        contain a win, but this was slower than using a list comprehesnion.
+        contain a win, but this was slower than using a list comprehension.
         """
         # Get the indexes of the non-empty cells
-        non_empty_cells: np.ndarray = np.argwhere(playing_grid != 0)
+        non_empty_cells: np.ndarray = np.argwhere(playing_grid != BoardMarking.EMPTY.value)
 
         # Non empty rows
         non_empty_row_indexes: Set[int] = {index[0] for index in non_empty_cells}
