@@ -25,7 +25,7 @@ class IterativeDeepening(Enum):
         At search depths greater than 0, we just search the 3x3 square around the last played index, as this is the
         only part of the board that has changed since moving on from search_depth 0
         """
-        if search_depth == 0:
+        if search_depth <= 1:
             return 961
         else:
             return 8

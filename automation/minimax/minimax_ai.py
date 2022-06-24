@@ -43,7 +43,6 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         current_max_score = - math.inf
         current_best_move = None
         for iterative_search_depth in range(1, IterativeDeepening.max_search_depth.value + 1):
-            print(f"Reached search depth: {iterative_search_depth}")
             max_score, best_move = self.get_minimax_move_at_max_search_depth(
                 search_start_time=search_start_time, max_search_depth=iterative_search_depth)
             if max_score > current_max_score:
@@ -312,7 +311,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         """
         max_branch_factor = IterativeDeepening.get_max_branch_factor(search_depth=search_depth)
         available_cell_index_list = [index for index in
-                                     np.argwhere(playing_grid == BoardMarking.EMPTY.value)]  # TODO compare with EMPTY
+                                     np.argwhere(playing_grid == BoardMarking.EMPTY.value)]
         shuffle(available_cell_index_list)
         if self.previous_mark_index is None:  # This is the first move of the game
             return available_cell_index_list[:max_branch_factor]
