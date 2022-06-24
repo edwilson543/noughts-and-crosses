@@ -44,11 +44,12 @@ def evaluate_non_terminal_board(playing_grid: np.ndarray,
     streak_list: List[np.ndarray[complex]] = [_get_convolved_array(array=array, win_length_k=win_length_k,
                                                                    player_turn_value=player_turn_value) for array in
                                               array_list]
-    all_streaks: np.ndarray = np.hstack(streak_list)
+    all_streaks: np.ndarray[complex] = np.hstack(streak_list)
+    real_streaks: np.ndarray[int] = np.real(all_streaks)
 
     # Check who currently has a longer streak - this informs the scoring strategy
-    max_player_max_streak = abs(max(np.real(all_streaks)))  # maximiser player's streaks are positive
-    min_player_max_streak = abs(min(np.real(all_streaks)))  # minimiser player's streaks are negative
+    max_player_max_streak = abs(max(real_streaks))  # maximiser player's streaks are positive
+    min_player_max_streak = abs(min(real_streaks))  # minimiser player's streaks are negative
     maximiser_leading = max_player_max_streak > min_player_max_streak
 
     # Add up the scores of each individual streak and penalise with search depth
@@ -94,12 +95,12 @@ def _get_convolved_array(array: np.ndarray, win_length_k: int, player_turn_value
 
     Note that the scoring mechanism is clearly not perfect but gives some indication of a favourable board.
     """
-    ##########
-    # TODO delete once replaced board 0s with is
-    complex_array = np.where(array == 0, 1j, array)
-    ##########
+    # ##########
+    # # TODO delete once replaced board 0s with is
+    # complex_array = np.where(array == 0, 1j, array)
+    # ##########
 
-    convolved_array = np.convolve(complex_array, np.ones(win_length_k, dtype=int), mode="valid")
+    convolved_array = np.convolve(array, np.ones(win_length_k, dtype=int), mode="valid")
     convolved_array_active_player = convolved_array * player_turn_value  # Now a +ve streak is good for the active
     # player and a -ve streak is bad, because player turn value is 1 or -1
 
