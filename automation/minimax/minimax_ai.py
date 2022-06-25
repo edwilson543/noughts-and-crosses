@@ -55,6 +55,10 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                 return current_max_score, current_best_move
         return current_max_score, current_best_move
 
+# TODO need a way of updating best score with max depth - perhaps introduce min search depth of 2, don't let it stop
+# before then, and force it to update the score of a given move between depths - MAYBE don't even maintain a best score
+# between depths, just return the best score from the max depth
+
     def get_minimax_move_at_max_search_depth(self,
                                              max_search_depth: int,
                                              search_start_time: float,

@@ -49,7 +49,7 @@ def evaluate_non_terminal_board(playing_grid: np.ndarray,
     # Get rid of 'closed streaks' where there are insufficient empty cells to complete the streak
     filtered_streaks: np.ndarray[complex] = all_streaks[abs(all_streaks.real) + abs(all_streaks.imag) == win_length_k]
     if len(filtered_streaks) == 0:
-        return 0  # Game is guranteed to be a draw
+        return 0  # Game is guaranteed to be a draw
 
     # Check who currently has a longer streak - this informs the scoring strategy
     real_streaks: np.ndarray[int] = np.real(filtered_streaks)

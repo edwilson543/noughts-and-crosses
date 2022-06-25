@@ -29,6 +29,6 @@ class TerminalScore(Enum):
 
     # Scores for evaluating a non-terminal board
     ONE_MOVE_FROM_LOSS = - 5000  # Score for leaving the board in a state where the opposition can win in one move
-    TWO_MOVES_FROM_LOSS = - 2000  # Only deducted if maximiser is not leading (but streaks may be level)
-    ONE_FROM_WIN_MAXIMISER_LEADING = 1000  # Only awarded if minimiser doesn't have a streak of win_length_k - 1
+    TWO_MOVES_FROM_LOSS = - 3000  # Only deducted if maximiser is not leading (but streaks may be level)
+    ONE_FROM_WIN_MAXIMISER_LEADING = 5000  # Only awarded if minimiser doesn't have a streak of win_length_k - 1
     CUT_OFF_SCORE_TO_STOP_SEARCHING = 1000  # Stop iterative deepening search once this is achieved
