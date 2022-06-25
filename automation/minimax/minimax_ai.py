@@ -42,7 +42,10 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         search_start_time = time.perf_counter()
         current_max_score = - math.inf
         current_best_move = None
-        for iterative_search_depth in range(1, IterativeDeepening.max_search_depth.value + 1):
+        for iterative_search_depth in range(IterativeDeepening.minimum_search_depth.value,
+                                            IterativeDeepening.max_search_depth.value + 1):
+            print(f"Reached search depth: {iterative_search_depth}")
+            print(f"Current best move: {current_best_move}, with score: {current_max_score}")
             max_score, best_move = self.get_minimax_move_at_max_search_depth(
                 search_start_time=search_start_time, max_search_depth=iterative_search_depth)
             if max_score > current_max_score:
@@ -50,9 +53,12 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                 current_best_move = best_move
             # Checks to see if the algorithm should stop searching
             if time.perf_counter() - search_start_time > IterativeDeepening.max_search_seconds.value:
+                print(f"Search duration: {time.perf_counter() - search_start_time} seconds")
+                print(f"Timed out -  final move: {current_best_move}, final score: {current_max_score}")
                 return current_max_score, current_best_move
-            if max_score > TerminalScore.CUT_OFF_SCORE_TO_STOP_SEARCHING.value:
+            if current_max_score > TerminalScore.SEARCH_CUT_OFF_SCORE.value:
                 return current_max_score, current_best_move
+        print(f"checked all depths final move: {current_best_move}, final score: {current_max_score}")
         return current_max_score, current_best_move
 
 # TODO need a way of updating best score with max depth - perhaps introduce min search depth of 2, don't let it stop
@@ -142,14 +148,18 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
             return score, None
 
         # Check whether our iterative deepening criteria have been exhausted:
-        elif time.perf_counter() - search_start_time > IterativeDeepening.max_search_seconds.value:
+        elif (time.perf_counter() - search_start_time > IterativeDeepening.max_search_seconds.value) and \
+                (search_depth >= IterativeDeepening.minimum_search_depth.value):
             # Although this exit criteria is also included in the iterative loop, a given depth may also take too long
+            # We only exit if the minimum search depth has been achieved
             score = self._evaluate_non_terminal_board_to_maximising_player(
-                playing_grid=playing_grid, search_depth=search_depth)
+                playing_grid=playing_grid, search_depth=search_depth, maximiser_has_next_turn=maximisers_move)
             return score, None
+        # TODO check whether we can / can't include this
+
         elif search_depth == max_search_depth:
             score = self._evaluate_non_terminal_board_to_maximising_player(
-                playing_grid=playing_grid, search_depth=search_depth)
+                playing_grid=playing_grid, search_depth=search_depth, maximiser_has_next_turn=maximisers_move)
             return score, None
 
         # Otherwise, we need to evaluate the max/min streak attainable and associated move
@@ -264,16 +274,17 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         current_player_turn = self.get_player_turn()
         if (winning_player is not None) and \
                 winning_player.marking.value == current_player_turn:
-            return TerminalScore.MAX_WIN.value - search_depth
+            return TerminalScore.GUARANTEED_MAX_WIN.value - search_depth
         elif (winning_player is not None) and \
                 winning_player.marking.value == - current_player_turn:  # Note minus here (i.e. minimax would lose)
-            return TerminalScore.MAX_LOSS.value + search_depth
+            return TerminalScore.GUARANTEED_MAX_LOSS.value + search_depth
         elif draw:
             return TerminalScore.DRAW.value - search_depth
         else:
             raise ValueError("Attempted to evaluate a game scenario that was not terminal.")
 
-    def _evaluate_non_terminal_board_to_maximising_player(self, playing_grid: np.ndarray, search_depth: int) -> int:
+    def _evaluate_non_terminal_board_to_maximising_player(self, playing_grid: np.ndarray, search_depth: int,
+                                                          maximiser_has_next_turn: bool) -> int:
         """
         Method to evaluate the playing board from the maximiser's perspective, when the algorithm has been forced
         to end because the maximum search depth is reached, or the maximum search time has elapsed.
@@ -283,8 +294,8 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         """
         player_turn_value = self.get_player_turn()
         score = evaluate_non_terminal_board(
-            playing_grid=playing_grid, win_length_k=self.win_length_k,
-            search_depth=search_depth, player_turn_value=player_turn_value
+            playing_grid=playing_grid, win_length_k=self.win_length_k, search_depth=search_depth,
+            player_turn_value=player_turn_value, maximisers_has_next_turn=maximiser_has_next_turn
         )
         return score
 

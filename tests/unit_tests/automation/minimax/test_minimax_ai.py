@@ -68,7 +68,7 @@ class TestMinimaxMoveReturnThreeThreeThree:
             [BoardMarking.O.value, BoardMarking.O.value, BoardMarking.EMPTY.value]
         ])
         score, minimax_move = three_three_game_with_minimax_player.get_minimax_move_iterative_deepening()
-        assert score == TerminalScore.MAX_WIN.value - 1  # -1 to reflect a search depth of 1 to find the win
+        assert score == TerminalScore.GUARANTEED_MAX_WIN.value - 1  # -1 to reflect a search depth of 1 to find the win
         assert np.all(minimax_move == np.array([2, 2]))
 
     def test_minimax_gets_winning_move_north_east_diagonal(self, three_three_game_with_minimax_player):
@@ -80,7 +80,7 @@ class TestMinimaxMoveReturnThreeThreeThree:
             [BoardMarking.O.value, BoardMarking.X.value, BoardMarking.EMPTY.value]
         ])
         score, minimax_move = three_three_game_with_minimax_player.get_minimax_move_iterative_deepening()
-        assert score == TerminalScore.MAX_WIN.value - 1  # -1 to reflect a search depth of 1 to find the win
+        assert score == TerminalScore.GUARANTEED_MAX_WIN.value - 1  # -1 to reflect a search depth of 1 to find the win
         assert np.all(minimax_move == np.array([1, 1]))
 
     def test_minimax_makes_blocking_move_middle_left_vertical(self, three_three_game_with_minimax_player):

@@ -15,7 +15,7 @@ class TerminalScore(Enum):
     evaluate_non_terminal_board method.
     The default is to cubed the length of an open streak in, hence the score for a win needs to be higher than the size
     of a reasonable game's dimensions.
-    i.e. MAX_WIN > (max(game_rows_m, game_cols_n) - 1) ** 3, and equivalently for MAX_LOSS.
+    i.e. GUARANTEED_MAX_WIN > (max(game_rows_m, game_cols_n) - 1) ** 3, and equivalently for GUARANTEED_MAX_LOSS.
 
     Here 'MAX' refers to the score from the perspective of the maximising player.
 
@@ -23,12 +23,14 @@ class TerminalScore(Enum):
     terminal board scoring.
     """
     # Scores for evaluating a terminal board
-    MAX_WIN = 100000
+    GUARANTEED_MAX_WIN = 3600000
     DRAW = 0
-    MAX_LOSS = -100000
+    GUARANTEED_MAX_LOSS = - 3600000
+
+    # Cut of score to stop searching
+    SEARCH_CUT_OFF_SCORE = 3599800
 
     # Scores for evaluating a non-terminal board
-    ONE_MOVE_FROM_LOSS = - 5000  # Score for leaving the board in a state where the opposition can win in one move
-    TWO_MOVES_FROM_LOSS = - 3000  # Only deducted if maximiser is not leading (but streaks may be level)
-    ONE_FROM_WIN_MAXIMISER_LEADING = 5000  # Only awarded if minimiser doesn't have a streak of win_length_k - 1
-    CUT_OFF_SCORE_TO_STOP_SEARCHING = 1000  # Stop iterative deepening search once this is achieved
+    EXPECTED_MAX_WIN = 360000
+    EXPECTED_MAX_LOSS = - 360000
+    DRAWING_WIN_LENGTH_MINUS_TWO_MAXIMISER_NEXT = 1000

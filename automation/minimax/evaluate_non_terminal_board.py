@@ -24,7 +24,8 @@ from utils import lru_cache_hashable
 def evaluate_non_terminal_board(playing_grid: np.ndarray,
                                 win_length_k: int,
                                 search_depth: int,
-                                player_turn_value: BoardMarking) -> int:
+                                player_turn_value: BoardMarking,
+                                maximisers_has_next_turn: bool) -> int:
     """
     Method to determine the streak that should be assigned to a board, from the perspective of the maximising player.
     The idea is to identify any streaks of significant length and assign a streak to these.
@@ -38,6 +39,8 @@ def evaluate_non_terminal_board(playing_grid: np.ndarray,
     player_turn_value - the player who has JUST MADE THEIR MOVE in the game
     i.e. the player from who's perspective we are scoring the board. If the board is favourable to that player,
     then a high (positive) streak is returned, else a low (negative) streak is returned.
+
+    #TODO update NEUTRAL to who's turn it is next
     """
     # Get a list of the streaks (convolutions of each part of the board of length win_length_k with a ones array)
     array_list = NoughtsAndCrosses.get_non_empty_array_list(playing_grid=playing_grid, win_length_k=win_length_k)
@@ -47,40 +50,93 @@ def evaluate_non_terminal_board(playing_grid: np.ndarray,
     all_streaks: np.ndarray[complex] = np.hstack(streak_list)
 
     # Get rid of 'closed streaks' where there are insufficient empty cells to complete the streak
-    filtered_streaks: np.ndarray[complex] = all_streaks[abs(all_streaks.real) + abs(all_streaks.imag) == win_length_k]
-    if len(filtered_streaks) == 0:
+    winnable_streaks: np.ndarray[complex] = all_streaks[abs(all_streaks.real) + abs(all_streaks.imag) == win_length_k]
+    relevant_streaks: np.ndarray[complex] = winnable_streaks[abs(winnable_streaks.imag) != win_length_k]
+    if len(relevant_streaks) == 0:
         return 0  # Game is guaranteed to be a draw
 
     # Check who currently has a longer streak - this informs the scoring strategy
-    real_streaks: np.ndarray[int] = np.real(filtered_streaks)
+    real_streaks: np.ndarray[int] = np.real(relevant_streaks)
     max_player_max_streak = abs(max(real_streaks))  # maximiser player's streaks are positive
     min_player_max_streak = abs(min(real_streaks))  # minimiser player's streaks are negative
-    maximiser_leading = max_player_max_streak > min_player_max_streak
+    leading_player_indicator = max_player_max_streak - min_player_max_streak
 
     # Add up the scores of each individual streak and penalise with search depth
-    total_score = np.sum(_score_individual_streak(streak=streak, win_length_k=win_length_k,
-                                                  maximiser_leading=maximiser_leading) for streak in filtered_streaks)
+    for streak in relevant_streaks:
+        score = _score_individual_streak(streak=streak, win_length_k=win_length_k,
+        maximiser_has_next_turn=maximisers_has_next_turn,
+        leading_player_indicator=leading_player_indicator)
+
+    total_score = sum(_score_individual_streak(
+        streak=streak, win_length_k=win_length_k, maximiser_has_next_turn=maximisers_has_next_turn,
+        leading_player_indicator=leading_player_indicator) for streak in relevant_streaks)
     if total_score > 0:
         return max(total_score - search_depth, 0)
     else:
         return min(total_score + search_depth, 0)
 
 
-def _score_individual_streak(streak: complex, win_length_k: int, maximiser_leading: bool) -> float:
+def _score_individual_streak(streak: complex, win_length_k: int,
+                             maximiser_has_next_turn: bool, leading_player_indicator: int) -> float:
     """
     Method to assign a score to an individual streak
-
+    # TODO
     Score e.g.s:
     """
+    maximiser_has_longest_streak = leading_player_indicator > 0
+    maximiser_minimiser_longest_streak_same_length = leading_player_indicator == 0
+    minimiser_has_longest_streak = leading_player_indicator < 0
+
     real_part = streak.real
-    if real_part == -(win_length_k - 1):
-        return TerminalScore.ONE_MOVE_FROM_LOSS.value
-    elif (real_part == win_length_k - 1) and maximiser_leading:
-        return TerminalScore.ONE_FROM_WIN_MAXIMISER_LEADING.value
-    elif real_part == -(win_length_k - 2):
-        return TerminalScore.TWO_MOVES_FROM_LOSS.value
-    else:
-        return real_part ** 3
+    score_return = None
+    if maximiser_has_next_turn:
+        if real_part == win_length_k - 1:
+            score_return = TerminalScore.EXPECTED_MAX_WIN.value
+        elif maximiser_has_longest_streak:
+            # Minimiser can't have a (win_length_k - 1) streak otherwise maximiser has won
+            # Minimiser can't have a (win_length_k - 2) streak otherwise maximiser has a (win_length_k -2) streak
+            if (real_part == win_length_k - 2):
+                # If convolution gives 2 (win_length_k - 2) streaks, this mean the maximiser has (wlk-2)-in-a-row with
+                # 2 open ends - given it's maximisers turn next, they can fill one end to get a (wlk-1) streak
+                score_return = TerminalScore.EXPECTED_MAX_WIN.value / 6
+        elif maximiser_minimiser_longest_streak_same_length:
+            # Only relevant scenario is both have a (wlk - 2) streak - in which case we score the board by who has most
+            # TODO may need to make these scores different depending on who's turn it is next
+            if (real_part == win_length_k - 2):
+                score_return = TerminalScore.EXPECTED_MAX_WIN.value / 6
+            elif (real_part == - (win_length_k - 2)):
+                score_return = - TerminalScore.DRAWING_WIN_LENGTH_MINUS_TWO_MAXIMISER_NEXT.value
+        elif minimiser_has_longest_streak:
+            if real_part == -(win_length_k - 1):
+                # Divide loss score by 2 - if minimiser has 2 (win_length_k - 1) streaks, maximiser has lost regardless
+                score_return = TerminalScore.EXPECTED_MAX_LOSS.value / 2
+            #  Maximiser now can't have a (wlk-2) streak, irrelevant if minimiser does as maximiser would block
+            # TODO Maybe it's irrelevant what the streaks on win_length_k - 2 are - have a look
+    else:  # not maximiser_has_next_turn
+        if real_part == -(win_length_k - 1):
+            score_return = TerminalScore.EXPECTED_MAX_LOSS.value
+        elif minimiser_has_longest_streak:
+            # Only option here is that minimiser has a (wlk-2) streak
+            if (real_part == -(win_length_k - 2)):
+                # If convolution gives 2 (win_length_k - 2) streaks, this means the minimiser has (wlk-2)-in-a-row with
+                # 2 open ends - given it's minimiser's turn next, they can fill one end to get a (wlk-1) streak
+                score_return = TerminalScore.EXPECTED_MAX_LOSS.value / 6
+        elif maximiser_minimiser_longest_streak_same_length:
+            # Only relevant scenario is both have a (wlk - 2) streak - in which case we score the board by who has most
+            # TODO may need to make these scores different for maximiser / minimiser
+            if (real_part == win_length_k - 2):
+                score_return = TerminalScore.DRAWING_WIN_LENGTH_MINUS_TWO_MAXIMISER_NEXT.value
+            elif (real_part == - (win_length_k - 2)):
+                score_return = TerminalScore.EXPECTED_MAX_LOSS.value / 6
+        elif not maximiser_has_longest_streak:
+            if real_part == win_length_k - 1:
+                # Divide win score by 2 - if maximiser has 2 (win_length_k - 1) streaks, maximiser has won regardless
+                score_return = TerminalScore.EXPECTED_MAX_WIN.value / 2
+            # TODO Maybe it's irrelevant what the streaks on win_length_k - 2 are - have a look
+
+    if score_return is None:
+        score_return = real_part ** 3
+    return score_return
 
 
 def _get_convolved_array(array: np.ndarray, win_length_k: int, player_turn_value: BoardMarking):
