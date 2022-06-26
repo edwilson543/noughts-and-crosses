@@ -12,7 +12,8 @@ from typing import List, Tuple
 import numpy as np
 
 # Local application imports
-from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
+from automation.minimax.minimax_ai import NoughtsAndCrossesMinimax
+from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
 from game.app.player_base_class import Player
 from game.constants.game_constants import BoardMarking
 
@@ -24,7 +25,7 @@ from tkinter_gui.constants.style_and_colours import Colour, Font, Relief
 from tkinter_gui.constants.game_flow_timing import PauseDuration
 
 
-class ActiveGameFrames(NoughtsAndCrosses):
+class ActiveGameFrames(NoughtsAndCrossesMinimax):
     def __init__(self,
                  setup_parameters: NoughtsAndCrossesEssentialParameters,
                  draw_count: int = 0,
@@ -149,8 +150,8 @@ class ActiveGameFrames(NoughtsAndCrosses):
         """
         Method to switch which player's confirmation button is active - to the player who's turn it is.
         This will disable the player's button who has just gone, and then set the active confirmation button in the
-        widget manager to be that of the next player. A click on the playing_grid in an available cell then activates the
-        confirmation button corresponding to who's turn it is.
+        widget manager to be that of the next player. A click on the playing_grid in an available cell then activates
+        the confirmation button corresponding to who's turn it is.
         """
         if self.get_player_turn() == BoardMarking.X.value:
             self.widget_manager.active_confirmation_button["state"] = tk.DISABLED
@@ -165,7 +166,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         1) Destroy the in-place unconfirmed cell button
         2) Permanently marks the playing_grid as shown in the active unconfirmed cell, and add this to the playing grid
         and widget manager
-        3) Updates the backend playing_grid (the -1s, 0s and 1s) and checks whether a player has won
+        3) Updates the backend playing_grid (the -1s, 1s and empty cells) and checks whether a player has won
         """
         self.widget_manager.playing_grid[self.active_unconfirmed_cell].destroy()
         occupied_cell_label = self._get_occupied_cell_label()

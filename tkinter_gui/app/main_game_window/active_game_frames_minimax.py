@@ -8,7 +8,6 @@ from typing import Tuple
 # Local application imports
 from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
 from game.constants.game_constants import BoardMarking
-from automation.minimax.minimax_ai import NoughtsAndCrossesMinimax
 
 # Local applications GUI imports
 from tkinter_gui.app.main_game_window.active_game_frames import ActiveGameFrames
@@ -16,7 +15,7 @@ from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindow
 from tkinter_gui.constants.game_flow_timing import PauseDuration
 
 
-class ActiveGameFramesMinimax(ActiveGameFrames, NoughtsAndCrossesMinimax):
+class ActiveGameFramesMinimax(ActiveGameFrames):
     def __init__(self,
                  setup_parameters: NoughtsAndCrossesEssentialParameters,
                  draw_count: int = 0,

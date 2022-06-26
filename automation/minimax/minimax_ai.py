@@ -12,10 +12,11 @@ import numpy as np
 
 # Local application imports
 from automation.minimax.evaluate_non_terminal_board import evaluate_non_terminal_board
-from automation.minimax.constants.terminal_board_scores import TerminalScore
+from automation.minimax.constants.terminal_board_scores import BoardScore
 from automation.minimax.constants.iterative_deepening_constants import IterativeDeepening
 from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
 from game.app.player_base_class import Player
+from game.constants.game_constants import BoardMarking
 from utils import lru_cache_hashable
 
 
@@ -41,17 +42,17 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         search_start_time = time.perf_counter()
         current_max_score = - math.inf
         current_best_move = None
-        for iterative_search_depth in range(1, IterativeDeepening.max_search_depth.value + 1):
+        for iterative_search_depth in range(IterativeDeepening.minimum_search_depth.value,
+                                            IterativeDeepening.max_search_depth.value + 1):
             max_score, best_move = self.get_minimax_move_at_max_search_depth(
                 search_start_time=search_start_time, max_search_depth=iterative_search_depth)
             if max_score > current_max_score:
                 current_max_score = max_score
                 current_best_move = best_move
-
             # Checks to see if the algorithm should stop searching
             if time.perf_counter() - search_start_time > IterativeDeepening.max_search_seconds.value:
                 return current_max_score, current_best_move
-            if max_score > TerminalScore.CUT_OFF_SCORE_TO_STOP_SEARCHING.value:
+            if current_max_score > BoardScore.SEARCH_CUT_OFF_SCORE.value:
                 return current_max_score, current_best_move
         return current_max_score, current_best_move
 
@@ -66,7 +67,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                                              beta: float | int = math.inf) -> Tuple[int, np.ndarray | None]:
         """
         Method to determine the move that should be played next on the given playing_grid, based on the terminal or
-        non-terminal board that receives the highest score, at the max_search_depth.
+        non-terminal board that receives the highest streak, at the max_search_depth.
         Note that this is a recursive method.
 
         Parameters:
@@ -87,7 +88,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
 
         search_depth: The depth at which we are searching relative to the current status of the playing_grid
 
-        maximisers_move: T/F depending on whether the call to this method is to maximise or minimise the score
+        maximisers_move: T/F depending on whether the call to this method is to maximise or minimise the streak
 
         alpha: The best (highest) value the maximiser can already guarantee at the given search depth or above.
         There is therefore no point searching further into game trees where the maximiser CANNOT force a higher value
@@ -105,11 +106,11 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         Returns: Tuple[int, np.ndarray | None]
         __________
         int -  In this case the recursion has reached a board of terminal state or the algorithm has run out of
-        time/depth, this is the score of that board to the maximising player (score).
+        time/depth, this is the streak of that board to the maximising player (streak).
         These values are then passed up the game tree, to determine what move the maximiser should take,
         hence an int (min_score/max_score) is returned for each recursion
 
-        np.ndarray - when the board has not reached maximum depth - it returns the move leading to the optimal score,
+        np.ndarray - when the board has not reached maximum depth - it returns the move leading to the optimal streak,
         assuming the maximiser always maximises and the minimiser always minimises the static evaluation function.
         This is the highest scoring move for whichever player's turn is next.
         """
@@ -138,37 +139,36 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
             return score, None
 
         # Check whether our iterative deepening criteria have been exhausted:
-        elif time.perf_counter() - search_start_time > IterativeDeepening.max_search_seconds.value:
+        elif (time.perf_counter() - search_start_time > IterativeDeepening.max_search_seconds.value) and \
+                (search_depth >= IterativeDeepening.minimum_search_depth.value):
             # Although this exit criteria is also included in the iterative loop, a given depth may also take too long
+            # We only exit if the minimum search depth has been achieved
             score = self._evaluate_non_terminal_board_to_maximising_player(
-                playing_grid=playing_grid, search_depth=search_depth)
-            return score, None
-        elif search_depth == max_search_depth:
-            score = self._evaluate_non_terminal_board_to_maximising_player(
-                playing_grid=playing_grid, search_depth=search_depth)
+                playing_grid=playing_grid, search_depth=search_depth, maximiser_has_next_turn=maximisers_move)
             return score, None
 
-        # Otherwise, we need to evaluate the max/min score attainable and associated move
+        elif search_depth == max_search_depth:
+            score = self._evaluate_non_terminal_board_to_maximising_player(
+                playing_grid=playing_grid, search_depth=search_depth, maximiser_has_next_turn=maximisers_move)
+            return score, None
+
+        # Otherwise, we need to evaluate the max/min streak attainable and associated move
         elif maximisers_move:
             available_cell_list = self._get_available_cell_indices(
                 playing_grid=playing_grid, search_depth=search_depth, last_played_index=last_played_index)
-            max_score, best_move = self._get_maximiser_score_and_move(available_cell_list=available_cell_list,
-                                                                      max_search_depth=max_search_depth,
-                                                                      search_start_time=search_start_time,
-                                                                      last_played_index=last_played_index,
-                                                                      playing_grid=playing_grid,
-                                                                      search_depth=search_depth, alpha=alpha, beta=beta)
+            max_score, best_move = self._get_maximiser_score_and_move(
+                available_cell_list=available_cell_list, max_search_depth=max_search_depth,
+                search_start_time=search_start_time, last_played_index=last_played_index, playing_grid=playing_grid,
+                search_depth=search_depth, alpha=alpha, beta=beta)
             return max_score, best_move
 
-        else:  # minimisers move - they want to pick the game tree that minimises the score to the maximiser
+        else:  # minimisers move - they want to pick the game tree that minimises the streak to the maximiser
             available_cell_list = self._get_available_cell_indices(
                 playing_grid=playing_grid, search_depth=search_depth, last_played_index=last_played_index)
-            max_score, best_move = self._get_minimiser_score_and_move(available_cell_list=available_cell_list,
-                                                                      max_search_depth=max_search_depth,
-                                                                      search_start_time=search_start_time,
-                                                                      last_played_index=last_played_index,
-                                                                      playing_grid=playing_grid,
-                                                                      search_depth=search_depth, alpha=alpha, beta=beta)
+            max_score, best_move = self._get_minimiser_score_and_move(
+                available_cell_list=available_cell_list, max_search_depth=max_search_depth,
+                search_start_time=search_start_time, last_played_index=last_played_index, playing_grid=playing_grid,
+                search_depth=search_depth, alpha=alpha, beta=beta)
             return max_score, best_move
 
     def _get_maximiser_score_and_move(self,
@@ -181,24 +181,22 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                                       alpha: float | int,
                                       beta: float | int) -> Tuple[int, np.ndarray | None]:
         """
-        Method to get the maximum board score and thus best move from the maximiser's perspective, amongst the
+        Method to get the maximum board streak and thus best move from the maximiser's perspective, amongst the
         options in the available_cell_list.
         Parameters:
         __________
         As for get_minimax_move... except for:
         available_cell_list: The list of different moves that the maximiser can consider at the given search depth.
         """
-        max_score = -math.inf  # Initialise as -inf so that the score can only be improved upon
+        max_score = -math.inf  # Initialise as -inf so that the streak can only be improved upon
         best_move = None
         for move_option in available_cell_list:
             playing_grid_copy = playing_grid.copy()
             self.mark_board(marking_index=move_option, playing_grid=playing_grid_copy)
             potential_new_max, _ = self.get_minimax_move_at_max_search_depth(  # call minimax recursively
                 search_start_time=search_start_time, max_search_depth=max_search_depth,
-                last_played_index=move_option, playing_grid=playing_grid_copy,
-                search_depth=search_depth + 1, maximisers_move=False,
-                alpha=alpha, beta=beta)
-            # 'not maximisers_move' is to indicate that when minimax is next called, it's the other player's go
+                last_played_index=move_option, playing_grid=playing_grid_copy, search_depth=search_depth + 1,
+                maximisers_move=False, alpha=alpha, beta=beta)
             if potential_new_max > max_score:
                 max_score = potential_new_max
                 best_move = move_option
@@ -217,23 +215,22 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                                       alpha: float | int,
                                       beta: float | int) -> Tuple[int, np.ndarray | None]:
         """
-        Method to get the minimum board score and thus best move from the minimiser's perspective, amongst the
+        Method to get the minimum board streak and thus best move from the minimiser's perspective, amongst the
         options in the available_cell_list.
         Parameters:
         __________
         As for get_minimax_move... except for:
         available_cell_list: The list of different moves that the minimiser can consider at the given search depth.
         """
-        min_score = math.inf  # Initialise as +inf so that score can only be improved upon
+        min_score = math.inf  # Initialise as +inf so that streak can only be improved upon
         best_move = None
         for move_option in available_cell_list:
             playing_grid_copy = playing_grid.copy()
             self.mark_board(marking_index=move_option, playing_grid=playing_grid_copy)
             potential_new_min, _ = self.get_minimax_move_at_max_search_depth(  # call minimax recursively
                 search_start_time=search_start_time, max_search_depth=max_search_depth,
-                last_played_index=move_option, playing_grid=playing_grid_copy,
-                search_depth=search_depth + 1, maximisers_move=True,
-                alpha=alpha, beta=beta)
+                last_played_index=move_option, playing_grid=playing_grid_copy, search_depth=search_depth + 1,
+                maximisers_move=True, alpha=alpha, beta=beta)
             if potential_new_min < min_score:
                 min_score = potential_new_min
                 best_move = move_option
@@ -267,16 +264,17 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         current_player_turn = self.get_player_turn()
         if (winning_player is not None) and \
                 winning_player.marking.value == current_player_turn:
-            return TerminalScore.MAX_WIN.value - search_depth
+            return BoardScore.GUARANTEED_MAX_WIN.value - search_depth
         elif (winning_player is not None) and \
                 winning_player.marking.value == - current_player_turn:  # Note minus here (i.e. minimax would lose)
-            return TerminalScore.MAX_LOSS.value + search_depth
+            return BoardScore.GUARANTEED_MAX_LOSS.value + search_depth
         elif draw:
-            return TerminalScore.DRAW.value - search_depth
+            return BoardScore.DRAW.value - search_depth
         else:
             raise ValueError("Attempted to evaluate a game scenario that was not terminal.")
 
-    def _evaluate_non_terminal_board_to_maximising_player(self, playing_grid: np.ndarray, search_depth: int) -> int:
+    def _evaluate_non_terminal_board_to_maximising_player(self, playing_grid: np.ndarray, search_depth: int,
+                                                          maximiser_has_next_turn: bool) -> int:
         """
         Method to evaluate the playing board from the maximiser's perspective, when the algorithm has been forced
         to end because the maximum search depth is reached, or the maximum search time has elapsed.
@@ -284,10 +282,10 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         cached and optimised more easily).
         Parameters: playing_grid/search_depth - as above.
         """
-        player_turn_value = self.get_player_turn()
+        maximiser_mark_value = self.get_player_turn()
         score = evaluate_non_terminal_board(
-            playing_grid=playing_grid, win_length_k=self.win_length_k,
-            search_depth=search_depth, player_turn_value=player_turn_value
+            playing_grid=playing_grid, win_length_k=self.win_length_k, search_depth=search_depth,
+            maximiser_mark_value=maximiser_mark_value, maximiser_has_next_turn=maximiser_has_next_turn
         )
         return score
 
@@ -317,7 +315,8 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         _available_cell_prioritiser, and then return this, but this was also slower.
         """
         max_branch_factor = IterativeDeepening.get_max_branch_factor(search_depth=search_depth)
-        available_cell_index_list = [index for index in np.argwhere(playing_grid == 0)]
+        available_cell_index_list = [index for index in
+                                     np.argwhere(playing_grid == BoardMarking.EMPTY.value)]
         shuffle(available_cell_index_list)
         if self.previous_mark_index is None:  # This is the first move of the game
             return available_cell_index_list[:max_branch_factor]
@@ -331,7 +330,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
             return prioritised_list[:max_branch_factor]
 
     @staticmethod
-    @lru_cache_hashable(maxsize=100000)  # Can be infinite but specified to avoid memory blow up
+    @lru_cache_hashable(maxsize=1000)  # Can be infinite but specified to avoid memory blow up
     def _available_cell_prioritiser(last_played_index: np.ndarray, available_index: np.ndarray) -> float:
         """
         Method to define an order that can be used to sort a list of available empty cells in order of which
