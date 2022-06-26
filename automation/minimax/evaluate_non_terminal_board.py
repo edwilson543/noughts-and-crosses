@@ -95,17 +95,17 @@ def _score_individual_streak(streak: complex, win_length_k: int,
         elif maximiser_has_longest_streak:
             # Minimiser can't have a (win_length_k - 1) streak otherwise maximiser has won
             # Minimiser can't have a (win_length_k - 2) streak otherwise maximiser has a (win_length_k -2) streak
-            if (real_part == win_length_k - 2):
+            if real_part == win_length_k - 2:
                 # If convolution gives 2 (win_length_k - 2) streaks, this mean the maximiser has (wlk-2)-in-a-row with
                 # 2 open ends - given it's maximisers turn next, they can fill one end to get a (wlk-1) streak
-                score_return = TerminalScore.EXPECTED_MAX_WIN.value / 6
+                score_return = TerminalScore.EXPECTED_MAX_WIN.value / 3
         elif maximiser_minimiser_longest_streak_same_length:
             # Only relevant scenario is both have a (wlk - 2) streak - in which case we score the board by who has most
             # TODO may need to make these scores different depending on who's turn it is next
-            if (real_part == win_length_k - 2):
+            if real_part == win_length_k - 2:
                 score_return = TerminalScore.EXPECTED_MAX_WIN.value / 6
-            elif (real_part == - (win_length_k - 2)):
-                score_return = - TerminalScore.DRAWING_WIN_LENGTH_MINUS_TWO_MAXIMISER_NEXT.value
+            elif real_part == - (win_length_k - 2):
+                score_return = - TerminalScore.DRAWING_WIN_LENGTH_MINUS_TWO.value
         elif minimiser_has_longest_streak:
             if real_part == -(win_length_k - 1):
                 # Divide loss score by 2 - if minimiser has 2 (win_length_k - 1) streaks, maximiser has lost regardless
@@ -117,18 +117,18 @@ def _score_individual_streak(streak: complex, win_length_k: int,
             score_return = TerminalScore.EXPECTED_MAX_LOSS.value
         elif minimiser_has_longest_streak:
             # Only option here is that minimiser has a (wlk-2) streak
-            if (real_part == -(win_length_k - 2)):
+            if real_part == -(win_length_k - 2):
                 # If convolution gives 2 (win_length_k - 2) streaks, this means the minimiser has (wlk-2)-in-a-row with
                 # 2 open ends - given it's minimiser's turn next, they can fill one end to get a (wlk-1) streak
-                score_return = TerminalScore.EXPECTED_MAX_LOSS.value / 6
+                score_return = TerminalScore.EXPECTED_MAX_LOSS.value / 3
         elif maximiser_minimiser_longest_streak_same_length:
             # Only relevant scenario is both have a (wlk - 2) streak - in which case we score the board by who has most
             # TODO may need to make these scores different for maximiser / minimiser
-            if (real_part == win_length_k - 2):
-                score_return = TerminalScore.DRAWING_WIN_LENGTH_MINUS_TWO_MAXIMISER_NEXT.value
-            elif (real_part == - (win_length_k - 2)):
+            if real_part == win_length_k - 2:
+                score_return = TerminalScore.DRAWING_WIN_LENGTH_MINUS_TWO.value
+            elif real_part == - (win_length_k - 2):
                 score_return = TerminalScore.EXPECTED_MAX_LOSS.value / 6
-        elif not maximiser_has_longest_streak:
+        elif maximiser_has_longest_streak:
             if real_part == win_length_k - 1:
                 # Divide win score by 2 - if maximiser has 2 (win_length_k - 1) streaks, maximiser has won regardless
                 score_return = TerminalScore.EXPECTED_MAX_WIN.value / 2

@@ -33,4 +33,4 @@ class TerminalScore(Enum):
     # Scores for evaluating a non-terminal board
     EXPECTED_MAX_WIN = 360000
     EXPECTED_MAX_LOSS = - 360000
-    DRAWING_WIN_LENGTH_MINUS_TWO_MAXIMISER_NEXT = 1000
+    DRAWING_WIN_LENGTH_MINUS_TWO = 1000
