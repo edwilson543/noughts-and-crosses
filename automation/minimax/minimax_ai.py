@@ -330,7 +330,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
             return prioritised_list[:max_branch_factor]
 
     @staticmethod
-    @lru_cache_hashable(maxsize=100000)  # Can be infinite but specified to avoid memory blow up
+    @lru_cache_hashable(maxsize=1000)  # Can be infinite but specified to avoid memory blow up
     def _available_cell_prioritiser(last_played_index: np.ndarray, available_index: np.ndarray) -> float:
         """
         Method to define an order that can be used to sort a list of available empty cells in order of which
