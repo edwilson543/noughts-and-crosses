@@ -56,10 +56,6 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                 return current_max_score, current_best_move
         return current_max_score, current_best_move
 
-# TODO need a way of updating best score with max depth - perhaps introduce min search depth of 2, don't let it stop
-# before then, and force it to update the score of a given move between depths - MAYBE don't even maintain a best score
-# between depths, just return the best score from the max depth
-
     def get_minimax_move_at_max_search_depth(self,
                                              max_search_depth: int,
                                              search_start_time: float,
@@ -150,7 +146,6 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
             score = self._evaluate_non_terminal_board_to_maximising_player(
                 playing_grid=playing_grid, search_depth=search_depth, maximiser_has_next_turn=maximisers_move)
             return score, None
-        # TODO check whether we can / can't include this
 
         elif search_depth == max_search_depth:
             score = self._evaluate_non_terminal_board_to_maximising_player(
@@ -287,10 +282,10 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         cached and optimised more easily).
         Parameters: playing_grid/search_depth - as above.
         """
-        player_turn_value = self.get_player_turn()
+        maximiser_mark_value = self.get_player_turn()
         score = evaluate_non_terminal_board(
             playing_grid=playing_grid, win_length_k=self.win_length_k, search_depth=search_depth,
-            player_turn_value=player_turn_value, maximiser_has_next_turn=maximiser_has_next_turn
+            maximiser_mark_value=maximiser_mark_value, maximiser_has_next_turn=maximiser_has_next_turn
         )
         return score
 

@@ -25,7 +25,7 @@ from utils import lru_cache_hashable
 def evaluate_non_terminal_board(playing_grid: np.ndarray,
                                 win_length_k: int,
                                 search_depth: int,
-                                player_turn_value: BoardMarking,
+                                maximiser_mark_value: BoardMarking,
                                 maximiser_has_next_turn: bool) -> int:
     """
     Method to determine the streak that should be assigned to a board, from the perspective of the maximising player.
@@ -43,7 +43,7 @@ def evaluate_non_terminal_board(playing_grid: np.ndarray,
 
     search_depth - The search depth at which the board we are scoring has been generated.
 
-    player_turn_value - the value that represents the maximising player's board markings (1 or -1)
+    maximiser_mark_value - the value that represents the maximising player's board markings (1 or -1)
     i.e. the player from who's perspective we are scoring the board. If the board is favourable to that player,
     then a high (positive) streak is returned, else a low (negative) streak is returned.
 
@@ -52,7 +52,8 @@ def evaluate_non_terminal_board(playing_grid: np.ndarray,
     # Get a list of the streaks (convolutions of each part of the board of length win_length_k with a ones array)
     array_list = NoughtsAndCrosses.get_non_empty_array_list(playing_grid=playing_grid, win_length_k=win_length_k)
     streak_list: List[np.ndarray[complex]] = [_get_convolved_array(array=array, win_length_k=win_length_k,
-                                                                   player_turn_value=player_turn_value) for array in
+                                                                   maximiser_mark_value=maximiser_mark_value) for array
+                                              in
                                               array_list]
     all_streaks: np.ndarray[complex] = np.hstack(streak_list)
 
@@ -78,7 +79,7 @@ def evaluate_non_terminal_board(playing_grid: np.ndarray,
         return min(total_score + search_depth, 0)
 
 
-@lru_cache(maxsize=1000)  # Note there are not may possibilities so can use a small cache
+@lru_cache(maxsize=1000)  # Note there are not many possibilities so can use a small cache
 def _score_individual_streak(streak: complex, win_length_k: int,
                              maximiser_has_next_turn: bool, leading_player_indicator: int) -> float:
     """
@@ -173,19 +174,25 @@ def _score_individual_streak(streak: complex, win_length_k: int,
     return score_return
 
 
-def _get_convolved_array(array: np.ndarray, win_length_k: int, player_turn_value: BoardMarking):
+def _get_convolved_array(array: np.ndarray, win_length_k: int,
+                         maximiser_mark_value: BoardMarking) -> np.ndarray:
     """
     Method to determine the streak complex number to be associated with an individual array.
     We convolve with a ones array of length win_length_k - this tells us whether an incomplete streak could be
     completed.
     We also multiply by the player turn value, so that a positive streak is good for the maximiser, and a negative
     streak is bad, noting that for a streak = -3, this is good for player represented by -1, and bad for player
-    represented by 1, so multiplying -1 * -3 tells us that this is a good streak for the player_turn_value.
+    represented by 1, so multiplying -1 * -3 tells us that this is a good streak for the maximiser_mark_value.
 
     Parameters:
     __________
     array - the individual array that we are scoring (a row, column, diagonal etc. of the playing grid)
-    win_length_k/player_turn_value - as above.
+    win_length_k/maximiser_mark_value - as above.
+
+    Returns:
+    ----------
+    A numpy array containing the complex numbers that represent the streaks.
+    The length of the output array will be: len(array) - win_length_k + 1
 
     Examples:
     (1, 1, 1) . (1, 1, j) = 2 + j  ---> This streak could be completed as real + imag part equal win_length (of 3)
@@ -193,7 +200,7 @@ def _get_convolved_array(array: np.ndarray, win_length_k: int, player_turn_value
     (1, -1, j) . (1, 1, 1) = j     ---> This streak would get filtered out (i.e. not scored) as it can't be won
     """
     convolved_array = np.convolve(array, np.ones(win_length_k, dtype=int), mode="valid")
-    convolved_array_active_player = convolved_array * player_turn_value  # Now a +ve streak is good for the maximiser
+    convolved_array_active_player = convolved_array * maximiser_mark_value  # Now a +ve streak is good for the maximiser
     # and a -ve streak is bad, because player turn value is 1 or -1
 
     return convolved_array_active_player
