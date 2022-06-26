@@ -12,7 +12,8 @@ from typing import List, Tuple
 import numpy as np
 
 # Local application imports
-from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
+from automation.minimax.minimax_ai import NoughtsAndCrossesMinimax
+from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
 from game.app.player_base_class import Player
 from game.constants.game_constants import BoardMarking
 
@@ -24,7 +25,7 @@ from tkinter_gui.constants.style_and_colours import Colour, Font, Relief
 from tkinter_gui.constants.game_flow_timing import PauseDuration
 
 
-class ActiveGameFrames(NoughtsAndCrosses):
+class ActiveGameFrames(NoughtsAndCrossesMinimax):
     def __init__(self,
                  setup_parameters: NoughtsAndCrossesEssentialParameters,
                  draw_count: int = 0,
@@ -149,8 +150,8 @@ class ActiveGameFrames(NoughtsAndCrosses):
         """
         Method to switch which player's confirmation button is active - to the player who's turn it is.
         This will disable the player's button who has just gone, and then set the active confirmation button in the
-        widget manager to be that of the next player. A click on the playing_grid in an available cell then activates the
-        confirmation button corresponding to who's turn it is.
+        widget manager to be that of the next player. A click on the playing_grid in an available cell then activates
+        the confirmation button corresponding to who's turn it is.
         """
         if self.get_player_turn() == BoardMarking.X.value:
             self.widget_manager.active_confirmation_button["state"] = tk.DISABLED
