@@ -295,7 +295,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         player_turn_value = self.get_player_turn()
         score = evaluate_non_terminal_board(
             playing_grid=playing_grid, win_length_k=self.win_length_k, search_depth=search_depth,
-            player_turn_value=player_turn_value, maximisers_has_next_turn=maximiser_has_next_turn
+            player_turn_value=player_turn_value, maximiser_has_next_turn=maximiser_has_next_turn
         )
         return score
 
