@@ -44,8 +44,6 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         current_best_move = None
         for iterative_search_depth in range(IterativeDeepening.minimum_search_depth.value,
                                             IterativeDeepening.max_search_depth.value + 1):
-            print(f"Reached search depth: {iterative_search_depth}")
-            print(f"Current best move: {current_best_move}, with score: {current_max_score}")
             max_score, best_move = self.get_minimax_move_at_max_search_depth(
                 search_start_time=search_start_time, max_search_depth=iterative_search_depth)
             if max_score > current_max_score:
@@ -53,12 +51,9 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                 current_best_move = best_move
             # Checks to see if the algorithm should stop searching
             if time.perf_counter() - search_start_time > IterativeDeepening.max_search_seconds.value:
-                print(f"Search duration: {time.perf_counter() - search_start_time} seconds")
-                print(f"Timed out -  final move: {current_best_move}, final score: {current_max_score}")
                 return current_max_score, current_best_move
             if current_max_score > BoardScore.SEARCH_CUT_OFF_SCORE.value:
                 return current_max_score, current_best_move
-        print(f"checked all depths final move: {current_best_move}, final score: {current_max_score}")
         return current_max_score, current_best_move
 
 # TODO need a way of updating best score with max depth - perhaps introduce min search depth of 2, don't let it stop
