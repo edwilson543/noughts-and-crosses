@@ -15,7 +15,7 @@ from typing import List
 import numpy as np
 
 # Local application imports
-from automation.minimax.constants.terminal_board_scores import TerminalScore
+from automation.minimax.constants.terminal_board_scores import BoardScore
 from game.app.game_base_class import NoughtsAndCrosses
 from game.constants.game_constants import BoardMarking
 from utils import lru_cache_hashable
@@ -125,47 +125,47 @@ def _score_individual_streak(streak: complex, win_length_k: int,
     score_return = None
     if maximiser_has_next_turn:
         if streak_length == win_length_k - 1:
-            score_return = TerminalScore.EXPECTED_MAX_WIN.value
+            score_return = BoardScore.EXPECTED_MAX_WIN.value
         elif maximiser_has_longest_streak:
             # Minimiser can't have a (win_length_k - 1) streak otherwise maximiser has won
             # Minimiser can't have a (win_length_k - 2) streak otherwise maximiser has a (win_length_k -2) streak
             if streak_length == win_length_k - 2:
                 # If convolution gives 3 (win_length_k - 2) streaks, this (could) mean the maximiser has (wlk-2) with
                 # 2 open ends - given it's maximisers turn next, they can fill one end to get a (wlk-1) streak
-                score_return = TerminalScore.EXPECTED_MAX_WIN.value / 3
+                score_return = BoardScore.EXPECTED_MAX_WIN.value / 3
         elif maximiser_minimiser_longest_streak_same_length:
             # Only possible scenario is both have a (wlk - 2) streak - in which case we score the board such that a
             # (wlk - 2) streak is more favourable to the player who's turn is next
             # Note that /6 and /9 have been carefully chosen to reflect competition with the other streak's scores
             if streak_length == win_length_k - 2:
-                score_return = TerminalScore.EXPECTED_MAX_WIN.value / 6
+                score_return = BoardScore.EXPECTED_MAX_WIN.value / 6
             elif streak_length == - (win_length_k - 2):
-                score_return = TerminalScore.EXPECTED_MAX_LOSS.value / 9
+                score_return = BoardScore.EXPECTED_MAX_LOSS.value / 9
         elif minimiser_has_longest_streak:
             #  Maximiser can't have a (wlk-2) streak, irrelevant if minimiser does as maximiser would block
             if streak_length == -(win_length_k - 1):
                 # Divide loss score by 2 - if minimiser has 2 (win_length_k - 1) streaks, maximiser has lost regardless
-                score_return = TerminalScore.EXPECTED_MAX_LOSS.value / 2
+                score_return = BoardScore.EXPECTED_MAX_LOSS.value / 2
     else:  # not maximiser_has_next_turn
         if streak_length == -(win_length_k - 1):
-            score_return = TerminalScore.EXPECTED_MAX_LOSS.value
+            score_return = BoardScore.EXPECTED_MAX_LOSS.value
         elif minimiser_has_longest_streak:
             # Only possible, relevant scenario here is that minimiser has a (wlk-2) streak
             if streak_length == -(win_length_k - 2):
                 # If convolution gives 3 (win_length_k - 2) streaks, this (could) mean the minimiser has (wlk-2) with
                 # 2 open ends - given it's minimiser's turn next, they can fill one end to get a (wlk-1) streak
-                score_return = TerminalScore.EXPECTED_MAX_LOSS.value / 3
+                score_return = BoardScore.EXPECTED_MAX_LOSS.value / 3
         elif maximiser_minimiser_longest_streak_same_length:
             # Only possible scenario is both have a (wlk - 2) streak - in which case we score the board such that a
             # (wlk - 2) streak is more favourable to the player who's turn is next
             if streak_length == win_length_k - 2:
-                score_return = TerminalScore.EXPECTED_MAX_WIN.value / 9
+                score_return = BoardScore.EXPECTED_MAX_WIN.value / 9
             elif streak_length == - (win_length_k - 2):
-                score_return = TerminalScore.EXPECTED_MAX_LOSS.value / 6
+                score_return = BoardScore.EXPECTED_MAX_LOSS.value / 6
         elif maximiser_has_longest_streak:
             if streak_length == win_length_k - 1:
                 # Divide win score by 2 - if maximiser has 2 (win_length_k - 1) streaks, maximiser has won regardless
-                score_return = TerminalScore.EXPECTED_MAX_WIN.value / 2
+                score_return = BoardScore.EXPECTED_MAX_WIN.value / 2
 
     if score_return is None:
         # Streak does not fall into any of the above scenarios, so just cube it (which retains the sign)
@@ -184,7 +184,7 @@ def _get_convolved_array(array: np.ndarray, win_length_k: int, player_turn_value
 
     Parameters:
     __________
-    array - the individual array that we are scoring (a row, column, diagonal etc.)
+    array - the individual array that we are scoring (a row, column, diagonal etc. of the playing grid)
     win_length_k/player_turn_value - as above.
 
     Examples:

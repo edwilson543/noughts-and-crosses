@@ -1,33 +1,40 @@
-""""Module stating the value of a win / loss / draw to the maximising player"""
+""""
+Module stating the value of a win / loss / draw to the maximising player, and the scores used for evaluating non
+terminal boards.
+"""
 
 # Standard library imports
 from enum import Enum
 
 
-class TerminalScore(Enum):
+class BoardScore(Enum):
     """
     Board scoring values for static evaluation functions in the minimax algorithm (both terminal and non-terminal).
-    Note that we don't just use 1 and -1 because we want to penalise search depth, and also account for the non terminal
-    board scoring system - depth is subtracted from a winning streak and added to a losing streak, because we want to
-    find the quickest win or longest loss.
-
-    Note that streaks of less than the winning length are scored according to different criteria in the
-    evaluate_non_terminal_board method.
-    The default is to cubed the length of an open streak in, hence the score for a win needs to be higher than the size
-    of a reasonable game's dimensions.
-    i.e. GUARANTEED_MAX_WIN > (max(game_rows_m, game_cols_n) - 1) ** 3, and equivalently for GUARANTEED_MAX_LOSS.
-
     Here 'MAX' refers to the score from the perspective of the maximising player.
 
-    See also 'win_check_and_location_search' for terminal board scoring, and 'evaluate_non_terminal_board' for non-
-    terminal board scoring.
+    Notes:
+    ----------
+    - The expected win/loss scores are awarded to streaks (as opposed to boards)
+    - A guaranteed win / loss is a factor of 100 greater than an expected win / loss so that a guaranteed win or loss
+    always trumps an expected win / loss, and so the maximiser does not try to accumulate near wins
+    - The 'expected' win/loss refers to expected win if the maximiser/minimiser play optimally.
+    - Different fractions of these scores are awarded depending on the quality of an individual streak (hence the
+    choice of the superabundant number 360000
+    - The magnitude of the expected win/loss (360000) is so that the default score of cubing a streak length never
+    outcomes the special cases defined in evaluate_non_terminal_board
+
+    - Depth is subtracted from a positive terminal/non-terminal score and added to a negative score, because we
+    want to find the quickest win or longest loss.
+
+    For more details see also 'win_check_and_location_search' for terminal board scoring, and
+    'evaluate_non_terminal_board' for non-terminal board scoring.
     """
     # Scores for evaluating a terminal board
-    GUARANTEED_MAX_WIN = 3600000
+    GUARANTEED_MAX_WIN = 36000000
     DRAW = 0
-    GUARANTEED_MAX_LOSS = - 3600000
+    GUARANTEED_MAX_LOSS = - 36000000
 
-    # Cut of score to stop searching
+    # Cut of score to stop iterative deepening of minimax search
     SEARCH_CUT_OFF_SCORE = 3599800
 
     # Scores for evaluating a non-terminal board

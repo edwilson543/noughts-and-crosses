@@ -12,7 +12,7 @@ import numpy as np
 
 # Local application imports
 from automation.minimax.evaluate_non_terminal_board import evaluate_non_terminal_board
-from automation.minimax.constants.terminal_board_scores import TerminalScore
+from automation.minimax.constants.terminal_board_scores import BoardScore
 from automation.minimax.constants.iterative_deepening_constants import IterativeDeepening
 from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
 from game.app.player_base_class import Player
@@ -56,7 +56,7 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
                 print(f"Search duration: {time.perf_counter() - search_start_time} seconds")
                 print(f"Timed out -  final move: {current_best_move}, final score: {current_max_score}")
                 return current_max_score, current_best_move
-            if current_max_score > TerminalScore.SEARCH_CUT_OFF_SCORE.value:
+            if current_max_score > BoardScore.SEARCH_CUT_OFF_SCORE.value:
                 return current_max_score, current_best_move
         print(f"checked all depths final move: {current_best_move}, final score: {current_max_score}")
         return current_max_score, current_best_move
@@ -274,12 +274,12 @@ class NoughtsAndCrossesMinimax(NoughtsAndCrosses):
         current_player_turn = self.get_player_turn()
         if (winning_player is not None) and \
                 winning_player.marking.value == current_player_turn:
-            return TerminalScore.GUARANTEED_MAX_WIN.value - search_depth
+            return BoardScore.GUARANTEED_MAX_WIN.value - search_depth
         elif (winning_player is not None) and \
                 winning_player.marking.value == - current_player_turn:  # Note minus here (i.e. minimax would lose)
-            return TerminalScore.GUARANTEED_MAX_LOSS.value + search_depth
+            return BoardScore.GUARANTEED_MAX_LOSS.value + search_depth
         elif draw:
-            return TerminalScore.DRAW.value - search_depth
+            return BoardScore.DRAW.value - search_depth
         else:
             raise ValueError("Attempted to evaluate a game scenario that was not terminal.")
 
