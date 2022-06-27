@@ -126,7 +126,7 @@ class PlayerInfoFrame:
         greater than the max player length.
         Parameters:
         var - name of the tkinter variable the trace will be added to
-        index - index of the tkinter variable in case it's an array
+        index - index of the tkinter variable in case it's an a
         mode - mode to trace the variable in i.e. read, write, etc.
         These are really just placeholders for the automatic positional args that get added by trace_add - could just
         use an *args but this makes it clearer what is going on.
@@ -143,7 +143,7 @@ class PlayerInfoFrame:
 
         Parameters:
         var - name of the tkinter variable the trace will be added to
-        index - index of the tkinter variable in case it's an array
+        index - index of the tkinter variable in case it's an a
         mode - mode to trace the variable in i.e. read, write, etc.
         These are really just placeholders for the automatic positional args that get added by trace_add - could just
         use an *args but this makes it clearer what is going on.

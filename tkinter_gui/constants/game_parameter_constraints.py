@@ -8,9 +8,9 @@ class GameParameterConstraint(Enum):
     """
     # Game structural setup_parameters
     min_rows = 3
-    max_rows = 20
+    max_rows = 10
     min_cols = 3
-    max_cols = 20
+    max_cols = 10
     min_win_length = 3
     # Note that max win length is forced by other setup_parameters
 

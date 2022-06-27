@@ -1,20 +1,25 @@
 """Module which subclasses the active game frames to allow minimax to play as one of the players"""
 
+# Standard library imports
+from time import sleep
+import tkinter as tk
+from typing import Tuple
+
+# Local application imports
 from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
 from game.constants.game_constants import BoardMarking
-from automation.minimax.minimax_ai import NoughtsAndCrossesMinimax
+
+# Local applications GUI imports
 from tkinter_gui.app.main_game_window.active_game_frames import ActiveGameFrames
 from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindowWidgetManager
 from tkinter_gui.constants.game_flow_timing import PauseDuration
-from time import sleep
-import tkinter as tk
 
 
-class ActiveGameFramesMinimax(ActiveGameFrames, NoughtsAndCrossesMinimax):
+class ActiveGameFramesMinimax(ActiveGameFrames):
     def __init__(self,
                  setup_parameters: NoughtsAndCrossesEssentialParameters,
                  draw_count: int = 0,
-                 active_unconfirmed_cell: (int, int) = None,
+                 active_unconfirmed_cell: Tuple[int, int] = None,
                  widget_manager=MainWindowWidgetManager(),
                  player_x_is_minimax: bool = False,
                  player_o_is_minimax: bool = False):
@@ -37,12 +42,13 @@ class ActiveGameFramesMinimax(ActiveGameFrames, NoughtsAndCrossesMinimax):
         Method to override (extend) what happens when the confirmation button is clicked.
         We need this to not just confirm the human user's go, but to initiate the ai player to make their go.
         Note that if there is no ai player, then no functionality us added.
+
+        Note that the first if is a fix for the fact that when a game involving minimax is completed, and the game was
+        terminated subsequent to minimax's go, before starting the next game the elifs below (previously if/elif) are
+        called, because they did not know the game was over and a new game is starting. Perhaps a better way... # TODO
         """
         super()._confirmation_buttons_command()  # First do everything the super class version does
-        if self._whole_board_search() or self.check_for_draw():
-            # TODO this is a fix for the fact that when a game involving minimax is completed, and the game was
-            #  terminated after minimax's go, before starting the next game, the elifs below (previously if/elif) were
-            #  called, because they did not know the game was over and a new game was starting. Perhaps a better way
+        if self.whole_board_search() or self.check_for_draw():
             return
         elif (self.get_player_turn() == BoardMarking.O.value) and self.player_o_is_minimax:
             self._minimax_player_makes_next_move()
@@ -70,7 +76,7 @@ class ActiveGameFramesMinimax(ActiveGameFrames, NoughtsAndCrossesMinimax):
         AI makes the next move and all relevant updates are made.
         """
         self._switch_off_all_available_cell_buttons()
-        _, move = super().get_minimax_move()
+        _, move = super().get_minimax_move_iterative_deepening()
         sleep(PauseDuration.computer_turn.value)
         super()._available_cell_button_command(row_index=move[0], col_index=move[1])  # simulate cell selection
         self._confirmation_buttons_command()  # Confirm ai player's choice on the game board

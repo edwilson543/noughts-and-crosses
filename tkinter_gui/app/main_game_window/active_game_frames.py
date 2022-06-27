@@ -1,33 +1,40 @@
 """Module containing the playing grid and active game info frame (which contains the master confirmation buttons)"""
 
-from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssentialParameters
+# Standard library imports
+from functools import partial
+import logging
+from math import floor
+from time import sleep
+import tkinter as tk
+from typing import List, Tuple
+
+# Third party imports
+import numpy as np
+
+# Local application imports
+from automation.minimax.minimax_ai import NoughtsAndCrossesMinimax
+from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
 from game.app.player_base_class import Player
 from game.constants.game_constants import BoardMarking
 
+# Local application GUI imports
 from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindowWidgetManager
 from tkinter_gui.app.game_continuation_window.game_continuation_window import GameContinuationPopUp
 from tkinter_gui.constants.dimensions import MainWindowDimensions
 from tkinter_gui.constants.style_and_colours import Colour, Font, Relief
 from tkinter_gui.constants.game_flow_timing import PauseDuration
 
-import tkinter as tk
-from math import floor
-from functools import partial
-from typing import List, Tuple
-import numpy as np
-from time import sleep
-import logging
 
-
-class ActiveGameFrames(NoughtsAndCrosses):
+class ActiveGameFrames(NoughtsAndCrossesMinimax):
     def __init__(self,
                  setup_parameters: NoughtsAndCrossesEssentialParameters,
                  draw_count: int = 0,
-                 active_unconfirmed_cell: (int, int) = None,
+                 active_unconfirmed_cell: Tuple[int, int] = None,
                  widget_manager=MainWindowWidgetManager(),
                  game_continuation_top_level: GameContinuationPopUp = None,
                  winner_text: str = None):
-        super().__init__(setup_parameters, draw_count)
+        super().__init__(setup_parameters)
+        self.draw_count = draw_count
         self.active_unconfirmed_cell = active_unconfirmed_cell
         self.widget_manager = widget_manager
         self.min_cell_height = floor(MainWindowDimensions.game_frame.height / setup_parameters.game_rows_m)
@@ -143,8 +150,8 @@ class ActiveGameFrames(NoughtsAndCrosses):
         """
         Method to switch which player's confirmation button is active - to the player who's turn it is.
         This will disable the player's button who has just gone, and then set the active confirmation button in the
-        widget manager to be that of the next player. A click on the playing_grid in an available cell then activates the
-        confirmation button corresponding to who's turn it is.
+        widget manager to be that of the next player. A click on the playing_grid in an available cell then activates
+        the confirmation button corresponding to who's turn it is.
         """
         if self.get_player_turn() == BoardMarking.X.value:
             self.widget_manager.active_confirmation_button["state"] = tk.DISABLED
@@ -159,7 +166,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         1) Destroy the in-place unconfirmed cell button
         2) Permanently marks the playing_grid as shown in the active unconfirmed cell, and add this to the playing grid
         and widget manager
-        3) Updates the backend playing_grid (the -1s, 0s and 1s) and checks whether a player has won
+        3) Updates the backend playing_grid (the -1s, 1s and empty cells) and checks whether a player has won
         """
         self.widget_manager.playing_grid[self.active_unconfirmed_cell].destroy()
         occupied_cell_label = self._get_occupied_cell_label()
@@ -246,7 +253,7 @@ class ActiveGameFrames(NoughtsAndCrosses):
         Also used to make sure the user can't mess up the computer's turn by clicking one of the available cell
         buttons during minimax's turn.
         """
-        for widget in self.widget_manager.playing_grid.flat:  # Note playing grid widgets are stored as a numpy array
+        for widget in self.widget_manager.playing_grid.flat:  # Note playing grid widgets are stored as a numpy a
             if isinstance(widget, tk.Button):
                 widget["state"] = tk.DISABLED
 
