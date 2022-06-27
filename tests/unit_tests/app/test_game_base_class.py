@@ -18,38 +18,76 @@ from game.app.game_base_class import NoughtsAndCrosses, NoughtsAndCrossesEssenti
 from game.constants.game_constants import StartingPlayer, BoardMarking
 
 
-@pytest.fixture(scope="function")
-def three_three_game_parameters():
+class TestNoughtsAndCrossesGetPlayingGrid:
     """
-    Note that the starting_player_value is normally overridden during tests.
-    """
-    return NoughtsAndCrossesEssentialParameters(
-        game_rows_m=3,
-        game_cols_n=3,
-        win_length_k=3,
-        starting_player_value=StartingPlayer.PLAYER_X.value)
-
-
-@pytest.fixture(scope="function")
-def three_three_game(three_three_game_parameters):
-    return NoughtsAndCrosses(setup_parameters=three_three_game_parameters)
-
-
-class TestNoughtsAndCrossesNotSearches:
-    """
-    Test class to test the methods on the noughts and crosses class that are not search methods
+    Test class for the short method for creating the initial game playing grid
+    Tested separately as it's a static method, as is called at the initialisation of a new game, so does not use a
+    fixture for a game instance, as for the other methods.
     """
 
-    # check_for_draw tests
-    def test_check_for_draw_draw_situation(self, three_three_game):
-        """Test that a full playing board returns a True for check_for_draw"""
-        three_three_game.playing_grid = np.array([
-            [1, -1, 1],
-            [1, -1, 1],
-            [-1, 1, -1]
-        ])
-        draw = three_three_game.check_for_draw()
-        assert draw
+    def test_get_playing_grid_valid_dimensions(self):
+        rows = 3
+        columns = 3
+        win_length = 3
+        actual_playing_grid = NoughtsAndCrosses._get_playing_grid(game_rows_m=rows, game_cols_n=columns,
+                                                                  win_length_k=win_length)
+        expected_playing_grid = np.full(shape=(rows, columns), fill_value=BoardMarking.EMPTY.value)
+        assert np.all(actual_playing_grid == expected_playing_grid)
+
+    def test_get_playing_grid_rows_and_cols_too_short(self):
+        rows = 3
+        columns = 3
+        win_length = 4
+        with pytest.raises(ValueError):
+            actual_playing_grid = NoughtsAndCrosses._get_playing_grid(game_rows_m=rows, game_cols_n=columns,
+                                                                      win_length_k=win_length)
+
+    def test_get_playing_grid_rows_long_enough_but_cols_not(self):
+        """We can still play on a grid where one of rows / columns is long enough to contain a winning streak"""
+        rows = 4
+        columns = 3
+        win_length = 4
+        actual_playing_grid = NoughtsAndCrosses._get_playing_grid(game_rows_m=rows, game_cols_n=columns,
+                                                                  win_length_k=win_length)
+        expected_playing_grid = np.full(shape=(rows, columns), fill_value=BoardMarking.EMPTY.value)
+        assert np.all(actual_playing_grid == expected_playing_grid)
+
+
+class TestNoughtsAndCrossesMethodsNotSearches:
+    """Test class to test the methods on the noughts and crosses class that are not search methods"""
+
+    @pytest.fixture(scope="function")
+    def three_three_game_parameters(self):
+        """
+        Note that the starting_player_value is normally overridden during tests, hence scope=function here.
+        """
+        return NoughtsAndCrossesEssentialParameters(
+            game_rows_m=3,
+            game_cols_n=3,
+            win_length_k=3,
+            starting_player_value=StartingPlayer.PLAYER_X.value)
+
+    @pytest.fixture(scope="function")
+    def three_three_game(self, three_three_game_parameters):
+        return NoughtsAndCrosses(setup_parameters=three_three_game_parameters)
+
+    # set_starting_player tests
+    def test_set_starting_player_randomly(self, three_three_game):
+        """Test that the set_starting_player method picks a valid BoardMarking member as the starting player"""
+        three_three_game.starting_player_value = StartingPlayer.RANDOM.value
+        three_three_game.set_starting_player()
+        permitted_starting_player_values = [BoardMarking.X.value, BoardMarking.O.value]
+        assert three_three_game.starting_player_value in permitted_starting_player_values
+
+    def test_set_starting_player_as_x(self, three_three_game):
+        three_three_game.starting_player_value = StartingPlayer.PLAYER_X.value
+        three_three_game.set_starting_player()
+        assert three_three_game.starting_player_value == BoardMarking.X.value
+
+    def test_set_starting_player_as_o(self, three_three_game):
+        three_three_game.starting_player_value = StartingPlayer.PLAYER_O.value
+        three_three_game.set_starting_player()
+        assert three_three_game.starting_player_value == BoardMarking.O.value
 
     # get_player_turn tests
     def test_get_player_turn_not_starting_player(self, three_three_game):
@@ -106,6 +144,19 @@ class TestNoughtsAndCrossesNotSearches:
         with pytest.raises(ValueError):
             three_three_game.mark_board(marking_index=np.array([0, 0]))
 
+    # win check test
+    def test_horizontal_win_bottom(self, three_three_game):
+        """Check that the win_check_and_location_search is properly linked into the method."""
+        three_three_game.playing_grid = np.array([
+            [1, 0, 0],
+            [1, 0, 1],
+            [-1, -1, -1]
+        ])
+        win, _ = three_three_game.win_check_and_location_search(
+            last_played_index=np.array([2, 2]), get_win_location=False)
+        assert win
+
+    # get_winning_player tests
     def test_get_winning_player_player_x_has_win(self, three_three_game):
         """Test that the winning player is correctly extracted by the get winning player method"""
         three_three_game.playing_grid = np.array([
@@ -121,17 +172,42 @@ class TestNoughtsAndCrossesNotSearches:
         with pytest.raises(ValueError):
             three_three_game.get_winning_player(winning_game=False)
 
-    def test_horizontal_win_bottom(self, three_three_game):
-        """Check that the win_check_and_location_search is properly linked into the method."""
+    # check_for_draw tests
+    def test_check_for_draw_draw_situation(self, three_three_game):
+        """Test that a full playing board returns a True for check_for_draw"""
         three_three_game.playing_grid = np.array([
-            [1, 0, 0],
-            [1, 0, 1],
-            [-1, -1, -1]
+            [1, -1, 1],
+            [1, -1, 1],
+            [-1, 1, -1]
         ])
-        win, _ = three_three_game.win_check_and_location_search(
-            last_played_index=np.array([2, 2]), get_win_location=False)
-        assert win
+        draw = three_three_game.check_for_draw()
+        assert draw
 
+    def test_check_for_draw_not_draw_situation(self, three_three_game):
+        """Test that a playing board that is not full returns a False for check_for_draw"""
+        three_three_game.playing_grid = np.array([
+            [BoardMarking.EMPTY.value, 1, 1],
+            [-1, -1, 1],
+            [-1, 1, -1]
+        ])
+        draw = three_three_game.check_for_draw()
+        assert not draw
+
+    # reset_game_board test
+    def test_reset_game_board(self, three_three_game):
+        """Test that the reset_game_board method correctly clears the game board"""
+        three_three_game.playing_grid = np.array([
+            [BoardMarking.EMPTY.value, 1, 1],
+            [-1, -1, 1],
+            [-1, 1, -1]
+        ])
+        three_three_game.previous_mark_index = np.array([0, 2])
+        three_three_game.reset_game_board()
+
+        assert np.all(three_three_game.playing_grid == BoardMarking.EMPTY.value)
+        assert three_three_game.previous_mark_index is None
+
+    # _get_search_directions_tests
     def test_get_search_directions_two_dimensions(self, three_three_game):
         """Method to check that we can get the correct search direction in two dimensions."""
         expected_directions: List = [np.array([1, 0]), np.array([0, 1]), np.array([1, -1]), np.array([1, 1])]
@@ -166,12 +242,10 @@ class TestNoughtsAndCrossesNotSearches:
             assert expected_array_found
 
 
-##########
-# This is a test class for the whole board search (which is naive to where the last move was played)
-##########
-class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
+class TestNoughtsAndCrossesWholeBoardSearchAlgorithmFourThreeGame:
     """
-    Test class for the whole board search algorithm of the NoughtsAndCrosses class, and ancillary methods.
+    Test class for the whole board search algorithm of the NoughtsAndCrosses class, and ancillary methods,
+    on the four three game.
     """
 
     @pytest.fixture(scope="class")
@@ -298,9 +372,12 @@ class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
         win = four_three_game.whole_board_search()
         assert win
 
-    ##########
-    # Tests for the get_non_empty_array_list method
-    ##########
+
+class TestNoughtsAndCrossesGetNoneEmptyArrayListFiveSixGame:
+    """
+    Test class for the get_non_empty_array_list of the NoughtsAndCrosses class on a five-six game.
+    """
+
     @pytest.fixture(scope="class")
     def five_six_game_parameters(self):
         return NoughtsAndCrossesEssentialParameters(
@@ -349,7 +426,7 @@ class TestNoughtsAndCrossesWholeBoardSearchAlgorithm:
             np.array([17, 22, 27])
         ]
         all_expected_arrays = expected_row_arrays + expected_column_arrays + expected_south_east_diagonal_arrays + \
-            expected_south_west_diagonal_arrays
+                              expected_south_west_diagonal_arrays
         all_actual_arrays: list = five_six_game.get_non_empty_array_list(
             playing_grid=five_six_game.playing_grid, win_length_k=five_six_game.win_length_k)
         for exp_array in all_expected_arrays:

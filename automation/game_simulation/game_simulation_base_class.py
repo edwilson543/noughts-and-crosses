@@ -118,7 +118,7 @@ class GameSimulator(NoughtsAndCrossesMinimax):
             return self._get_random_move()
         else:
             raise ValueError(f"player_o_as simulation player's moves are not defined."
-                             f"self.player_x_as: {self.player_x_as}")
+                             f"self.player_o_as: {self.player_o_as}")
 
     def _get_random_move(self) -> np.ndarray:
         """
@@ -147,22 +147,25 @@ class GameSimulator(NoughtsAndCrossesMinimax):
 
     def _add_board_status_to_simulation_dataframe(self, last_move: np.ndarray, moves_made: int,
                                                   simulation_number: int) -> None:
-        """Method to add the current status of the board to the simulation dataframe, in the correct place"""
+        """
+        Method to add the current status and previous move of the board to the simulation dataframe,
+        in the relevant row and column.
+        """
         board_status_col_index = f"{SimulationColumnName.BOARD_STATUS.name}_{moves_made}"
         self.simulation_dataframe.loc[simulation_number, board_status_col_index] = np_array_to_tuple(self.playing_grid)
 
         last_move_col_index = f"{SimulationColumnName.MOVE.name}_{moves_made}"
-        self.simulation_dataframe.loc[simulation_number, last_move_col_index] = np_array_to_tuple(self.playing_grid)
+        self.simulation_dataframe.loc[simulation_number, last_move_col_index] = np_array_to_tuple(last_move)
 
     def _add_winning_player_to_simulation_dataframe(self, simulation_number: int) -> None:
         """Method to add the winning player to the dataframe, in the case that we know there is a winner."""
         last_played_value = - self.get_player_turn()
         if BoardMarking(last_played_value) == BoardMarking.X:
             self.simulation_dataframe.loc[
-                simulation_number, SimulationColumnName.WINNING_PLAYER.name] = self.player_x_as.name
+                simulation_number, SimulationColumnName.WINNING_PLAYER.name] = self.player_x.name
         else:
             self.simulation_dataframe.loc[
-                simulation_number, SimulationColumnName.WINNING_PLAYER.name] = self.player_o_as.name
+                simulation_number, SimulationColumnName.WINNING_PLAYER.name] = self.player_o.name
 
     def _save_simulation_dataframe_to_file(self) -> None:
         """Method to save the simulation file in the given path."""

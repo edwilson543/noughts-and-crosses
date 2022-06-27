@@ -24,20 +24,20 @@ from game.constants.game_constants import BoardMarking
 # PROFILING Simulation parameters
 ####################
 # Game structure parameters
-rows = 3
-columns = 3
-win_length = 3
+rows = 10
+columns = 10
+win_length = 5
 
 # Simulation parameters
-number_of_complete_games_to_simulate = 10
+number_of_complete_games_to_simulate = 1
 player_x_simulated_as = PlayerOptions.MINIMAX
-player_o_simulated_as = PlayerOptions.RANDOM
+player_o_simulated_as = PlayerOptions.MINIMAX
 
 # Reporting parameters
 print_report_to_terminal = True
 number_of_rows_to_print = 10
 save_report_to_file = True
-saved_report_file_suffix = "_iterative_deepening_scoring_func"  # Note 'suffix' because simulation metadata auto included. Extension too.
+saved_report_file_suffix = "eval_ntb_check"  # Note 'suffix' because simulation metadata auto included. Extension too.
 ####################
 
 
@@ -65,8 +65,8 @@ class GameProfiler:
         self.simulation_definition = GameSimulator(
             setup_parameters=self.game_parameters,
             number_of_simulations=number_of_simulations,
-            player_x_as=PlayerOptions.MINIMAX,
-            player_o_as=PlayerOptions.RANDOM,
+            player_x_as=player_x_as,
+            player_o_as=player_o_as,
             print_game_outcomes=False,
             collect_data=False
         )

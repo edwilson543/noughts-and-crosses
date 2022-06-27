@@ -1,5 +1,12 @@
+"""Module for testing the GameSimulator class"""
+
 # Standard library imports
+from datetime import datetime
+from pathlib import Path
 import pytest
+
+# Third party imports
+import numpy as np
 
 # Local application imports
 from automation.game_simulation.game_simulation_base_class import GameSimulator
@@ -7,6 +14,7 @@ from automation.game_simulation.game_simulation_constants import PlayerOptions, 
 from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
 from game.app.player_base_class import Player
 from game.constants.game_constants import StartingPlayer, BoardMarking
+from root_directory import ROOT_PATH
 
 
 @pytest.fixture(scope="module")
@@ -29,6 +37,8 @@ def three_three_game_simulator(three_three_game_parameters):
         player_o_as=PlayerOptions.RANDOM,
         print_game_outcomes=False,
         collect_data=True,
+        collected_data_path=ROOT_PATH / "tests" / "test_output_data",  # all gets deleted so doesn't exist
+        collected_data_file_suffix="_TEST"
     )
 
 
@@ -42,19 +52,55 @@ class TestGameSimulationBaseClass:
                             f"{board_status}_5",
                             f"{board_status}_6", f"{board_status}_7", f"{board_status}_8", f"{board_status}_9"] + \
                            [f"{move}_1", f"{move}_2", f"{move}_3", f"{move}_4", f"{move}_5", f"{move}_6", f"{move}_7",
-                            f"{move}_8",
-                            f"{move}_9"]
+                            f"{move}_8", f"{move}_9"]
         actual_columns = three_three_game_simulator._construct_empty_simulation_dataframe().columns
         assert all(expected_columns == actual_columns)
 
-    # TODO - pending decision on what the best way to store the board string is
-    # def test_encode_string_to_board(self, three_three_game_simulator):
-    #     """Test that the correct string representation of the board is produced"""
-    #     three_three_game_simulator.playing_grid = np.array([
-    #         [BoardMarking.X.value, BoardMarking.O.value, 0],
-    #         [0, 0, 0],
-    #         [0, 0, 0],
-    #         ])
-    #     expected_string = "[['X' 'O' '-']\n['-' '-' '-']\n['-' '-' '-']]"
-    #     actual_string = three_three_game_simulator._encode_board_as_string()
-    #     assert expected_string == actual_string
+    def test_add_board_status_to_simulation_dataframe(self, three_three_game_simulator):
+        """Test that the board status and last move get added to the simulation dataframe in correct place."""
+        # Give the game status information to the add_board_status... method
+        last_move = np.array([0, 0])
+        moves_made = 2
+        simulation_number = 10
+        three_three_game_simulator.playing_grid = np.array([[1, 1j, 1j], [-1, 1j, 1j], [1j, 1j, 1j]])
+        three_three_game_simulator._add_board_status_to_simulation_dataframe(
+            last_move=last_move, moves_made=moves_made, simulation_number=simulation_number
+        )
+
+        # Check that the game status has been correctly added
+        move_str = SimulationColumnName.MOVE.name
+        actual_last_move_df = three_three_game_simulator.simulation_dataframe.loc[
+            simulation_number, f"{move_str}_{moves_made}"]
+        expected_last_move_df = (0, 0)
+        assert actual_last_move_df == expected_last_move_df
+
+        board_status_str = SimulationColumnName.BOARD_STATUS.name
+        actual_board_status_df = three_three_game_simulator.simulation_dataframe.loc[
+            simulation_number, f"{board_status_str}_{moves_made}"]
+        expected_board_status_df = ((1, 1j, 1j), (-1, 1j, 1j), (1j, 1j, 1j))
+        assert actual_board_status_df == expected_board_status_df
+
+    def test_add_winning_player_to_simulation_dataframe(self, three_three_game_simulator):
+        """Test that the correct winning player gets added to the simulation dataframe in correct place."""
+        # Give the game status information to the add_winning_player... method
+        simulation_number = 10
+        three_three_game_simulator.playing_grid = np.array([[1, 1, 1], [-1, -1, 1j], [1j, 1j, 1j]])
+        three_three_game_simulator._add_winning_player_to_simulation_dataframe(simulation_number=simulation_number)
+
+        # Check that the game status has been correctly added
+        winning_player_column_name = SimulationColumnName.WINNING_PLAYER.name
+        actual_winner = three_three_game_simulator.simulation_dataframe.loc[
+            simulation_number, winning_player_column_name]
+        expected_winner = three_three_game_simulator.player_x.name
+        assert actual_winner == expected_winner
+
+    def test_save_simulation_dataframe_to_file(self, three_three_game_simulator):
+        """Test that the simulation dataframe is written to file appropriately"""
+        three_three_game_simulator._save_simulation_dataframe_to_file()
+        date = datetime.now().strftime("%Y_%m_%d")
+        file_name = "3_3_3_RANDOM_RANDOM_TEST.csv"
+        expected_file_path: Path = three_three_game_simulator.collected_data_path / date / file_name
+        assert Path.is_file(expected_file_path)
+        Path.unlink(expected_file_path)
+        Path.rmdir(three_three_game_simulator.collected_data_path / date)
+        Path.rmdir(three_three_game_simulator.collected_data_path)
