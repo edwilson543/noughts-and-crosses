@@ -37,7 +37,8 @@ class NoughtsAndCrosses:
         self.player_x = setup_parameters.player_x
         self.player_o = setup_parameters.player_o
         self.starting_player_value = setup_parameters.starting_player_value
-        self.playing_grid: np.ndarray = np.full(shape=(self.game_rows_m, self.game_cols_n), fill_value=1j)
+        self.playing_grid: np.ndarray = self._get_playing_grid(
+            game_rows_m=self.game_rows_m, game_cols_n=self.game_cols_n, win_length_k=self.win_length_k)
         self.search_directions: List[np.ndarray] = self._get_search_directions(playing_grid=self.playing_grid)
         self.previous_mark_index: None | np.ndarray = None
 
@@ -172,6 +173,18 @@ class NoughtsAndCrosses:
         self.playing_grid = np.full(shape=(self.game_rows_m, self.game_cols_n), fill_value=1j)
 
     # Lower level methods
+    def _get_playing_grid(self, game_rows_m: int, game_cols_n: int, win_length_k: int) -> np.ndarray:
+        """
+        Method to create the playing_grid underpinning the entire game.
+        This is represented by a numpy array
+        """
+        if win_length_k > max(game_rows_m, game_cols_n):
+            raise ValueError(f"Attempted to create a playing grid which cannot be won on.\n"
+                             f"Rows: {game_rows_m}, Columns: {game_cols_n}, Win length: {win_length_k}")
+        else:
+            playing_grid = np.full(shape=(game_rows_m, game_cols_n), fill_value=1j)
+            return playing_grid
+
     @staticmethod
     def _get_search_directions(playing_grid: np.ndarray, array_list: List[np.ndarray] = None,
                                current_dimension: int = None) -> List[np.ndarray]:
