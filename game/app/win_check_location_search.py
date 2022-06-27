@@ -13,7 +13,7 @@ import numpy as np
 from game.app.win_check_cache_decorator import LRUCacheWinSearch
 
 
-@LRUCacheWinSearch(maxsize=1000000, use_symmetry=True)
+@LRUCacheWinSearch(maxsize=1000000, use_symmetry=False)
 def win_check_and_location_search(playing_grid: np.ndarray, last_played_index: np.ndarray,
                                   get_win_location: bool, search_directions: List[np.ndarray],
                                   win_length_k: int) -> Tuple[bool, List[Tuple[int]] | None]:
