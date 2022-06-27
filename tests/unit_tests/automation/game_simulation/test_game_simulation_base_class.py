@@ -1,6 +1,8 @@
 """Module for testing the GameSimulator class"""
 
 # Standard library imports
+from datetime import datetime
+from pathlib import Path
 import pytest
 
 # Third party imports
@@ -12,6 +14,7 @@ from automation.game_simulation.game_simulation_constants import PlayerOptions, 
 from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
 from game.app.player_base_class import Player
 from game.constants.game_constants import StartingPlayer, BoardMarking
+from root_directory import ROOT_PATH
 
 
 @pytest.fixture(scope="module")
@@ -34,6 +37,8 @@ def three_three_game_simulator(three_three_game_parameters):
         player_o_as=PlayerOptions.RANDOM,
         print_game_outcomes=False,
         collect_data=True,
+        collected_data_path=ROOT_PATH / "tests" / "test_output_data",  # all gets deleted so doesn't exist
+        collected_data_file_suffix="_TEST"
     )
 
 
@@ -88,3 +93,14 @@ class TestGameSimulationBaseClass:
             simulation_number, winning_player_column_name]
         expected_winner = three_three_game_simulator.player_x.name
         assert actual_winner == expected_winner
+
+    def test_save_simulation_dataframe_to_file(self, three_three_game_simulator):
+        """Test that the simulation dataframe is written to file appropriately"""
+        three_three_game_simulator._save_simulation_dataframe_to_file()
+        date = datetime.now().strftime("%Y_%m_%d")
+        file_name = "3_3_3_RANDOM_RANDOM_TEST.csv"
+        expected_file_path: Path = three_three_game_simulator.collected_data_path / date / file_name
+        assert Path.is_file(expected_file_path)
+        Path.unlink(expected_file_path)
+        Path.rmdir(three_three_game_simulator.collected_data_path / date)
+        Path.rmdir(three_three_game_simulator.collected_data_path)
