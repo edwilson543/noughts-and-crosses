@@ -170,10 +170,12 @@ class NoughtsAndCrosses:
         The previous_marking_index is also set to its initial state of None.
         """
         self.previous_mark_index = None
-        self.playing_grid = np.full(shape=(self.game_rows_m, self.game_cols_n), fill_value=1j)
+        self.playing_grid = self._get_playing_grid(game_rows_m=self.game_rows_m, game_cols_n=self.game_cols_n,
+                                                   win_length_k=self.win_length_k)
 
     # Lower level methods
-    def _get_playing_grid(self, game_rows_m: int, game_cols_n: int, win_length_k: int) -> np.ndarray:
+    @staticmethod
+    def _get_playing_grid(game_rows_m: int, game_cols_n: int, win_length_k: int) -> np.ndarray:
         """
         Method to create the playing_grid underpinning the entire game.
         This is represented by a numpy array
@@ -182,7 +184,7 @@ class NoughtsAndCrosses:
             raise ValueError(f"Attempted to create a playing grid which cannot be won on.\n"
                              f"Rows: {game_rows_m}, Columns: {game_cols_n}, Win length: {win_length_k}")
         else:
-            playing_grid = np.full(shape=(game_rows_m, game_cols_n), fill_value=1j)
+            playing_grid = np.full(shape=(game_rows_m, game_cols_n), fill_value=BoardMarking.EMPTY.value)
             return playing_grid
 
     @staticmethod
