@@ -140,7 +140,7 @@ class TestGetConvolvedArray:
         board_row = np.array([BoardMarking.O.value, BoardMarking.O.value, BoardMarking.O.value, BoardMarking.X.value,
                               BoardMarking.EMPTY.value, BoardMarking.O.value])
 
-        expected_convolution = np.array([-2 - 1j, -2 - 1j])
+        expected_convolution = np.array([2 - 1j, 2 - 1j])
         actual_convolution = _get_convolved_array(array=board_row, win_length_k=win_length_k,
                                                   maximiser_mark_value=maximiser_mark_value)
 
