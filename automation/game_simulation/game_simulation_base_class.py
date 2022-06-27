@@ -118,7 +118,7 @@ class GameSimulator(NoughtsAndCrossesMinimax):
             return self._get_random_move()
         else:
             raise ValueError(f"player_o_as simulation player's moves are not defined."
-                             f"self.player_x_as: {self.player_x_as}")
+                             f"self.player_o_as: {self.player_o_as}")
 
     def _get_random_move(self) -> np.ndarray:
         """
