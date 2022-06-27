@@ -1,12 +1,9 @@
 """
-Module to run simulations where the purpose is to save the simulation data.
-The purpose of saving such data is to, for example, create a play book of different moves that algorithms can look up
-from to get the optimum first 2/3 moves while there is little information to go off in the actual game.
-Another purpose is to review how effective minimax is at different game parameters.
-
-All data is saved in CSV format, with one row per simulated game - a good alternative to look into could be to save game
-trees as nested JSON dicts, where the key at each nest is the state of the board, and the value is all boards
-branching from that state. The final values could then be the win count along a given branch.
+Module to run simulations of the game.
+Data can be saved for later analysis/ use in a transposition table, or just a quick print to summarise the game
+outcomes can be chosen.
+Note that this is different to the game_profiling in that the purpose of this module is to collect the data/ assess
+game outcomes, not to time different components of the code.
 """
 
 # Local application imports
@@ -18,7 +15,7 @@ from game.constants.game_constants import BoardMarking
 from root_directory import ROOT_PATH
 
 ####################
-# DATA COLLECTION Simulation parameters
+# GAME SIMULATION parameters
 ####################
 # Game structure parameters
 rows = 10
