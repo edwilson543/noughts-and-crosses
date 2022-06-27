@@ -41,8 +41,8 @@ if __name__ == "__main__":
         game_rows_m=rows,
         game_cols_n=columns,
         win_length_k=win_length,
-        player_x=Player(name="NOT_RELEVANT", marking=BoardMarking.X),
-        player_o=Player(name="NOT_RELEVANT", marking=BoardMarking.O)
+        player_x=Player(name="PLAYER_X", marking=BoardMarking.X),
+        player_o=Player(name="PLAYER_O", marking=BoardMarking.O)
     )
     game_simulator = GameSimulator(
         setup_parameters=setup_parameters,
