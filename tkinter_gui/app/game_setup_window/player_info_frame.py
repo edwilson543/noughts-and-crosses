@@ -1,11 +1,18 @@
+"""Module to define the tk.Frame() where user's can write their name, choose whether to play against comp etc."""
+
+# LStandard library imports
+import functools
+from math import floor
+import tkinter as tk
+
+# Local application imports
 from game.constants.game_constants import BoardMarking, StartingPlayer
+
+# Local application GUI imports
 from tkinter_gui.app.game_setup_window.game_setup_widget_manager import GameSetupWidgets
 from tkinter_gui.constants.style_and_colours import Colour, Font, Relief
 from tkinter_gui.constants.dimensions import SetupWindowDimensions
 from tkinter_gui.constants.game_parameter_constraints import PlayerNameConstraint
-import tkinter as tk
-from math import floor
-import functools
 
 
 class PlayerInfoFrame:

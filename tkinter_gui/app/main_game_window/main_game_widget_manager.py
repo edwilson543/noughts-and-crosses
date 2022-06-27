@@ -1,12 +1,17 @@
+"""Module used to define the dataclass that manages the widgets in the main_game_window"""
+
+# Standard library imports
 from dataclasses import dataclass
 import tkinter as tk
+
+# Third party imports
 import numpy as np
 
 
 @dataclass(frozen=False)
 class MainWindowWidgetManager:
     """
-    Data class that stores all widgets in the main main_window (across all frames) and therefore allows the widgets within
+    Dataclass that stores all widgets in the main main_window (across all frames) and therefore allows the widgets within
     the different frames to be tied together in the main main_window.
     Note only widgets that get updated throughout the game are included here
     """

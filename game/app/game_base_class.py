@@ -1,3 +1,5 @@
+"""Module defining the core game processing in the backend for the noughts and crosses application."""
+
 # Standard library imports
 from typing import List, Tuple, Set
 from dataclasses import dataclass

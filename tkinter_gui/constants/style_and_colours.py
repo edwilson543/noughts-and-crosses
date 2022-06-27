@@ -1,7 +1,8 @@
+"""Module defining the colours and other tkinter styling features of the GUI components"""
+
+# Standard library imports
 from enum import Enum
 import tkinter as tk
-
-# TODO could add a light/dark theme
 
 
 class Colour(Enum):

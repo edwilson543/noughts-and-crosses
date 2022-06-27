@@ -1,14 +1,19 @@
 """Module containing the class that produces the top up when a player has won or there is a draw"""
 
+# Standard library imports
+from dataclasses import dataclass
+from math import floor
+import sys
+import tkinter as tk
+
+# Local application imports
 from game.constants.game_constants import StartingPlayer, BoardMarking
 from game.app.player_base_class import Player
+
+# Local application GUI imports
 from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindowWidgetManager
 from tkinter_gui.constants.dimensions import MainWindowDimensions
 from tkinter_gui.constants.style_and_colours import Colour, Relief, Font
-from dataclasses import dataclass
-from math import floor
-import tkinter as tk
-import sys
 
 
 @dataclass
