@@ -157,7 +157,7 @@ player has the longest streak or if their longest streaks are equal in length (3
 The search space of the minimax algorithm can be very large for bigger boards: simulating a 10,10,5 game of minimax vs 
 minimax that resulted in a draw, as one might hope, led to 145,407 calls to the 'get_minimax_move_at_max_search_depth' 
 method, 277 primary calls, (and 100 calls of the method that controls the iterative deepening, noting 10x10=100).
-This is hence a CPU-Bound program. Therefore, multiprocessing of the search space was trialed, using the built-in
+This is hence a CPU-Bound program. Therefore, multiprocessing of the search space was trialled, using the built-in
 multiprocessing package.
 The nodes at search depth 0 were pooled, and concurrently the best move within each cpu process was found.
 This worked, although profiling found that it actually added time. 
