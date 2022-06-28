@@ -51,7 +51,7 @@ all buttons will be disabled until their move has been made.
 </p>
 <br>
 
-<b>The main game window (game over pop-up)</b>
+<b>The main game window (game over pop-up):</b>
 <img src="tkinter_gui/readme_screenshots/main_game_window_game_over.png" alt="Main game window and pop up when a player has won">
 <p>
 Wins/draws are automatically checked for after each move by the backend code. If a win is found, the streak will flash to
