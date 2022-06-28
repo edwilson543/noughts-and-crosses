@@ -4,8 +4,8 @@
 
 <h4>
 This repository is an m, n, k noughts and crosses (aka tic-tac-toe) application.
-The game includes a tkinter GUI allowing users to play each other, as well as an automatic player which has been
-implemented using the minimax algorithm.
+The game includes a tkinter GUI allowing users to play each other, as well as automatic play implemented using the
+minimax algorithm.
 </h4>
 <hr>
 
@@ -17,6 +17,18 @@ implemented using the minimax algorithm.
     <b>3)</b> Install the application dependencies from the requirements.txt file<br>
     <b>4)</b> Run the play.py module in the root directory
 </p>
+<hr>
+
+
+<h3>GUI screenshots</h3>
+
+<img src="/noughts_and_crosses/tkinter_gui/readme_screenshots/setup_window.png" title="Screenshot of the game setup window">
+<br>
+<img src="/tkinter_gui/readme_screenshot/main_game_window_game_play.png" title="Screenshot of the main game playing window">
+<br>
+<img src="tkinter_gui/readme_screenshot/main_game_window_game_over.png" title="Main game window and pop up when a player has won">
+
+
 <hr>
 
 
