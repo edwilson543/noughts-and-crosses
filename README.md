@@ -10,6 +10,19 @@ minimax algorithm.
 <hr>
 
 
+<h3>Authors and acknowledgement:</h3>
+<p>
+    <b>
+        <a href="https://github.com/edwilson543">Ed Wilson</a>
+    </b>
+<br>
+    <b>
+        <a href="https://github.com/szepfalvibalint">Balint Szepfalvi</a>
+    </b> 
+</p>
+<hr>
+
+
 <h3>Setup and gameplay:</h3>
 <p>
     <b>1)</b> Clone the repository<br>
@@ -62,20 +75,6 @@ The bottom-right frame in the main playing window records how many wins/draws ha
 Following a win/draw a pop-up is then launched as shown in the image (this is a tkinter TopLevel). This allows looping 
 of the game where users can keep playing, with either playing starting and the default being the loser of the previous 
 game.
-</p>
-
-<hr>
-
-
-<h3>Authors and acknowledgement:</h3>
-<p>
-    <b>
-        <a href="https://github.com/edwilson543">Ed Wilson</a>
-    </b>
-<br>
-    <b>
-        <a href="https://github.com/szepfalvibalint">Balint Szepfalvi</a>
-    </b> 
 </p>
 <hr>
 
@@ -171,7 +170,6 @@ be split out and re-joined for multiprocessing.
 <br>
 
 </p>
-
 <hr>
 
 
@@ -210,3 +208,4 @@ player scores using the Glicko rating system (the system used by chess.com) coul
 <b> - General extensions to GUI.</b> Including allowing players to change the game parameters between games, adding 
 different themes to the display (e.g. light/dark), and adding other features of popular games.
 </p>
+<hr>
