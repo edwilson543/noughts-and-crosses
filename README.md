@@ -22,11 +22,11 @@ minimax algorithm.
 
 <h3>GUI screenshots</h3>
 
-<img src="/noughts_and_crosses/tkinter_gui/readme_screenshots/setup_window.png" title="Screenshot of the game setup window">
+<img src="tkinter_gui/readme_screenshots/setup_window.png" title="Screenshot of the game setup window">
 <br>
-<img src="/tkinter_gui/readme_screenshot/main_game_window_game_play.png" title="Screenshot of the main game playing window">
+<img src="tkinter_gui/readme_screenshots/main_game_window_game_play.png" title="Screenshot of the main game playing window">
 <br>
-<img src="tkinter_gui/readme_screenshot/main_game_window_game_over.png" title="Main game window and pop up when a player has won">
+<img src="tkinter_gui/readme_screenshots/main_game_window_game_over.png" title="Main game window and pop up when a player has won">
 
 
 <hr>
