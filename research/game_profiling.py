@@ -68,7 +68,8 @@ class GameProfiler:
             player_x_as=player_x_as,
             player_o_as=player_o_as,
             print_game_outcomes=False,
-            collect_data=False
+            save_game_outcome_summary=False,
+            save_all_game_data=False
         )
         self.print_report = print_report
         self.print_entries = print_entries
