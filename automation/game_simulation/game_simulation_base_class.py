@@ -41,17 +41,20 @@ class GameSimulator(NoughtsAndCrossesMinimax):
                  player_x_as: PlayerOptions,
                  player_o_as: PlayerOptions,
                  print_game_outcomes: bool,
-                 collect_data: bool,
-                 collected_data_path: Path = ROOT_PATH / "research" / "game_simulation_data",
-                 collected_data_file_suffix: str = None):
+                 save_game_outcome_summary: bool,
+                 save_all_game_data: bool,
+                 output_data_path: Path = ROOT_PATH / "research" / "game_simulation_data",
+                 output_data_file_suffix: str = None):
         super().__init__(setup_parameters)
         self.number_of_simulations = number_of_simulations
         self.player_x_as = player_x_as
         self.player_o_as = player_o_as
         self.print_game_outcomes = print_game_outcomes
-        self.collect_data = collect_data
-        self.collected_data_path = collected_data_path
-        self.collected_data_file_suffix = collected_data_file_suffix
+        self.save_game_outcome_summary = save_game_outcome_summary
+        self.save_all_game_data = save_all_game_data
+        self.collect_data = print_game_outcomes or save_game_outcome_summary or save_all_game_data
+        self.output_data_path = output_data_path
+        self.output_data_file_suffix = output_data_file_suffix
         self.simulation_dataframe: pd.DataFrame = self._construct_empty_simulation_dataframe()
 
     def run_simulations(self):
@@ -92,8 +95,11 @@ class GameSimulator(NoughtsAndCrossesMinimax):
                             simulation_number, SimulationColumnName.WINNING_PLAYER.name] = "DRAW"
                     self.reset_game_board()
                     break
-        if self.collect_data:
+
+        if self.save_all_game_data:
             self._save_simulation_dataframe_to_file()
+        if self.save_game_outcome_summary:
+            self._save_simulation_outcome_summary_to_file()
         if self.print_game_outcomes:
             self._print_simulation_outcome_to_terminal()
 
@@ -170,17 +176,44 @@ class GameSimulator(NoughtsAndCrossesMinimax):
     def _save_simulation_dataframe_to_file(self) -> None:
         """Method to save the simulation file in the given path."""
         date_directory_name = datetime.now().strftime("%Y_%m_%d")
-        file_path: Path = self.collected_data_path / date_directory_name
+        file_path: Path = self.output_data_path / date_directory_name
         if not file_path.is_dir():
             file_path.mkdir(parents=True)
 
-        file_name = self.get_output_file_prefix() + self.collected_data_file_suffix + ".csv"
+        file_name = self.get_output_file_prefix() + self.output_data_file_suffix + ".csv"
         self.simulation_dataframe.to_csv(file_path / file_name, index=False, na_rep="GAME_WON")
+
+    def _save_simulation_outcome_summary_to_file(self) -> None:
+        """
+        Method to save the simulation outcomes to file in the given path. This will be in the same place as the
+        save_simulation_dataframe_to_file, but with a summary_prefix
+        """
+        date_directory_name = datetime.now().strftime("%Y_%m_%d")
+        file_path: Path = self.output_data_path / date_directory_name
+        if not file_path.is_dir():
+            file_path.mkdir(parents=True)
+
+        file_name = self.get_output_file_prefix() + self.output_data_file_suffix + "_SUMMARY" + ".txt"
+        full_file_path = file_path / file_name
+        text = self._get_simulation_outcome_summary_text()
+        with open(full_file_path, "w") as write_file:
+            write_file.write(text)
 
     def _print_simulation_outcome_to_terminal(self) -> None:
         """Method to print a summary of who won how many games to the terminal."""
+        text = self._get_simulation_outcome_summary_text()
+        print(text)
+
+    def _get_simulation_outcome_summary_text(self) -> str:
+        """
+        Method producing a summary of the simulated game and simulation parameters, including a record of the
+        aggregated outcomes of all the games (i.e. either player's win counts).
+        """
+        overview_text = self.get_string_detailing_simulation_parameters()
         win_counts = self.simulation_dataframe[SimulationColumnName.WINNING_PLAYER.name].value_counts(ascending=False)
-        print(f"Summary of games won by each player during simulations:\n {win_counts}")
+        win_counts_text = f"Summary of games won by each player during the simulations:\n{win_counts}"
+        full_text = overview_text + "\n" + win_counts_text
+        return full_text
 
     # Methods producing strings detailing metadata related to simulation
     def get_output_file_prefix(self) -> str:

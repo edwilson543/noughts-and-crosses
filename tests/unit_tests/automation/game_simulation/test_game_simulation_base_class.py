@@ -36,9 +36,10 @@ def three_three_game_simulator(three_three_game_parameters):
         player_x_as=PlayerOptions.RANDOM,
         player_o_as=PlayerOptions.RANDOM,
         print_game_outcomes=False,
-        collect_data=True,
-        collected_data_path=ROOT_PATH / "tests" / "test_output_data",  # all gets deleted so doesn't exist
-        collected_data_file_suffix="_TEST"
+        save_game_outcome_summary=True,
+        save_all_game_data=True,
+        output_data_path=ROOT_PATH / "tests" / "test_output_data",  # all gets deleted so doesn't exist
+        output_data_file_suffix="_TEST"
     )
 
 
@@ -99,8 +100,19 @@ class TestGameSimulationBaseClass:
         three_three_game_simulator._save_simulation_dataframe_to_file()
         date = datetime.now().strftime("%Y_%m_%d")
         file_name = "3_3_3_RANDOM_RANDOM_TEST.csv"
-        expected_file_path: Path = three_three_game_simulator.collected_data_path / date / file_name
+        expected_file_path: Path = three_three_game_simulator.output_data_path / date / file_name
         assert Path.is_file(expected_file_path)
         Path.unlink(expected_file_path)
-        Path.rmdir(three_three_game_simulator.collected_data_path / date)
-        Path.rmdir(three_three_game_simulator.collected_data_path)
+        Path.rmdir(three_three_game_simulator.output_data_path / date)
+        Path.rmdir(three_three_game_simulator.output_data_path)
+
+    def test_save_game_outcome_summary_to_file(self, three_three_game_simulator):
+        """Test that the game outcome is written to a text file appropriately"""
+        three_three_game_simulator._save_simulation_outcome_summary_to_file()
+        date = datetime.now().strftime("%Y_%m_%d")
+        file_name = "3_3_3_RANDOM_RANDOM_TEST_SUMMARY.txt"
+        expected_file_path: Path = three_three_game_simulator.output_data_path / date / file_name
+        assert Path.is_file(expected_file_path)
+        Path.unlink(expected_file_path)
+        Path.rmdir(three_three_game_simulator.output_data_path / date)
+        Path.rmdir(three_three_game_simulator.output_data_path)
