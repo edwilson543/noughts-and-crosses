@@ -1,3 +1,7 @@
+<!DOCTYPE html>
+<html>
+<body>
+
 <h1> 'Noughts and Crosses' Project</h1>
 <hr>
 
@@ -209,3 +213,6 @@ player scores using the Glicko rating system (the system used by chess.com) coul
 different themes to the display (e.g. light/dark), and adding other features of popular games.
 </p>
 <hr>
+
+</body>
+</html>
