@@ -2,7 +2,7 @@
 <html>
 <body>
 
-<h1> 'Noughts and Crosses' Project</h1>
+<h1>'Noughts and Crosses' Project</h1>
 <hr>
 
 
