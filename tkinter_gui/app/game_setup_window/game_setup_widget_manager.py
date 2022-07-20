@@ -1,3 +1,6 @@
+"""Module to define the dataclass used to manage the widgets in the game setup window"""
+
+# Standard library imports
 from dataclasses import dataclass
 import tkinter as tk
 

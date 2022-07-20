@@ -1,5 +1,6 @@
 """Module recording constants relating to game flow timing"""
 
+# Standard library imports
 from enum import Enum
 
 

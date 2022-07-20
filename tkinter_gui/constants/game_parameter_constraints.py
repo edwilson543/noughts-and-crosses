@@ -1,3 +1,6 @@
+"""Module to define the constraints on how players can setup a game and then play it in the GUI."""
+
+# Standard library imports
 from enum import Enum
 
 

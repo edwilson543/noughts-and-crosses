@@ -18,18 +18,20 @@ from root_directory import ROOT_PATH
 # GAME SIMULATION parameters
 ####################
 # Game structure parameters
-rows = 10
-columns = 10
+rows = 3
+columns = 3
 win_length = 3
 
 # Simulation parameters
-number_of_complete_games_to_simulate = 10
+number_of_complete_games_to_simulate = 3
 player_x_simulated_as = PlayerOptions.MINIMAX
 player_o_simulated_as = PlayerOptions.RANDOM
 
 # Reporting parameters
 print_game_outcomes = True
-data_file_suffix = "_sim_str"  # Note 'suffix' because simulation metadata auto included. Extension too.
+save_game_outcome_summary = True
+save_all_game_data = False
+data_file_suffix = "_my_simulation"  # Note 'suffix' because simulation metadata auto included. Extension too.
 data_file_path = ROOT_PATH / "research" / "game_simulation_data"
 ####################
 
@@ -47,8 +49,9 @@ if __name__ == "__main__":
         player_x_as=player_x_simulated_as,
         player_o_as=player_o_simulated_as,
         print_game_outcomes=print_game_outcomes,
-        collect_data=True,
-        collected_data_path=data_file_path,
-        collected_data_file_suffix=data_file_suffix,
+        save_game_outcome_summary=save_game_outcome_summary,
+        save_all_game_data=save_all_game_data,
+        output_data_path=data_file_path,
+        output_data_file_suffix=data_file_suffix,
     )
     game_simulator.run_simulations()

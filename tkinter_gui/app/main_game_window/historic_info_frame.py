@@ -1,15 +1,23 @@
+"""Module containing the class for the frame that goes in the bottom right of the main main_window."""
+
+# Standard library imports
+from math import floor
+import tkinter as tk
+
+# Local application imports
 from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
 from game.app.player_base_class import Player
+
+# Local application GUI imports
 from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindowWidgetManager
 from tkinter_gui.constants.style_and_colours import Colour, Font, Relief
 from tkinter_gui.constants.dimensions import MainWindowDimensions
-from math import floor
-import tkinter as tk
 
 
 class HistoricInfoFrame:
     """
-    Frame that goes in the bottom right of the main main_window, and stores the players' win counts. and the draw count
+    Class for the frame that goes in the bottom right of the main_game_window, and stores the players' win counts as
+    well as the draw count.
     """
     def __init__(self,
                  setup_parameters: NoughtsAndCrossesEssentialParameters,

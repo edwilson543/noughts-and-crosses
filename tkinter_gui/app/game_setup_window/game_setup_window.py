@@ -1,15 +1,21 @@
 """Module to display the main_window that appears when players are setting up the game."""
+
+# Standard library imports
+from math import floor
+import sys
+import tkinter as tk
+
+# Local application imports
 from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
 from game.app.player_base_class import Player
 from game.constants.game_constants import BoardMarking
+
+# Local application GUI imports
 from tkinter_gui.app.game_setup_window.player_info_frame import PlayerInfoFrame
 from tkinter_gui.app.game_setup_window.game_parameters_frame import GameParametersFrame
 from tkinter_gui.app.game_setup_window.game_setup_widget_manager import GameSetupWidgets
 from tkinter_gui.constants.style_and_colours import Colour, Font, Relief
 from tkinter_gui.constants.dimensions import SetupWindowDimensions
-from math import floor
-import sys
-import tkinter as tk
 
 
 class SetupWindow:

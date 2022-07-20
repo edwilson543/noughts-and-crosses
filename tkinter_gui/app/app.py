@@ -1,3 +1,9 @@
+"""
+Module to define the controller that links the different windows together in an event loop - this represents
+the complete GUI of the application.
+"""
+
+# Local application GUI imports
 from tkinter_gui.app.main_game_window.main_game_window import PlayingWindow
 from tkinter_gui.app.game_setup_window.game_setup_window import SetupWindow
 from tkinter_gui.app.game_continuation_window.game_continuation_window import GameContinuationPopUp

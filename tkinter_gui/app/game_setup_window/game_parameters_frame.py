@@ -1,10 +1,16 @@
+"""
+Module to define the tk.Frame() where the user can define the rows/columns/win length of the game they want to play
+"""
+
+# Standard library imports
+import tkinter as tk
+from math import floor
+
+# Local application GUI imports
 from tkinter_gui.app.game_setup_window.game_setup_widget_manager import GameSetupWidgets
 from tkinter_gui.constants.game_parameter_constraints import GameParameterConstraint
 from tkinter_gui.constants.dimensions import SetupWindowDimensions
 from tkinter_gui.constants.style_and_colours import Colour, Font, Relief
-
-import tkinter as tk
-from math import floor
 
 
 class GameParametersFrame:

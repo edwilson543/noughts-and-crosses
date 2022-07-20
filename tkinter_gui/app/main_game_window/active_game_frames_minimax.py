@@ -44,8 +44,8 @@ class ActiveGameFramesMinimax(ActiveGameFrames):
         Note that if there is no ai player, then no functionality us added.
 
         Note that the first if is a fix for the fact that when a game involving minimax is completed, and the game was
-        terminated subsequent to minimax's go, before starting the next game the elifs below (previously if/elif) are
-        called, because they did not know the game was over and a new game is starting. Perhaps a better way... # TODO
+        terminated subsequent to minimax's go, before starting the next game the elifs below are called, because they
+        did not know the game was over and a new game is starting.
         """
         super()._confirmation_buttons_command()  # First do everything the super class version does
         if self.whole_board_search() or self.check_for_draw():

@@ -1,10 +1,7 @@
-"""Module containing the dimensions of all aspects of the game"""
+"""Module containing the dimensions of all components of the GUI"""
 
+# Standard library imports
 from dataclasses import dataclass
-
-
-#  TODO padding and border width
-#  Need to align widths of game info panels after padding
 
 
 @dataclass(frozen=True)

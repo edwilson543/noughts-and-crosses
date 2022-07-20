@@ -1,12 +1,19 @@
+"""Module to define the tk.Tk() instance that is the main window for playing the game on."""
+
+# Standard library imports
+import logging
+import sys
+import tkinter as tk
+
+# Local application imports
 from game.app.game_base_class import NoughtsAndCrossesEssentialParameters
+
+# Local application GUI imports
 from tkinter_gui.constants.dimensions import MainWindowDimensions
 from tkinter_gui.constants.style_and_colours import Colour
 from tkinter_gui.app.main_game_window.active_game_frames_minimax import ActiveGameFramesMinimax
 from tkinter_gui.app.main_game_window.historic_info_frame import HistoricInfoFrame
 from tkinter_gui.app.main_game_window.main_game_widget_manager import MainWindowWidgetManager
-import sys
-import logging
-import tkinter as tk
 
 
 class PlayingWindow:
